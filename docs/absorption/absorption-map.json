@@ -1,0 +1,1242 @@
+{
+  "generated": "2026-08-07",
+  "unit": "U4-absorb-staging",
+  "sources": [
+    "roam-css-dump-Svy-final.json",
+    "roam-css-dump-Readwisenotes-final.json"
+  ],
+  "entries": [
+    {
+      "uid": "A7CSCL_Xj",
+      "graph": "Svy",
+      "section": "(page root)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "roam/css page root \u2014 never deleted; the delete step prunes child blocks only."
+    },
+    {
+      "uid": "Q9TRLubNq",
+      "graph": "Svy",
+      "section": "(page header)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Attribution header ([[Beau Haan]] + help-link child), not CSS. Keep-or-delete is a user decision at delete time; nothing to absorb."
+    },
+    {
+      "uid": "XLsvabGsa",
+      "graph": "Svy",
+      "section": "(page header)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Attribution header ([[Beau Haan]] + help-link child), not CSS. Keep-or-delete is a user decision at delete time; nothing to absorb."
+    },
+    {
+      "uid": "yszzuh5OV",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Section header; parent of the absorbed zettelkasten pill subtree \u2014 delete with it."
+    },
+    {
+      "uid": "2zXGgvL3a",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Fleeting Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "omK86lfhz",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Fleeting Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "lUZSxU-lo",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Literature Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "1fexkaont",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Literature Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "lKT6p2O4l",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Reference Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "7UoWj809C",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Reference Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "_He70tBud",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Translation Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "o5AWt7QpE",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Translation Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "xMGFszyOT",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Permanent Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "0P9BcRHyZ",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Permanent Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "zCbjUf9W5",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "De-2jKYJw",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "iDaEayugj",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "3tdMFu2ct",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "_OjXP2aaV",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "oxN7svJes",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "pLWAvy-TE",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name2\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "MMy83KhEd",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name2\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added). Readwisenotes copy carries the stale \"Project Notes2\" typo in its :before selector; Svy copy preferred."
+    },
+    {
+      "uid": "5orW_Llpt",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project2\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "zoWLqrbPu",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project2\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "m9ePbzAop",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name3\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "7AXlReulF",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name3\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added). Readwisenotes copy carries the stale \"Project Notes3\" typo in its :before selector; Svy copy preferred."
+    },
+    {
+      "uid": "A9zidYybZ",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project3\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "Ux1nWbRF1",
+      "graph": "Svy",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project3\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "PPU4GyMGp",
+      "graph": "Svy",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Structural parent ({{roam/css}} wrapper) of the absorbed Tufte block \u2014 delete with it."
+    },
+    {
+      "uid": "PqC9evHPE",
+      "graph": "Svy",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Structural parent ({{roam/css}} wrapper) of the absorbed Tufte block \u2014 delete with it."
+    },
+    {
+      "uid": "bAmWZzVLu",
+      "graph": "Svy",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Tufte sidenote layout absorbed into tufte-sidenotes (as-is; font-size tokenized; two depth-4 selectors collapsed)."
+    },
+    {
+      "uid": "DRc6hRs-a",
+      "graph": "Svy",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Section header; parent of the absorbed query-hiding subtree \u2014 delete with it."
+    },
+    {
+      "uid": "QLcKkohOp",
+      "graph": "Svy",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "{{roam/css}} wrapper; parent of the absorbed query blocks \u2014 delete with it."
+    },
+    {
+      "uid": "7mW5Y35og",
+      "graph": "Svy",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Query chrome-hiding rules absorbed into query-hiding (deduplicated across graphs)."
+    },
+    {
+      "uid": "Yn6OfT0Xg",
+      "graph": "Svy",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Query margin/offset rules absorbed into query-hiding (right-sidebar rule de-nested from #right-sidebar)."
+    },
+    {
+      "uid": "UFdlDNH7_",
+      "graph": "Svy",
+      "section": "Roam hide stuff",
+      "disposition": "absorbed",
+      "module": "focus-mode",
+      "reason": "Structural parent of the absorbed focus-mode block \u2014 delete with it."
+    },
+    {
+      "uid": "YLL35YvC3",
+      "graph": "Svy",
+      "section": "Roam hide stuff",
+      "disposition": "absorbed",
+      "module": "focus-mode",
+      "reason": "Structural parent of the absorbed focus-mode block \u2014 delete with it."
+    },
+    {
+      "uid": "OCiJyUaG7",
+      "graph": "Svy",
+      "section": "Roam hide stuff",
+      "disposition": "absorbed",
+      "module": "focus-mode",
+      "reason": "Structural parent of the absorbed focus-mode block \u2014 delete with it."
+    },
+    {
+      "uid": "hawxILKLf",
+      "graph": "Svy",
+      "section": "Roam hide stuff",
+      "disposition": "absorbed",
+      "module": "focus-mode",
+      "reason": ".rm-focus writing mode REWRITTEN into focus-mode: universal-descendant selectors removed, color tokenized, !important minimized."
+    },
+    {
+      "uid": "JigOx8P8f",
+      "graph": "Svy",
+      "section": "block references",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Structural parent of the absorbed block-references block \u2014 delete with it."
+    },
+    {
+      "uid": "xpabyByyQ",
+      "graph": "Svy",
+      "section": "block references",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Structural parent of the absorbed block-references block \u2014 delete with it."
+    },
+    {
+      "uid": "rX-EcakbY",
+      "graph": "Svy",
+      "section": "block references",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Block-ref clickable-area rules absorbed into misc (as-is)."
+    },
+    {
+      "uid": "s849QAoC1",
+      "graph": "Svy",
+      "section": "#N/A [[N/A]] tags",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Section header; parent of the absorbed N/A-hiding block \u2014 delete with it."
+    },
+    {
+      "uid": "lKDa7t4Bh",
+      "graph": "Svy",
+      "section": "#N/A [[N/A]] tags",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "N/A + hide-this tag hiding absorbed into misc (as-is, deduplicated across graphs)."
+    },
+    {
+      "uid": "0BYlFRskQ",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Section header; parent of the absorbed productivity pill subtree \u2014 delete with it."
+    },
+    {
+      "uid": "KP_dotxk9",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Inbox\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "fe6sq9Csr",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Inbox\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "d2RvwVWrB",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Inbox\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "IDtf10BcO",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Agenda\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "G4oBMjLDf",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Agenda\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "-07l6UQ8V",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Agenda\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "MSlKQHzO5",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Self-coaching\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "prP5e-8ku",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Self-coaching\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "XuxxXAdAo",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Self-coaching\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "0uX0LMDx-",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Morning plan\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "W4KFZkyoa",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Morning plan\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "FS3llN2uP",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Morning plan\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "9LaW24ErV",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Log\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "mXHDPZ2QF",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Log\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "ClmEyPNLs",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Log\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "Phc2JZtb5",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Weekly Accomplishments\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "7COQNrrO0",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Weekly Accomplishments\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "GfwC2Ap2L",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Weekly Accomplishments\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "Saafs1jNH",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Daily Tasks\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "JZOCcx6gz",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Daily Tasks\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "7M565fUBx",
+      "graph": "Svy",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Daily Tasks\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "todo-progress-css-parent",
+      "graph": "Svy",
+      "section": "TODO Progress Bar STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Section header of the extension-owned block below \u2014 stays; the extension rewrites it on every update."
+    },
+    {
+      "uid": "roam-render-todo-progress-css",
+      "graph": "Svy",
+      "section": "TODO Progress Bar STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Extension-owned (TODO Progress Bar roam-render component; self-declares overwritten on every version update). Exception per U4 scope expansion \u2014 stays in roam/css. Note: the two graphs carry different extension versions (Svy adds circle styles); both stay as-is."
+    },
+    {
+      "uid": "GzIhSfqa9",
+      "graph": "Svy",
+      "section": "Block ref number",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Section header of the dead block below \u2014 delete with it; nothing to absorb."
+    },
+    {
+      "uid": "ZrnX-4T08",
+      "graph": "Svy",
+      "section": "Block ref number",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Fully commented-out dead code (block-ref-count-button experiment). Preserved in the vendor backup and deleted per the U4 scope expansion; NOT absorbed."
+    },
+    {
+      "uid": "P6IF_dYG3",
+      "graph": "Svy",
+      "section": "Reference inline",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Structural parent of the absorbed footnote-count block \u2014 delete with it."
+    },
+    {
+      "uid": "GGmNWf9n-",
+      "graph": "Svy",
+      "section": "Reference inline",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Structural parent of the absorbed footnote-count block \u2014 delete with it."
+    },
+    {
+      "uid": "SnIWmab2q",
+      "graph": "Svy",
+      "section": "Reference inline",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Structural parent of the absorbed footnote-count block \u2014 delete with it."
+    },
+    {
+      "uid": "JtmRbVWeB",
+      "graph": "Svy",
+      "section": "Reference inline",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Block-ref footnote-count styling absorbed into misc (colors tokenized with dark variants; empty .rm-reference-footnote rule dropped)."
+    },
+    {
+      "uid": "I_JhY4H_b",
+      "graph": "Svy",
+      "section": "Better date picker",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Section header; parent of the absorbed date-picker block \u2014 delete with it."
+    },
+    {
+      "uid": "jP9X6o2vJ",
+      "graph": "Svy",
+      "section": "Better date picker",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Date-picker today outline absorbed into misc (as-is; currentColor outline is already mode-safe)."
+    },
+    {
+      "uid": "gv1mfM1xr",
+      "graph": "Svy",
+      "section": "Mermaid full-width charts",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Section header; parent of the absorbed mermaid block \u2014 delete with it."
+    },
+    {
+      "uid": "V23Bpf_1E",
+      "graph": "Svy",
+      "section": "Mermaid full-width charts",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Mermaid full-width rules absorbed into misc (background: white \u2192 var(--svy-raised) surface token; scoping untouched)."
+    },
+    {
+      "uid": "A7CSCL_Xj",
+      "graph": "Readwisenotes",
+      "section": "(page root)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "roam/css page root \u2014 never deleted; the delete step prunes child blocks only."
+    },
+    {
+      "uid": "Q9TRLubNq",
+      "graph": "Readwisenotes",
+      "section": "(page header)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Attribution header ([[Beau Haan]] + help-link child), not CSS. Keep-or-delete is a user decision at delete time; nothing to absorb."
+    },
+    {
+      "uid": "XLsvabGsa",
+      "graph": "Readwisenotes",
+      "section": "(page header)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Attribution header ([[Beau Haan]] + help-link child), not CSS. Keep-or-delete is a user decision at delete time; nothing to absorb."
+    },
+    {
+      "uid": "yszzuh5OV",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Section header; parent of the absorbed zettelkasten pill subtree \u2014 delete with it."
+    },
+    {
+      "uid": "2zXGgvL3a",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Fleeting Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "omK86lfhz",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Fleeting Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "lUZSxU-lo",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Literature Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "1fexkaont",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Literature Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "lKT6p2O4l",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Reference Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "7UoWj809C",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Reference Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "_He70tBud",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Translation Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "o5AWt7QpE",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Translation Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "xMGFszyOT",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Permanent Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "0P9BcRHyZ",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Permanent Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "zCbjUf9W5",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Notes\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "De-2jKYJw",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Notes\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "iDaEayugj",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "3tdMFu2ct",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "_OjXP2aaV",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "oxN7svJes",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "pLWAvy-TE",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name2\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "MMy83KhEd",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name2\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added). Readwisenotes copy carries the stale \"Project Notes2\" typo in its :before selector; Svy copy preferred."
+    },
+    {
+      "uid": "5orW_Llpt",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project2\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "zoWLqrbPu",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project2\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "m9ePbzAop",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Project Name3\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "7AXlReulF",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Project Name3\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added). Readwisenotes copy carries the stale \"Project Notes3\" typo in its :before selector; Svy copy preferred."
+    },
+    {
+      "uid": "A9zidYybZ",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "Tag label block for \"Relevant Project3\"; parent of absorbed CSS \u2014 delete with it."
+    },
+    {
+      "uid": "Ux1nWbRF1",
+      "graph": "Readwisenotes",
+      "section": "Zettelkasten Tags",
+      "disposition": "absorbed",
+      "module": "zettelkasten-pills",
+      "reason": "\"Relevant Project3\" pill CSS absorbed into zettelkasten-pills (tokenized, dark variants added)."
+    },
+    {
+      "uid": "PPU4GyMGp",
+      "graph": "Readwisenotes",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Structural parent ({{roam/css}} wrapper) of the absorbed Tufte block \u2014 delete with it."
+    },
+    {
+      "uid": "PqC9evHPE",
+      "graph": "Readwisenotes",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Structural parent ({{roam/css}} wrapper) of the absorbed Tufte block \u2014 delete with it."
+    },
+    {
+      "uid": "bAmWZzVLu",
+      "graph": "Readwisenotes",
+      "section": "Tufte Style Notes",
+      "disposition": "absorbed",
+      "module": "tufte-sidenotes",
+      "reason": "Tufte sidenote layout absorbed into tufte-sidenotes (as-is; font-size tokenized; two depth-4 selectors collapsed)."
+    },
+    {
+      "uid": "DRc6hRs-a",
+      "graph": "Readwisenotes",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Section header; parent of the absorbed query-hiding subtree \u2014 delete with it."
+    },
+    {
+      "uid": "QLcKkohOp",
+      "graph": "Readwisenotes",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "{{roam/css}} wrapper; parent of the absorbed query blocks \u2014 delete with it."
+    },
+    {
+      "uid": "Yn6OfT0Xg",
+      "graph": "Readwisenotes",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Query margin/offset rules absorbed into query-hiding (right-sidebar rule de-nested from #right-sidebar)."
+    },
+    {
+      "uid": "7mW5Y35og",
+      "graph": "Readwisenotes",
+      "section": "Roam Query",
+      "disposition": "absorbed",
+      "module": "query-hiding",
+      "reason": "Query chrome-hiding rules absorbed into query-hiding (deduplicated across graphs)."
+    },
+    {
+      "uid": "s849QAoC1",
+      "graph": "Readwisenotes",
+      "section": "#N/A [[N/A]] tags",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "Section header; parent of the absorbed N/A-hiding block \u2014 delete with it."
+    },
+    {
+      "uid": "lKDa7t4Bh",
+      "graph": "Readwisenotes",
+      "section": "#N/A [[N/A]] tags",
+      "disposition": "absorbed",
+      "module": "misc",
+      "reason": "N/A + hide-this tag hiding absorbed into misc (as-is, deduplicated across graphs)."
+    },
+    {
+      "uid": "todo-progress-css-parent",
+      "graph": "Readwisenotes",
+      "section": "TODO PROGRESS BAR STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Section header of the extension-owned block below \u2014 stays; the extension rewrites it on every update."
+    },
+    {
+      "uid": "roam-render-todo-progress-css",
+      "graph": "Readwisenotes",
+      "section": "TODO PROGRESS BAR STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Extension-owned (TODO Progress Bar roam-render component; self-declares overwritten on every version update). Exception per U4 scope expansion \u2014 stays in roam/css. Note: the two graphs carry different extension versions (Svy adds circle styles); both stay as-is."
+    },
+    {
+      "uid": "0BYlFRskQ",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Section header; parent of the absorbed productivity pill subtree \u2014 delete with it."
+    },
+    {
+      "uid": "KP_dotxk9",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Inbox\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "fe6sq9Csr",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Inbox\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "d2RvwVWrB",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Inbox\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "IDtf10BcO",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Agenda\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "G4oBMjLDf",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Agenda\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "-07l6UQ8V",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Agenda\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "MSlKQHzO5",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Self-coaching\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "prP5e-8ku",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Self-coaching\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "XuxxXAdAo",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Self-coaching\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "0uX0LMDx-",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Morning plan\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "W4KFZkyoa",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Morning plan\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "FS3llN2uP",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Morning plan\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "9LaW24ErV",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Log\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "mXHDPZ2QF",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Log\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "ClmEyPNLs",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Log\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "Phc2JZtb5",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Weekly Accomplishments\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "7COQNrrO0",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Weekly Accomplishments\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "GfwC2Ap2L",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Weekly Accomplishments\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "Saafs1jNH",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Daily Tasks\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "JZOCcx6gz",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "Structural parent of the absorbed \"Daily Tasks\" pill \u2014 delete with it."
+    },
+    {
+      "uid": "7M565fUBx",
+      "graph": "Readwisenotes",
+      "section": "Productivity Tags",
+      "disposition": "absorbed",
+      "module": "productivity-pills",
+      "reason": "\"Daily Tasks\" pill CSS absorbed into productivity-pills (consumes the revived 13 legacy tokens; dark chip border added)."
+    },
+    {
+      "uid": "tag-cycle-css-parent",
+      "graph": "Readwisenotes",
+      "section": "Tag Cycle Component STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Section header of the extension-owned block below \u2014 stays."
+    },
+    {
+      "uid": "roam-render-tag-cycle-css",
+      "graph": "Readwisenotes",
+      "section": "Tag Cycle Component STYLE",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Extension-owned (Tag Cycle roam-render component). Same exception as todo-progress \u2014 stays in roam/css."
+    },
+    {
+      "uid": "9zhm-XQRp",
+      "graph": "Readwisenotes",
+      "section": "H1 BULLET / CARET ALIGNMENT",
+      "disposition": "superseded",
+      "module": null,
+      "reason": "Section header of the superseded H1 caret patch \u2014 delete with it."
+    },
+    {
+      "uid": "9y_EINQzN",
+      "graph": "Readwisenotes",
+      "section": "H1 BULLET / CARET ALIGNMENT",
+      "disposition": "superseded",
+      "module": null,
+      "reason": "H1 caret alignment patch: superseded by the theme's U2 heading fix. Also a no-op today \u2014 its only active declaration is the invalid unitless `padding-top: 2`. Delete, do not absorb."
+    },
+    {
+      "uid": "muaOHAkVD",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches (absent from final dump)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Roam Grid dark portals patch \u2014 routed to 20-plugins.css review (other unit). NOT present in roam-css-dump-Svy-final.json; verify against the live graph before the delete step."
+    },
+    {
+      "uid": "5bvTkzGk6",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches (absent from final dump)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Svy Beam live copy \u2014 becomes layer 40 in U5 (other unit). NOT present in roam-css-dump-Svy-final.json; verify against the live graph before the delete step."
+    },
+    {
+      "uid": "df2k3doEA",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches (absent from final dump)",
+      "disposition": "excluded",
+      "module": null,
+      "reason": "Find-or-Create dark input fix \u2014 routed to 20-plugins.css review (other unit). NOT present in roam-css-dump-Svy-final.json; verify against the live graph before the delete step."
+    },
+    {
+      "uid": "SNv_JgLvR",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "OCTXt56aj",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "XDrKQSOcf",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "vSOuEdoQ_",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "1AGdRN0_T",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "_SAZxdHOn",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "MM3LV4KWT",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    },
+    {
+      "uid": "IH9fv-m2Y",
+      "graph": "Svy",
+      "section": "Blueprint CSS patches",
+      "disposition": "scaffolding",
+      "module": null,
+      "reason": "section header/marker; delete during cleanup after its CSS children are resolved by other units (source: svy-roam-css-dump-2026-08-07.json; absent from the -final dumps, like its CSS children)."
+    }
+  ]
+}

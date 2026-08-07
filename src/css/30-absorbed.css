@@ -1,1 +1,866 @@
-/* U4 — Absorbed Blueprint CSS patches and roam/css modules. */
+/* ============================================================================
+   30-absorbed.css — roam/css absorption layer (U4 staging)
+
+   Source: roam/css pages of the Svy and Readwisenotes graphs
+   (dumps: roam-css-dump-Svy-final.json, roam-css-dump-Readwisenotes-final.json,
+   2026-08-07). Token values: ~/research/2026-08-07-svy-theme-design-tokens.json.
+
+   Module order: tokens, zettelkasten-pills, productivity-pills,
+   tufte-sidenotes, query-hiding, misc, focus-mode.
+   Every module is independently removable (banner to banner). The only
+   permitted cross-module dependency is on the `tokens` module.
+
+   Mandatory dark-signal pattern for every dark override:
+     :root.bp3-dark <sel>, body.bt-theme-dark <sel>, .rm-dark-theme <sel>,
+     body.roam-body.dark <sel> { ... }
+     @media (prefers-color-scheme: dark) { :root:not(.bp3-light) <sel> { ... } }
+   (Never `body.bp3-dark` — bp3-dark lives on <html>.)
+
+   Selector discipline (campaign perf contract): no `*` in any descendant
+   position, no depth-4+ descendant chains, attribute substring matches only
+   on the .rm-focus container and the .list-query mechanism where no class
+   exists.
+   ========================================================================== */
+
+
+/* --- module: tokens ---------------------------------------------------------
+   Revives the 13 legacy custom properties consumed by the productivity pills.
+   They have been defined NOWHERE since the pre-Blueprint theme was removed
+   (measured 2026-08-07), so the pills currently render unstyled. Each legacy
+   property is now an ALIAS of a canonical --svy-* token; palette values come
+   from the research JSON (palette.light on :root, palette.dark under the five
+   dark signals — the palettes are independently calibrated, never derived
+   one from the other).
+
+   INTEGRATION NOTE (U5): the --svy-* palette primitives below are fallback
+   definitions so this layer is self-contained. When the theme's canonical
+   token layer defines the same names, delete the primitive blocks here and
+   keep only the aliases and the chip-metric tokens.
+   ------------------------------------------------------------------------- */
+
+:root {
+  /* --svy-* palette primitives (palette.light) — fallback defs, see note. */
+  --svy-canvas: #FFFFFF;
+  --svy-raised: #FFFFFF;
+  --svy-selected: #DBEAF7;
+  --svy-text: #182026;
+  --svy-text-strong: #10161A;
+  --svy-tag-border: #A7B6C2;
+  --svy-accent: #137CBD;
+  --svy-danger: #A82A2A;
+  --svy-warning: #935610;
+  --svy-success: #0A6640;
+
+  /* Chip metric tokens. The old theme's values are lost; these reproduce the
+     exact geometry of the absorbed pill corpus (padding 2px 5px, 13px/1em,
+     weight 500, radius 5px, position relative). Deliberately off the 4px
+     spacing grid: these pad inline text chips, not layout. Mode-invariant —
+     the research forbids dark-mode type-size changes. */
+  --svy-tag-pad: 2px 5px;
+  --svy-tag-fs: 13px;
+  --svy-tag-lh: 1em;
+  --svy-tag-fw: 500;
+  --svy-tag-radius: 5px;
+  --svy-tag-position: relative;
+
+  /* The 13 legacy aliases. Mapping rationale:
+     --black → text-strong: near-black ink; in dark it flips to #E1E8ED so
+               black-chip/white-text pills (Inbox) invert instead of going
+               dark-on-dark.
+     --white → canvas: page white; in dark it flips to the dark canvas so
+               light-chip/dark-text pills (Self-coaching, Weekly) keep
+               readable contrast.
+     --deepblue → accent: the palette's blue accent (Agenda fill).
+     --red    → danger (Self-coaching border/text).
+     --skyblue → selected: the palette's light-blue fill (Morning plan fill).
+     --green  → success (Daily Tasks fill).
+     --gold   → warning/amber (Weekly Accomplishments border/text). */
+  --tagpad: var(--svy-tag-pad);
+  --tagfont-size: var(--svy-tag-fs);
+  --tagline-height: var(--svy-tag-lh);
+  --tagfont-weight: var(--svy-tag-fw);
+  --tagborder-radius: var(--svy-tag-radius);
+  --tagposition: var(--svy-tag-position);
+  --black: var(--svy-text-strong);
+  --white: var(--svy-canvas);
+  --deepblue: var(--svy-accent);
+  --red: var(--svy-danger);
+  --skyblue: var(--svy-selected);
+  --green: var(--svy-success);
+  --gold: var(--svy-warning);
+}
+
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark {
+  /* palette.dark — same primitives, independently calibrated values.
+     Chip metrics are intentionally NOT redeclared: mode-invariant. */
+  --svy-canvas: #182026;
+  --svy-raised: #293742;
+  --svy-selected: #33485C;
+  --svy-text: #E1E8ED;
+  --svy-text-strong: #E1E8ED;
+  --svy-tag-border: #5C7080;
+  --svy-accent: #48AFF0;
+  --svy-danger: #FF9C9C;
+  --svy-warning: #F5D06B;
+  --svy-success: #8FE0BC;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-canvas: #182026;
+    --svy-raised: #293742;
+    --svy-selected: #33485C;
+    --svy-text: #E1E8ED;
+    --svy-text-strong: #E1E8ED;
+    --svy-tag-border: #5C7080;
+    --svy-accent: #48AFF0;
+    --svy-danger: #FF9C9C;
+    --svy-warning: #F5D06B;
+    --svy-success: #8FE0BC;
+  }
+}
+
+
+/* --- module: zettelkasten-pills ---------------------------------------------
+   Sources: Svy + Readwisenotes "> Zettelkasten Tags" sections (12 tag blocks
+   per graph). The two graphs carry near-identical copies — deduplicated to
+   one module. The Svy copy is preferred: the Readwisenotes copies of
+   "Project Name2"/"Project Name3" still carry the stale "Project Notes2/3"
+   typo in their :before selector (fixed in Svy in-graph 2026-08-07).
+
+   Three pill families, consolidated with per-tag hue tokens:
+     A. white chip, hue border  — Fleeting/Literature/Reference/Translation
+     B. white chip, hue text    — Relevant Notes/Project/Project2/Project3
+     C. solid hue chip + arrow  — Permanent Notes, Project Name/2/3
+
+   Changes vs original: hardcoded #fff/white/#000 replaced by module tokens;
+   near-white half-pill text (#F3F7F2/#F5F8FA) gets dark variants in the
+   #E1E8ED band (never #FFFFFF on dark); dark chips carry a VISIBLE border
+   (hues lightened into the #5C7080 luminance band — fills are decoration,
+   the border is the semantic signal); light-mode rendering is byte-for-byte
+   the legacy look.
+   ------------------------------------------------------------------------- */
+
+:root {
+  /* shared flippables (light values reproduce the legacy rendering) */
+  --svy-zk-bg: #FFFFFF;
+  --svy-zk-fg: #000000;
+  --svy-zk-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px #DFDFDF;
+  --svy-zk-relevant-bd: #FFFFFF;
+  --svy-zk-half-b-fg: #F3F7F2;
+  --svy-zk-half-b-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;
+  --svy-zk-half-c-fg: #F5F8FA;
+  --svy-zk-solid-fg: #FFFFFF;
+  --svy-zk-solid-fg-lighthue: #FFFFFF;
+  /* family A hue borders (legacy 25%-alpha hex) */
+  --svy-zk-fleeting-bd: #f21da140;
+  --svy-zk-literature-bd: #215F0040;
+  --svy-zk-reference-bd: #f26e1d40;
+  --svy-zk-translation-bd: #391DF240;
+  /* family B hue text */
+  --svy-zk-relevantnotes-fg: #1DA1F2;
+  --svy-zk-relevantproject-fg: #6A5ACD;
+  --svy-zk-relevantproject2-fg: #1877F2;
+  --svy-zk-relevantproject3-fg: #81D8D0;
+}
+
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark {
+  --svy-zk-bg: #293742;        /* palette.dark.raised */
+  --svy-zk-fg: #E1E8ED;        /* palette.dark.text band, never #FFFFFF */
+  --svy-zk-shadow: none;       /* light-mode shadows read as smudges on dark */
+  --svy-zk-relevant-bd: #5C7080;  /* palette.dark.border-subtle: border is the signal */
+  --svy-zk-half-b-fg: #E1E8ED;
+  --svy-zk-half-b-shadow: none;
+  --svy-zk-half-c-fg: #E1E8ED;
+  --svy-zk-solid-fg: #E1E8ED;
+  --svy-zk-solid-fg-lighthue: #182026;  /* Project Name3 sits on light teal */
+  /* hue borders lightened to full-alpha equivalents in the #5C7080 band */
+  --svy-zk-fleeting-bd: #F266C2;
+  --svy-zk-literature-bd: #7CBF60;
+  --svy-zk-reference-bd: #F59A5E;
+  --svy-zk-translation-bd: #9A8CFA;
+  /* hue text lightened where the legacy hue is too dark for dark surfaces;
+     #81D8D0 is already a light hue and keeps its value */
+  --svy-zk-relevantnotes-fg: #5EB2F5;
+  --svy-zk-relevantproject-fg: #ADA4FF;
+  --svy-zk-relevantproject2-fg: #7FB4F7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-zk-bg: #293742;
+    --svy-zk-fg: #E1E8ED;
+    --svy-zk-shadow: none;
+    --svy-zk-relevant-bd: #5C7080;
+    --svy-zk-half-b-fg: #E1E8ED;
+    --svy-zk-half-b-shadow: none;
+    --svy-zk-half-c-fg: #E1E8ED;
+    --svy-zk-solid-fg: #E1E8ED;
+    --svy-zk-solid-fg-lighthue: #182026;
+    --svy-zk-fleeting-bd: #F266C2;
+    --svy-zk-literature-bd: #7CBF60;
+    --svy-zk-reference-bd: #F59A5E;
+    --svy-zk-translation-bd: #9A8CFA;
+    --svy-zk-relevantnotes-fg: #5EB2F5;
+    --svy-zk-relevantproject-fg: #ADA4FF;
+    --svy-zk-relevantproject2-fg: #7FB4F7;
+  }
+}
+
+/* Families A + B shared base: white chip geometry (8 tags, identical in the
+   legacy corpus except hue). */
+span.rm-page-ref[data-tag="Fleeting Notes"],
+span.rm-page-ref[data-tag="Literature Notes"],
+span.rm-page-ref[data-tag="Reference Notes"],
+span.rm-page-ref[data-tag="Translation Notes"],
+span.rm-page-ref[data-tag="Relevant Notes"],
+span.rm-page-ref[data-tag="Relevant Project"],
+span.rm-page-ref[data-tag="Relevant Project2"],
+span.rm-page-ref[data-tag="Relevant Project3"] {
+  background: var(--svy-zk-bg);
+  background-size: 100%;
+  color: var(--svy-zk-fg);
+  padding: var(--svy-tag-pad);
+  font-size: var(--svy-tag-fs);
+  line-height: var(--svy-tag-lh);
+  font-weight: var(--svy-tag-fw);
+  border-radius: var(--svy-tag-radius);
+  border-style: solid;
+  border-width: thin;
+  position: relative;
+  box-shadow: var(--svy-zk-shadow);
+}
+
+/* Family A per-tag: hue border, neutral text. */
+span.rm-page-ref[data-tag="Fleeting Notes"]    { border-color: var(--svy-zk-fleeting-bd); }
+span.rm-page-ref[data-tag="Literature Notes"]  { border-color: var(--svy-zk-literature-bd); }
+span.rm-page-ref[data-tag="Reference Notes"]   { border-color: var(--svy-zk-reference-bd); }
+span.rm-page-ref[data-tag="Translation Notes"] { border-color: var(--svy-zk-translation-bd); }
+
+/* Family B per-tag: hue text, white (dark: border-subtle) border. */
+span.rm-page-ref[data-tag="Relevant Notes"] {
+  color: var(--svy-zk-relevantnotes-fg);
+  border-color: var(--svy-zk-relevant-bd);
+}
+span.rm-page-ref[data-tag="Relevant Project"] {
+  color: var(--svy-zk-relevantproject-fg);
+  border-color: var(--svy-zk-relevant-bd);
+}
+span.rm-page-ref[data-tag="Relevant Project2"] {
+  color: var(--svy-zk-relevantproject2-fg);
+  border-color: var(--svy-zk-relevant-bd);
+}
+span.rm-page-ref[data-tag="Relevant Project3"] {
+  color: var(--svy-zk-relevantproject3-fg);
+  border-color: var(--svy-zk-relevant-bd);
+}
+
+/* Family B linked half-pill (the [[page]] half right of the tag chip). */
+span.rm-page-ref[data-tag="Relevant Notes"] + span[data-link-title],
+span.rm-page-ref[data-tag="Relevant Project"] + span[data-link-title],
+span.rm-page-ref[data-tag="Relevant Project2"] + span[data-link-title],
+span.rm-page-ref[data-tag="Relevant Project3"] + span[data-link-title] {
+  background: #1DA1F210 !important;
+  color: var(--svy-zk-half-b-fg) !important;
+  padding: 3px 5px 3px 8px;
+  font-size: var(--svy-tag-fs);
+  line-height: var(--svy-tag-lh);
+  font-weight: 400;
+  border-radius: 0 5px 5px 0;
+  margin-left: -8px;
+  box-shadow: var(--svy-zk-half-b-shadow);
+}
+
+/* Family C: solid hue chip. --svy-zk-solid carries the per-tag hue so the
+   chip, the arrow pseudos and the dark overrides all read one token. */
+span.rm-page-ref[data-tag="Permanent Notes"],
+span.rm-page-ref[data-tag="Project Name"],
+span.rm-page-ref[data-tag="Project Name2"],
+span.rm-page-ref[data-tag="Project Name3"] {
+  background-color: var(--svy-zk-solid);
+  background-size: 100%;
+  color: var(--svy-zk-solid-fg);
+  padding: var(--svy-tag-pad);
+  font-size: var(--svy-tag-fs);
+  line-height: var(--svy-tag-lh);
+  font-weight: var(--svy-tag-fw);
+  border-radius: 3px 0 0 3px;
+  position: relative;
+  box-shadow: var(--svy-zk-shadow);
+}
+span.rm-page-ref[data-tag="Permanent Notes"] {
+  --svy-zk-solid: #1DA1F2;
+  background-image: linear-gradient(90deg, #1DA1F2, #1DA1F2);
+  /* #E1E8ED on the un-flipped #1DA1F2 fill measures Lc 43.3 (floor 45) —
+     route dark text through the dark-ink branch (#182026, Lc 47.7). */
+  color: var(--svy-zk-solid-fg-lighthue);
+}
+span.rm-page-ref[data-tag="Project Name"]  { --svy-zk-solid: #6A5ACD; }
+span.rm-page-ref[data-tag="Project Name2"] { --svy-zk-solid: #1877F2; }
+span.rm-page-ref[data-tag="Project Name3"] {
+  --svy-zk-solid: #81D8D0;
+  color: var(--svy-zk-solid-fg-lighthue);  /* light teal fill: dark text in dark mode */
+}
+
+/* Family C linked half-pill. */
+span.rm-page-ref[data-tag="Permanent Notes"] + span[data-link-title],
+span.rm-page-ref[data-tag="Project Name"] + span[data-link-title],
+span.rm-page-ref[data-tag="Project Name2"] + span[data-link-title],
+span.rm-page-ref[data-tag="Project Name3"] + span[data-link-title] {
+  background: #1DA1F21E !important;
+  color: var(--svy-zk-half-c-fg) !important;
+  padding: 3px 5px 3px 15px;
+  font-size: var(--svy-tag-fs);
+  line-height: var(--svy-tag-lh);
+  font-weight: 400;
+  border-radius: 0 3px 3px 0;
+  margin-left: -5px;
+}
+
+/* Family C arrow (the legacy :after and :before rules were identical —
+   merged into one). */
+span.rm-page-ref[data-tag="Permanent Notes"]:after,
+span.rm-page-ref[data-tag="Permanent Notes"]:before,
+span.rm-page-ref[data-tag="Project Name"]:after,
+span.rm-page-ref[data-tag="Project Name"]:before,
+span.rm-page-ref[data-tag="Project Name2"]:after,
+span.rm-page-ref[data-tag="Project Name2"]:before,
+span.rm-page-ref[data-tag="Project Name3"]:after,
+span.rm-page-ref[data-tag="Project Name3"]:before {
+  left: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-left-color: var(--svy-zk-solid);
+  border-width: 10px;
+  margin-top: -10px;
+}
+
+
+/* --- module: productivity-pills ---------------------------------------------
+   Sources: Svy + Readwisenotes "Productivity Tags" sections (7 pills per
+   graph, byte-identical across graphs). These consume the 13 legacy tokens —
+   the tokens module above is what revives them.
+
+   Changes vs original: `saddlebrown` keyword moved to a flippable token
+   (dark needs a lighter brown for the flipped dark text); pills that had no
+   border get the dark-mode semantic border via --svy-prod-chip-bd (none in
+   light, 1px #5C7080-band in dark); everything else preserved exactly,
+   including Inbox's legacy 1.0em size (it never consumed the size tokens).
+   ------------------------------------------------------------------------- */
+
+:root {
+  --svy-prod-log-bg: #8B4513;   /* legacy `saddlebrown` */
+  --svy-prod-chip-bd: none;     /* dark mode adds the semantic border */
+}
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark {
+  --svy-prod-log-bg: #C79A6E;   /* lighter brown: dark flipped text stays readable */
+  --svy-prod-chip-bd: 1px solid var(--svy-tag-border);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-prod-log-bg: #C79A6E;
+    --svy-prod-chip-bd: 1px solid var(--svy-tag-border);
+  }
+}
+
+span.rm-page-ref[data-tag="Inbox"],
+span[data-link-title="Inbox"] {
+  background: var(--black);
+  color: var(--white);
+  padding: var(--tagpad);
+  font-size: 1.0em;
+  line-height: 1.0em;
+  font-weight: 500;
+  border: var(--svy-prod-chip-bd);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span.rm-page-ref[data-tag="Inbox"]:before,
+span[data-link-title="Inbox"]:before {
+  content: '📥 ';
+}
+span[data-link-title="Inbox"] .rm-page-ref {
+  color: var(--white) !important;
+  font-weight: 500;
+}
+
+span[data-link-title="Agenda"] {
+  background: var(--deepblue);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border: var(--svy-prod-chip-bd);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Agenda"] .rm-page-ref {
+  color: var(--white) !important;
+}
+span[data-link-title="Agenda"]:before {
+  content: '📃 ';
+}
+
+span[data-link-title="Self-coaching"] {
+  background: var(--white);
+  border: .5px solid var(--red);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Self-coaching"] .rm-page-ref {
+  color: var(--red) !important;
+}
+span[data-link-title="Self-coaching"]:before {
+  content: '🩺 '
+}
+
+span[data-link-title="Morning plan"] {
+  background: var(--skyblue);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border: var(--svy-prod-chip-bd);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Morning plan"] .rm-page-ref {
+  color: var(--black) !important;
+}
+span[data-link-title="Morning plan"]:before {
+  content: '⛅ '
+}
+
+span[data-link-title="Log"] {
+  background: var(--svy-prod-log-bg);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border: var(--svy-prod-chip-bd);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Log"] .rm-page-ref {
+  color: var(--white) !important;
+}
+span[data-link-title="Log"]:before {
+  content: '⏱ '
+}
+
+span[data-link-title="Weekly Accomplishments"] {
+  background: var(--white);
+  border: .5px solid var(--gold);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Weekly Accomplishments"] .rm-page-ref {
+  color: var(--gold) !important;
+}
+span[data-link-title="Weekly Accomplishments"]:before {
+  content: '🏆 '
+}
+
+span[data-link-title="Daily Tasks"] {
+  background: var(--green);
+  padding: var(--tagpad);
+  font-size: var(--tagfont-size);
+  line-height: var(--tagline-height);
+  font-weight: var(--tagfont-weight);
+  border: var(--svy-prod-chip-bd);
+  border-radius: var(--tagborder-radius);
+  position: var(--tagposition);
+}
+span[data-link-title="Daily Tasks"] .rm-page-ref {
+  color: var(--white) !important;
+}
+span[data-link-title="Daily Tasks"]:before {
+  content: '🔁 '
+}
+
+
+/* --- module: tufte-sidenotes ------------------------------------------------
+   Sources: Svy + Readwisenotes "Tufte Style Notes" (byte-identical across
+   graphs). Absorbed as-is — it is layout, not color. The one font-size is
+   tokenized (--svy-sidenote-fs, kept at the legacy 0.85rem rather than
+   snapped to --svy-fs-sm/14px so nothing visually changes on upgrade).
+   ------------------------------------------------------------------------- */
+
+:root {
+  --svy-sidenote-fs: 0.85rem;
+}
+
+.rm-article-wrapper .rm-block--side,
+.rm-sidebar-outline-wrapper .rm-block--side {
+  display: block;
+  background-color: transparent;
+}
+
+.rm-article-wrapper .rm-block--side__children,
+.rm-sidebar-outline-wrapper .rm-block--side .rm-block--side__children {
+  display: block;
+  border: none;
+  margin-left: 27px;
+  background-color: transparent;
+}
+
+@media screen and (min-width: 900px) {
+  .rm-article-wrapper .rm-block--side {
+    display: flex;
+  }
+
+  .rm-article-wrapper .rm-block--side .rm-block--side__children {
+    min-width: 25%;
+    max-width: 25%;
+  }
+
+  /* `.rm-block--side__children` only exists under `.rm-block--side`, so the
+     middle segment is redundant — collapsing it keeps the chain under the
+     depth-4 ceiling (original was depth 4). */
+  .rm-article-wrapper .rm-block--side .rm-inline-img__resize,
+  .rm-article-wrapper .rm-block--side__children .rm-inline-img,
+  .rm-article-wrapper .rm-block--side__children .react-resizable {
+    max-width: 100%;
+  }
+
+  .rm-article-wrapper .rm-block--side__children div {
+    font-size: var(--svy-sidenote-fs);
+  }
+
+  .rm-article-wrapper .rm-block--side__children .rm-block-input {
+    font-size: var(--svy-sidenote-fs) !important;
+  }
+
+  .rm-article-wrapper .rm-block--side .rm-block--side__children {
+    align-self: flex-start;
+  }
+}
+
+
+/* --- module: query-hiding ---------------------------------------------------
+   Sources: Svy + Readwisenotes "Roam Query" sections (both CSS blocks,
+   byte-identical across graphs). Hides the query chrome on blocks tagged
+   .list-query so only the results render. The [data-path-page-links*=...]
+   substring match is the mechanism — Roam emits no class for this.
+   Change vs original: the right-sidebar rule dropped its `#right-sidebar`
+   prefix (`.rm-sidebar-outline-wrapper` only exists inside the right
+   sidebar), bringing the chain under the depth-4 ceiling.
+   ------------------------------------------------------------------------- */
+
+.rm-block[data-path-page-links*=".list-query"] .rm-query {
+  margin-left: -28.5px;
+  margin-top: -14px;
+}
+
+.rm-sidebar-outline-wrapper .rm-block[data-path-page-links*=".list-query"] .rm-reference-main {
+  margin-top: 10px;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-title-arrow-wrapper,
+.rm-block[data-path-page-links*=".list-query"] .rm-query-content > span[style*="font-size: 0.9em;"],
+.rm-block[data-path-page-links*=".list-query"] .rm-query-title,
+.rm-block[data-path-page-links*=".list-query"] .rm-zoom {
+  display: none;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-query {
+  border: none;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-query .rm-query-content {
+  border-top: none !important;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-query,
+.rm-block[data-path-page-links*=".list-query"] .rm-search-query,
+.rm-block[data-path-page-links*=".list-query"] .rm-reference-item {
+  background: transparent;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-mentions .rm-ref-page-view:first-child {
+  border-top: none !important;
+}
+
+.rm-block[data-path-page-links*=".list-query"] .rm-reference-item {
+  margin: 0;
+}
+
+
+/* --- module: misc -----------------------------------------------------------
+   Svy-only small fixes, plus the N/A tag hider shared by both graphs
+   (byte-identical copies, deduplicated).
+   - block-ref clickable area (rX-EcakbY): as-is.
+   - date-picker today outline (jP9X6o2vJ): as-is — the dashed outline uses
+     currentColor, already correct in both modes.
+   - N/A + hide-this tag hiding (lKDa7t4Bh): as-is.
+   - block-ref footnote counts (JtmRbVWeB): legacy colors moved to flippable
+     tokens (light values preserved exactly; dark uses palette danger /
+     selected / text). The empty `.rm-reference-footnote {}` rule was dropped
+     as dead code.
+   - mermaid full-width (V23Bpf_1E): `background: white` → var(--svy-raised)
+     so the chart surface flips dark; the already-correct SVG scoping is
+     untouched.
+   ------------------------------------------------------------------------- */
+
+:root {
+  --svy-footnote-fg: #A11717;         /* legacy rgb(161,23,23) */
+  --svy-footnote-active-bg: #E9E9E9;  /* legacy rgb(233,233,233) */
+  --svy-footnote-active-fg: #000000;
+}
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark {
+  --svy-footnote-fg: var(--svy-danger);
+  --svy-footnote-active-bg: var(--svy-selected);
+  --svy-footnote-active-fg: var(--svy-text);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-footnote-fg: var(--svy-danger);
+    --svy-footnote-active-bg: var(--svy-selected);
+    --svy-footnote-active-fg: var(--svy-text);
+  }
+}
+
+/* Increase Clickable Area */
+.rm-reference-count-container {
+  padding: 5px; /* Add padding around the counter */
+}
+
+.rm-reference-count {
+  cursor: pointer; /* Show pointer cursor on hover */
+}
+
+/* Better date picker: outline today */
+.rm-jump-date-picker .DayPicker-Day--today {
+  outline: 2px dashed;
+  border-radius: 2rem;
+  outline-offset: -3px;
+}
+
+/* Hide N/A and hide-this tags */
+span.rm-page-ref[data-tag="N/A"],
+span.rm-page-ref[data-tag="hide-this"] {
+  display: none;
+}
+
+/* Block-ref footnote counts */
+.rm-block__ref-count-footnote {
+  color: var(--svy-footnote-fg);
+  font-size: 60%;
+  padding-right: 3px;
+}
+
+.rm-block__ref-count-footnote.rm-active {
+  background: var(--svy-footnote-active-bg);
+  color: var(--svy-footnote-active-fg);
+  font-size: 65%;
+  padding-left: 1.5px;
+  padding-right: 3px;
+}
+
+/* Mermaid full-width — maximize chart size in Roam.
+   Target Mermaid SVGs only. Do not change overflow on every Roam block:
+   that forces expensive layout during ordinary typing and deletion. */
+svg[aria-roledescription="gantt"],
+svg[aria-roledescription="pie"],
+svg[aria-roledescription="flowchart"],
+svg[aria-roledescription="sequence"],
+svg[role="graphics-document document"] {
+  max-width: none !important;
+  width: 95vw !important;
+  height: auto !important;
+  min-height: 750px;
+  position: relative;
+  left: calc(-1 * (95vw - 100%) / 2);
+  z-index: 10;
+  background: var(--svy-raised);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+}
+
+/* Bigger text inside mermaid charts */
+svg[role="graphics-document document"] text {
+  font-size: 14px !important;
+}
+svg[role="graphics-document document"] .titleText {
+  font-size: 22px !important;
+  font-weight: bold !important;
+}
+svg[role="graphics-document document"] .sectionTitle {
+  font-size: 14px !important;
+  font-weight: bold !important;
+}
+svg[role="graphics-document document"] .task {
+  height: 26px !important;
+}
+
+
+/* --- module: focus-mode -----------------------------------------------------
+   Source: Svy hawxILKLf ("Roam hide stuff" > #.rm-focus). REWRITTEN, not
+   copied: the original used `[data-page-links*=".rm-focus"] *` universal-
+   descendant selectors and `.rm-zoom ... *` — a style-recalc hazard of
+   exactly the shape this campaign exists to remove. Every rule now targets
+   the specific elements it needs; the substring attribute match appears
+   only on the container, once per rule, never combined with a bare `*`.
+
+   Features preserved exactly: hide bullets/controls; flatten indent and
+   remove left borders; serif 18px/1.7 reading typography; centered 750px
+   measure; hide ref chrome (block-ref backgrounds, blue highlight, page-ref
+   brackets, embed borders).
+
+   Fixes: hardcoded `color: #2d3748` is now --svy-focus-text with a dark
+   variant in the #E1E8ED band. `!important` is kept only where the base
+   layer genuinely forces it: the display:none chrome-hiding (Roam reveals
+   bullets/controls on hover) and the reading-typography declaration block
+   (theme/base layers style .rm-block-text heavily, including headings).
+   Everything else wins on specificity (attribute + class beats the class-
+   only base rules) and dropped its `!important`.
+   ------------------------------------------------------------------------- */
+
+:root {
+  --svy-focus-text: #2d3748;  /* legacy reading ink */
+}
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark {
+  --svy-focus-text: var(--svy-text);  /* #E1E8ED band */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-focus-text: var(--svy-text);
+  }
+}
+
+/* Hide bullets and block controls (both plain and zoomed-into contexts). */
+.roam-block-container[data-page-links*=".rm-focus"] .rm-bullet,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-bullet,
+.roam-block-container[data-page-links*=".rm-focus"] .simple-bullet-outer,
+.roam-block-container[data-page-links*=".rm-focus"] .simple-bullet-inner,
+.roam-block-container[data-page-links*=".rm-focus"] .controls,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block__controls,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-bullet,
+.rm-zoom[data-page-links*=".rm-focus"] .controls {
+  display: none !important;
+}
+
+/* Flatten hierarchy: no indent, no left/right borders, no guide shadows on
+   the structural elements that carry them. */
+.roam-block-container[data-page-links*=".rm-focus"] .roam-block,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-input,
+.rm-zoom[data-page-links*=".rm-focus"] .roam-block,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-main,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-text,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-input {
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+  outline: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+/* .rm-block-children split out: Roam emits inline margin-left on it in log
+   view, and inline styles beat any non-!important author rule. */
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-children {
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+  outline: none;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Roam's indent guide lines are drawn as border-right on the dedicated
+   .rm-multibar element (child of .rm-block-children) — the element only the
+   original's banned '*' selector reached. */
+.roam-block-container[data-page-links*=".rm-focus"] .rm-multibar,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-multibar {
+  border-right: none;
+}
+
+/* Pseudo-elements on the same named containers (the original nuked
+   *:before/*:after — that is the banned universal-descendant shape). */
+.roam-block-container[data-page-links*=".rm-focus"]:before,
+.roam-block-container[data-page-links*=".rm-focus"]:after,
+.roam-block-container[data-page-links*=".rm-focus"] .roam-block:before,
+.roam-block-container[data-page-links*=".rm-focus"] .roam-block:after,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children:before,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children:after,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main:before,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main:after,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text:before,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text:after {
+  border-left: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Reading typography: serif, 18px/1.7, tokenized ink. */
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-text {
+  font-size: 18px !important;
+  line-height: 1.7 !important;
+  font-family: "Georgia", "Times New Roman", serif !important;
+  color: var(--svy-focus-text) !important;
+  max-width: none !important;
+}
+
+/* Block rhythm. */
+.roam-block-container[data-page-links*=".rm-focus"] .roam-block,
+.rm-zoom[data-page-links*=".rm-focus"] .roam-block {
+  margin-bottom: 12px;
+  margin-top: 0;
+}
+
+/* Hide ref chrome. */
+.roam-block-container[data-page-links*=".rm-focus"] .rm-block-ref,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-block-ref,
+.roam-block-container[data-page-links*=".rm-focus"] .block-highlight-blue,
+.rm-zoom[data-page-links*=".rm-focus"] .block-highlight-blue {
+  background: transparent;
+  border: none;
+}
+.roam-block-container[data-page-links*=".rm-focus"] .rm-page-ref__brackets,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-page-ref__brackets {
+  display: none;
+}
+.roam-block-container[data-page-links*=".rm-focus"] .block-embed,
+.roam-block-container[data-page-links*=".rm-focus"] .rm-embed-container,
+.rm-zoom[data-page-links*=".rm-focus"] .block-embed,
+.rm-zoom[data-page-links*=".rm-focus"] .rm-embed-container {
+  border: none;
+  background: transparent;
+}
+
+/* Centered 750px reading measure + container chrome reset (the original
+   "nuclear option" border-left trio is covered by the flattening rules
+   above). The measure belongs to .roam-block-container ONLY — the .rm-zoom
+   container gets the border/outline/box-shadow reset but no measure. */
+.roam-block-container[data-page-links*=".rm-focus"],
+.rm-zoom .roam-block-container[data-page-links*=".rm-focus"] {
+  max-width: 750px !important;
+  margin: 0 auto !important;
+  padding: 20px;
+  border: none;
+  border-left: none;
+  outline: none;
+  box-shadow: none;
+}
+.rm-zoom[data-page-links*=".rm-focus"] {
+  border: none;
+  border-left: none;
+  outline: none;
+  box-shadow: none;
+}
