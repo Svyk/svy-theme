@@ -1,8 +1,8 @@
 {
-  "name": "roam-blueprint",
+  "name": "svy-theme",
   "version": "0.1.0",
   "private": true,
-  "description": "Performance fork of the Blueprint theme for Roam Research",
+  "description": "Svy Theme — a personal, performance-first Roam Research theme (forked from rcvd/blueprint)",
   "type": "module",
   "main": "extension.js",
   "scripts": {

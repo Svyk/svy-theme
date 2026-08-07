@@ -34,7 +34,7 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
   // behavior is covered by test/dm-toggle.test.js with an injected fake document.
   assert.deepEqual(api.calls, [
     ["setting:set", "bp-appearance", "auto"],
-    ["panel:create", "Blueprint (Svy fork)"],
+    ["panel:create", "Svy Theme"],
   ]);
 });
 
@@ -64,11 +64,11 @@ test("a second load disposes the previous runtime before registering again", asy
 
   assert.deepEqual(firstApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
-    ["panel:create", "Blueprint (Svy fork)"],
+    ["panel:create", "Svy Theme"],
   ]);
   assert.deepEqual(secondApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
-    ["panel:create", "Blueprint (Svy fork)"],
+    ["panel:create", "Svy Theme"],
   ]);
   await cleanup();
 });

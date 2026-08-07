@@ -1,4 +1,4 @@
-/* Blueprint (Svy fork) v0.1.0 | MIT | generated; edit src/ */
+/* Svy Theme v0.1.0 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -14,7 +14,7 @@ function createLifecycle() {
   const add = (disposer) => {
     if (typeof disposer !== "function") throw new TypeError("A disposer must be a function");
     if (disposed) {
-      void callSafely(disposer).catch((error) => console.error("[roam-blueprint] Late cleanup failed", error));
+      void callSafely(disposer).catch((error) => console.error("[svy-theme] Late cleanup failed", error));
       return disposer;
     }
     disposers.push(disposer);
@@ -110,7 +110,7 @@ async function initializeSettings(extensionAPI) {
 }
 function createSettingsPanel({ onAppearanceChange } = {}) {
   return {
-    tabTitle: "Blueprint (Svy fork)",
+    tabTitle: "Svy Theme",
     settings: [
       {
         id: SETTING_IDS.appearance,
@@ -241,7 +241,7 @@ async function onload({ extensionAPI, extension }) {
       createSettingsPanel({ onAppearanceChange: (mode) => applyAppearance(mode) })
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
-    console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
+    console.info(`[svy-theme] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);
     if (activeLifecycle === lifecycle) activeLifecycle = null;
@@ -260,7 +260,7 @@ async function onunload() {
   const lifecycle = activeLifecycle;
   activeLifecycle = null;
   if (lifecycle) await lifecycle.dispose();
-  console.info("[roam-blueprint] Unloaded");
+  console.info("[svy-theme] Unloaded");
 }
 var extension_default = { onload, onunload };
 export {

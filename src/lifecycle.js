@@ -14,7 +14,7 @@ export function createLifecycle() {
   const add = (disposer) => {
     if (typeof disposer !== "function") throw new TypeError("A disposer must be a function");
     if (disposed) {
-      void callSafely(disposer).catch((error) => console.error("[roam-blueprint] Late cleanup failed", error));
+      void callSafely(disposer).catch((error) => console.error("[svy-theme] Late cleanup failed", error));
       return disposer;
     }
     disposers.push(disposer);

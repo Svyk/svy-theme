@@ -37,7 +37,7 @@ export async function initializeSettings(extensionAPI) {
 
 export function createSettingsPanel({ onAppearanceChange } = {}) {
   return {
-    tabTitle: "Blueprint (Svy fork)",
+    tabTitle: "Svy Theme",
     settings: [
       {
         id: SETTING_IDS.appearance,

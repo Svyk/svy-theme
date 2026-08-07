@@ -1,4 +1,4 @@
-# roam-blueprint
+# Svy Theme
 
 A personal performance fork of the **Blueprint** theme for Roam Research, built on
 [`roam-extension-template`](https://github.com/Svyk/roam-extension-template)'s
@@ -9,6 +9,9 @@ listing. It exists to run a locally maintained, auditable copy of the theme with
 `extension.css` file (instead of upstream's JS-string-inlined CSS) and a hand-ported
 dark-mode toggle, and to make future performance refactors of the stylesheet possible
 against a pinned, provenance-tracked source. **It is never submitted to Roam Depot.**
+
+Formerly published as `roam-blueprint` — renamed to Svy Theme on 2026-08-07. The old
+install URL (`https://svyk.github.io/roam-blueprint`) is dead; use the URL below.
 
 ## Credit and provenance
 
@@ -34,10 +37,22 @@ support, install `rcvd/blueprint` from Roam Depot directly instead of this fork.
 - The dark-mode toggle is rewired onto this template's `src/lifecycle.js` disposal
   contract: every DOM node, event listener, and the settings panel are registered for
   cleanup, so disabling the extension fully restores native Roam UI with no page reload.
-- The toggle button still carries the `blueprint-dm-toggle` class exactly as upstream —
-  the [Better Tasks](https://github.com/Svyk/better-tasks) extension detects this theme
-  via `document.querySelector(".blueprint-dm-toggle")`; losing that class silently
-  degrades Better Tasks' theme awareness.
+
+## Compatibility contract — do not rename these
+
+Two identifiers are pinned even though the extension itself is now called Svy Theme:
+
+- **`.blueprint-dm-toggle`** — the CSS class on the dark-mode toggle button, unchanged
+  from upstream. The [Better Tasks](https://github.com/Svyk/better-tasks) extension
+  probes for this exact class at `src/index.js:19874`
+  (`document.querySelector(".blueprint-dm-toggle")`) to detect that this theme is active
+  and pick matching panel colors. Renaming the class would silently break Better Tasks'
+  theme awareness — the naming asymmetry (extension named Svy Theme, class still named
+  `blueprint-dm-toggle`) is intentional and permanent until Better Tasks' probe changes.
+- **`bp-appearance`** — the extension setting id storing the auto/dark/light choice.
+  Roam syncs extension settings through the graph, so this id is user data already
+  written into every graph this theme is installed on. Renaming it would orphan existing
+  synced values instead of reading them.
 
 ## Commands
 
@@ -88,33 +103,42 @@ Reference: [Roam Depot/Extension API](https://roamdocs.fyi/developer-documentati
 
 ## Install as a Developer Extension
 
-First run `npm ci --ignore-scripts --no-audit --no-fund`, then `npm run build`. In the
-target Roam graph, open **Settings → Roam Depot**, enable **Developer mode**, then use
-**Developer Extensions → Load extension**.
+**Hosted URL (recommended):** in the target Roam graph, open **Settings → Roam Depot**,
+enable **Developer mode**, then use **Developer Extensions → Load extension** → choose
+the URL option and point it at:
 
-For a local build:
+```
+https://svyk.github.io/svy-theme
+```
 
-1. Choose **Local folder**.
-2. Select this repository root—the folder containing `README.md`, `extension.js`, and
+GitHub Pages serves `extension.js` and `extension.css` straight from the `deploy/`
+artifacts on `main`, rebuilt on every push.
+
+**Local folder (for source edits):**
+
+1. Run `npm ci --ignore-scripts --no-audit --no-fund`, then `npm run build`.
+2. In Developer Extensions, choose **Local folder**.
+3. Select this repository root — the folder containing `README.md`, `extension.js`, and
    `extension.css`.
-3. Local-folder extensions do not auto-start after a new app session because the browser
+4. Local-folder extensions do not auto-start after a new app session because the browser
    requires a fresh filesystem permission. Load the folder again from Developer
    Extensions, or use `Ctrl-D`, then `Ctrl-R`.
 
-This is a private repository with no GitHub Pages deployment — hosted-URL installation is
-not available, and that is intentional (see "Private, not published" below).
-
 Developer extensions are installed **per client, not synced through the graph**. Repeat
-the local-folder installation on every desktop/browser profile that should run it.
-Reload all developer extensions with `Ctrl-D`, then `Ctrl-R`, or use
+the installation (hosted URL or local folder) on every desktop/browser profile that
+should run it. Reload all developer extensions with `Ctrl-D`, then `Ctrl-R`, or use
 **Settings → Roam Depot → Developer Extensions → Reload**.
 
-## Private, not published
+## Publishing and Depot policy
 
-This repository stays private and is never submitted to
-`Roam-Research/roam-depot`. GitHub Pages is not enabled. Publishing would require fresh,
-explicit sign-off after review — it is not a side effect of any build, install, or
-live-test step performed against this repo.
+This repository's source and the built `extension.js`/`extension.css` on GitHub Pages
+are public, so the hosted install URL above works and the code is auditable. That is
+the only reason it is public — it is **never submitted to `Roam-Research/roam-depot`**,
+carries no Depot listing, and receives no Depot revenue share. It is not affiliated
+with, endorsed by, or a substitute for the upstream `rcvd/blueprint` Depot listing (see
+"Credit and provenance" above). Submitting to Depot would require fresh, explicit
+sign-off — it is not a side effect of any build, install, or live-test step performed
+against this repo.
 
 ## Release checklist
 

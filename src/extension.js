@@ -17,7 +17,7 @@ export async function onload({ extensionAPI, extension }) {
       createSettingsPanel({ onAppearanceChange: (mode) => applyAppearance(mode) }),
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
-    console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
+    console.info(`[svy-theme] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);
     if (activeLifecycle === lifecycle) activeLifecycle = null;
@@ -39,7 +39,7 @@ export async function onunload() {
   const lifecycle = activeLifecycle;
   activeLifecycle = null;
   if (lifecycle) await lifecycle.dispose();
-  console.info("[roam-blueprint] Unloaded");
+  console.info("[svy-theme] Unloaded");
 }
 
 export default { onload, onunload };
