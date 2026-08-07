@@ -1,6 +1,7 @@
 import { createLifecycle } from "./lifecycle.js";
 import { applyAppearance, installDarkModeToggle } from "./dm-toggle.js";
-import { createSettingsPanel, initializeSettings } from "./settings.js";
+import { createSettingsPanel, initializeBeamSettings, initializeSettings } from "./settings.js";
+import { installThemeVars } from "./theme-vars.js";
 
 let activeLifecycle = null;
 
@@ -12,9 +13,14 @@ export async function onload({ extensionAPI, extension }) {
   activeLifecycle = lifecycle;
   try {
     await initializeSettings(extensionAPI);
+    await initializeBeamSettings(extensionAPI);
+    const themeVars = installThemeVars({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
-      createSettingsPanel({ onAppearanceChange: (mode) => applyAppearance(mode) }),
+      createSettingsPanel({
+        onAppearanceChange: (mode) => applyAppearance(mode),
+        onThemeVarsChange: () => themeVars.refresh(),
+      }),
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
     console.info(`[svy-theme] Loaded v${extension?.version || "development"}`);

@@ -4,6 +4,39 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Added
+
+- **Svy Beam v2** (`src/css/40-beam.css`): the caret, focus wash, and custom cursors from
+  the personal `roam/css` Beam patch, rebuilt so every value flows through a
+  `--svy-beam-*` custom property with the v1 value as its CSS fallback. The layer renders
+  identically to v1 with no JavaScript.
+- **`src/theme-vars.js`** — the theme's first CSS-variable writing path. Reads the
+  settings, computes the `--svy-beam-*` set (including the three cursor SVG data URIs,
+  built in JS so the cursor palette follows the caret token), and publishes them from one
+  injected `<style id="svy-theme-vars">` element registered on the lifecycle. An injected
+  sheet rather than inline style on `documentElement`, so `roam/css` can still override.
+- Detailed settings panel: master switch `bp-pack-beam`, caret color light/dark (hex
+  inputs, validated — junk falls back to the default instead of publishing a broken
+  property), caret shape, caret blink, focus wash, wash intensity, cursor style, and a
+  stateless `reactComponent` preview strip rendered with Roam's own `window.React` (zero
+  bundled dependencies; omitted when `window.React` is absent).
+- Feature-pack gating for the beam layer: switching the pack off puts `svy-off-beam` on
+  `<html>` and every rule in `40-beam.css` is scoped under `:root:not(.svy-off-beam)`,
+  so the layer disables with no reload.
+
+### Fixed
+
+- Beam auto-mode dark defect: with nothing stamped and the OS in dark mode, the light
+  teal caret `#008478` sat on the dark page at APCA Lc -26.6. Added the guarded
+  `@media (prefers-color-scheme: dark) { :root:not(.bp3-light) … }` fallback — the same
+  fifth dark signal the rest of the theme uses.
+- Dark caret is now `#48D0C0` (APCA Lc -62.9 on `#202B33`) per the U6 design-token
+  research, replacing v1's `#66E3D0`.
+- The P3 OKLCH override now covers the focus wash tint as well as the caret; v1 expanded
+  only the caret, so a P3 display got a wide-gamut caret over an sRGB wash.
+- `prefers-reduced-motion: reduce` now disables the focus wash outright instead of only
+  removing its transition, matching the design-token motion policy.
+
 ### Changed
 
 - Renamed the repository and extension from `roam-blueprint` to **Svy Theme**

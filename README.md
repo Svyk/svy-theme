@@ -54,6 +54,62 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
   written into every graph this theme is installed on. Renaming it would orphan existing
   synced values instead of reading them.
 
+## Settings
+
+**Settings → Roam Depot → Svy Theme.** Every row id is prefixed `bp-`.
+
+| Row | id | Control | Default |
+|---|---|---|---|
+| Appearance | `bp-appearance` | select `auto` / `dark` / `light` | `auto` |
+| Svy Beam | `bp-pack-beam` | switch | on |
+| Caret color (light) | `bp-beam-caret-light` | input (hex) | `#008478` |
+| Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
+| Caret shape | `bp-beam-caret-shape` | select `block` / `bar` | `block` |
+| Caret blink | `bp-beam-caret-blink` | switch | off |
+| Focus wash | `bp-beam-wash` | switch | on |
+| Wash intensity | `bp-beam-wash-intensity` | select `subtle` / `medium` / `off` | `subtle` |
+| Cursor style | `bp-beam-cursor` | select `svy` / `native` | `svy` |
+| Preview | `bp-beam-preview` | `reactComponent` | — |
+
+Roam's settings panel supports only `input`, `select`, `switch`, `button`, and
+`reactComponent` rows — there is no color picker, slider, or number field, so colors are
+typed as hex. A value that is not `#rgb` or `#rrggbb` (any case, `#` optional) is
+rejected at read time and the default is used, so a half-typed color never reaches the
+stylesheet. The preview row renders through Roam's own `window.React`, adding no bundled
+dependency; it is stateless and repaints from the same custom properties the stylesheet
+reads, so there is nothing for it to subscribe to or leak. It is omitted entirely if
+`window.React` is unavailable.
+
+### How settings reach the CSS
+
+`src/theme-vars.js` is the theme's only CSS-variable writing path. It reads the settings,
+computes the `--svy-beam-*` property set, and publishes it from one injected
+`<style id="svy-theme-vars">` element — not inline style on `documentElement`, which
+would put every value at the inline specificity level where nothing in a stylesheet,
+including the user's own `roam/css`, could override it. The element is registered on the
+lifecycle, so unload removes it in one `node.remove()`.
+
+`src/css/40-beam.css` reads every value through `var(--svy-beam-…, <v1 value>)`. The
+fallbacks are the shipped Beam v1 values, so the layer renders exactly as before if the
+JavaScript never runs. A test asserts both directions of that contract: nothing the
+stylesheet reads is unpublished, and nothing published is unread.
+
+### Feature-pack gating
+
+Switching **Svy Beam** off puts `svy-off-beam` on `<html>`, and every rule in
+`40-beam.css` is scoped under `:root:not(.svy-off-beam)` — one extra class test per rule,
+no reload, native caret and cursors restored immediately.
+
+The dark-fixes (`10-fixes-dark.css`) and plugin-compatibility (`20-plugins.css`) layers
+have **no** master switch yet, deliberately. Gating them the same way is not a mechanical
+wrap: many of their rules are themselves rooted at `:root.bp3-dark`/`:root:not(.bp3-light)`,
+so neither a nesting wrapper (`:is(:root:not(.svy-off-…)) :root.bp3-dark …` can never
+match) nor a `@container style()` wrapper (custom-property queries evaluate against the
+parent element, so `:root`-level token declarations inside one stop applying) preserves
+their behavior. Shipping a switch that silently does nothing is worse than no switch, so
+those packs stay always-on until their rules are re-rooted during the U7 tokenization
+pass.
+
 ## Commands
 
 ```bash

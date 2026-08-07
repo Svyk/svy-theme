@@ -19,6 +19,19 @@ function fakeExtensionApi() {
   };
 }
 
+// U5 seeds the beam knobs so the settings panel renders switches in the state the
+// stylesheet is actually in. bp-appearance keeps its own untouched default/migration path.
+const EXPECTED_BEAM_SEED = [
+  ["setting:set", "bp-pack-beam", true],
+  ["setting:set", "bp-beam-caret-light", "#008478"],
+  ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
+  ["setting:set", "bp-beam-caret-shape", "block"],
+  ["setting:set", "bp-beam-caret-blink", false],
+  ["setting:set", "bp-beam-wash", true],
+  ["setting:set", "bp-beam-wash-intensity", "subtle"],
+  ["setting:set", "bp-beam-cursor", "svy"],
+];
+
 test("extension exports the Roam lifecycle contract and survives repeated unload", async () => {
   assert.equal(typeof extension.onload, "function");
   assert.equal(typeof extension.onunload, "function");
@@ -34,6 +47,7 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
   // behavior is covered by test/dm-toggle.test.js with an injected fake document.
   assert.deepEqual(api.calls, [
     ["setting:set", "bp-appearance", "auto"],
+    ...EXPECTED_BEAM_SEED,
     ["panel:create", "Svy Theme"],
   ]);
 });
@@ -64,10 +78,12 @@ test("a second load disposes the previous runtime before registering again", asy
 
   assert.deepEqual(firstApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
+    ...EXPECTED_BEAM_SEED,
     ["panel:create", "Svy Theme"],
   ]);
   assert.deepEqual(secondApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
+    ...EXPECTED_BEAM_SEED,
     ["panel:create", "Svy Theme"],
   ]);
   await cleanup();
