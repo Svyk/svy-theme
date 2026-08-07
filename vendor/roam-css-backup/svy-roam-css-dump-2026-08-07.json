@@ -1,0 +1,562 @@
+{
+ "page": [
+  [
+   {
+    "children": [
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "[What is CSS?](https://roamresearch.com/#/app/Help/page/v6uVYjoT0)",
+        "uid": "XLsvabGsa"
+       }
+      ],
+      "order": 0,
+      "string": "[[Beau Haan]]",
+      "uid": "Q9TRLubNq"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Fleeting Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #f21da140;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "omK86lfhz"
+         }
+        ],
+        "order": 0,
+        "string": "#[[Fleeting Notes]]",
+        "uid": "2zXGgvL3a"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Literature Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #215F0040;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "1fexkaont"
+         }
+        ],
+        "order": 1,
+        "string": "#[[Literature Notes]]",
+        "uid": "lUZSxU-lo"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Reference Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #f26e1d40;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "7UoWj809C"
+         }
+        ],
+        "order": 2,
+        "string": "#[[Reference Notes]]",
+        "uid": "lKT6p2O4l"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Translation Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #391DF240;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "o5AWt7QpE"
+         }
+        ],
+        "order": 3,
+        "string": "#[[Translation Notes]]",
+        "uid": "_He70tBud"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"] \n{ background-image: linear-gradient(90deg, #1DA1F2, #1DA1F2);\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:after, span.rm-page-ref[data-tag=\"Permanent Notes\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1DA1F2;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1DA1F2;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "0P9BcRHyZ"
+         }
+        ],
+        "order": 4,
+        "string": "#[[Permanent Notes]] [[test]]",
+        "uid": "xMGFszyOT"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Relevant Notes\"] \n{ background: white;\n  background-size: 100%;\n  color: #1DA1F2;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Notes\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "De-2jKYJw"
+         }
+        ],
+        "order": 5,
+        "string": "#[[Relevant Notes]] [[test]]",
+        "uid": "zCbjUf9W5"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name\"] \n{ background-color:  #6A5ACD;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #6A5ACD;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #6A5ACD;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "3tdMFu2ct"
+         }
+        ],
+        "order": 6,
+        "string": "#[[Project Name]] [[test]]",
+        "uid": "iDaEayugj"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project\"] \n{ background: white;\n  background-size: 100%;\n  color: #6A5ACD;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "oxN7svJes"
+         }
+        ],
+        "order": 7,
+        "string": "#[[Relevant Project]] [[test]]",
+        "uid": "_OjXP2aaV"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name2\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name2\"] \n{ background-color:  #1877F2;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name2\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1877F2;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Notes2\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1877F2;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "MMy83KhEd"
+         }
+        ],
+        "order": 8,
+        "string": "#[[Project Name2]] [[test]]",
+        "uid": "pLWAvy-TE"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project2\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project2\"] \n{ background: white;\n  background-size: 100%;\n  color: #1877F2;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project2\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "zoWLqrbPu"
+         }
+        ],
+        "order": 9,
+        "string": "#[[Relevant Project2]] [[test]]",
+        "uid": "5orW_Llpt"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name3\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name3\"] \n{ background-color:  #81D8D0;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name3\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #81D8D0;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Notes3\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #81D8D0;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "7AXlReulF"
+         }
+        ],
+        "order": 10,
+        "string": "#[[Project Name3]] [[test]]",
+        "uid": "m9ePbzAop"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project3\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project3\"] \n{ background: white;\n  background-size: 100%;\n  color: #81D8D0;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project3\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "Ux1nWbRF1"
+         }
+        ],
+        "order": 11,
+        "string": "#[[Relevant Project3]] [[test]]",
+        "uid": "A9zidYybZ"
+       }
+      ],
+      "heading": 3,
+      "order": 1,
+      "string": "> Zettelkasten Tags ",
+      "uid": "yszzuh5OV"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n.rm-article-wrapper .rm-block--side, \n.rm-sidebar-outline-wrapper .rm-block--side {\n    display: block;\n    background-color: transparent;\n}\n\n.rm-article-wrapper .rm-block--side__children, \n.rm-sidebar-outline-wrapper .rm-block--side .rm-block--side__children {\n  display: block;\n  border: none;\n  margin-left: 27px;\n  background-color: transparent;\n}\n\n@media screen and (min-width: 900px) {\n  .rm-article-wrapper .rm-block--side {\n    display: flex;\n  }\n  \n  .rm-article-wrapper  .rm-block--side .rm-block--side__children {\n    min-width: 25%;\n    max-width: 25%;\n  }\n  \n  .rm-article-wrapper .rm-block--side .rm-inline-img__resize,\n  .rm-article-wrapper .rm-block--side .rm-block--side__children .rm-inline-img,\n  .rm-article-wrapper .rm-block--side .rm-block--side__children .react-resizable {\n    max-width: 100%;\n  }\n\n  .rm-article-wrapper .rm-block--side__children div {\n    font-size: 0.85rem;\n  }\n\n.rm-article-wrapper  .rm-block--side__children .rm-block-input {\n    font-size: 0.85rem!important;\n  }\n\n  .rm-article-wrapper  .rm-block--side .rm-block--side__children {\n    align-self: flex-start;\n  }\n}```",
+          "uid": "bAmWZzVLu"
+         }
+        ],
+        "order": 0,
+        "string": "{{roam/css}}",
+        "uid": "PqC9evHPE"
+       }
+      ],
+      "order": 2,
+      "string": "Tufte Style Notes ",
+      "uid": "PPU4GyMGp"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 1,
+          "string": "```css\n.rm-block[data-path-page-links*=\".list-query\"] .rm-title-arrow-wrapper, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query-content > span[style*=\"font-size: 0.9em;\"], \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query-title,\n.rm-block[data-path-page-links*=\".list-query\"] .rm-zoom {\n  display: none;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query {\n  border: none;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query .rm-query-content {\n  border-top: none!important;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-search-query, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-reference-item {\n  background: transparent;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-mentions .rm-ref-page-view:first-child {\n  border-top: none!important;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-reference-item {\n  margin: 0;\n}```",
+          "uid": "7mW5Y35og"
+         },
+         {
+          "order": 0,
+          "string": "```css\n/* Quattro theme */ \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query {\n   margin-left: -28.5px;\n   margin-top: -14px;\n}\n\n#right-sidebar .rm-sidebar-outline-wrapper .rm-block[data-path-page-links*=\".list-query\"] .rm-reference-main {\n    margin-top: 10px;\n}```",
+          "uid": "Yn6OfT0Xg"
+         }
+        ],
+        "order": 0,
+        "string": "{{roam/css}}",
+        "uid": "QLcKkohOp"
+       }
+      ],
+      "order": 3,
+      "string": "Roam Query ",
+      "uid": "DRc6hRs-a"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\n/* Target blocks with .rm-focus tag - works when zoomed in */\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-bullet,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-bullet,\n.roam-block-container[data-page-links*=\".rm-focus\"] .simple-bullet-outer,\n.roam-block-container[data-page-links*=\".rm-focus\"] .simple-bullet-inner,\n.roam-block-container[data-page-links*=\".rm-focus\"] .controls {\n    display: none !important;\n}\n\n/* Remove indentation and flatten hierarchy when zoomed */\n.roam-block-container[data-page-links*=\".rm-focus\"] .roam-block {\n    margin-left: 0 !important;\n    padding-left: 0 !important;\n}\n\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-children {\n    margin-left: 0 !important;\n    padding-left: 0 !important;\n    border-left: none !important;\n}\n\n/* AGGRESSIVE LEFT LINE REMOVAL - Targets all possible sources */\n.roam-block-container[data-page-links*=\".rm-focus\"],\n.roam-block-container[data-page-links*=\".rm-focus\"] *,\n.roam-block-container[data-page-links*=\".rm-focus\"] .roam-block,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-main,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-children,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-text,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-input,\n.rm-zoom[data-page-links*=\".rm-focus\"],\n.rm-zoom[data-page-links*=\".rm-focus\"] *,\n.rm-zoom[data-page-links*=\".rm-focus\"] .roam-block-container,\n.rm-zoom[data-page-links*=\".rm-focus\"] .roam-block,\n.rm-zoom .roam-block-container[data-page-links*=\".rm-focus\"],\n.rm-zoom .roam-block-container[data-page-links*=\".rm-focus\"] * {\n    border-left: none !important;\n    border-right: none !important;\n    box-shadow: none !important;\n    outline: none !important;\n    margin-left: 0 !important;\n    padding-left: 0 !important;\n}\n\n/* Remove any pseudo-element borders */\n.roam-block-container[data-page-links*=\".rm-focus\"]:before,\n.roam-block-container[data-page-links*=\".rm-focus\"]:after,\n.roam-block-container[data-page-links*=\".rm-focus\"] *:before,\n.roam-block-container[data-page-links*=\".rm-focus\"] *:after {\n    border-left: none !important;\n    box-shadow: none !important;\n    outline: none !important;\n}\n\n/* Enhanced typography for writing focus */\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-text {\n    font-size: 18px !important;\n    line-height: 1.7 !important;\n    font-family: \"Georgia\", \"Times New Roman\", serif !important;\n    color: #2d3748 !important;\n    max-width: none !important;\n}\n\n/* Clean up block spacing */\n.roam-block-container[data-page-links*=\".rm-focus\"] .roam-block {\n    margin-bottom: 12px !important;\n    margin-top: 0 !important;\n}\n\n/* Hide block references and UI chrome */\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-block-ref {\n    background: transparent !important;\n    border: none !important;\n}\n\n.roam-block-container[data-page-links*=\".rm-focus\"] .block-highlight-blue {\n    background: transparent !important;\n    border: none !important;\n}\n\n/* Optional: Hide page reference brackets for cleaner look */\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-page-ref__brackets {\n    display: none !important;\n}\n\n/* Center content with max width for better reading */\n.roam-block-container[data-page-links*=\".rm-focus\"] {\n    max-width: 750px !important;\n    margin: 0 auto !important;\n    padding: 20px !important;\n    border: none !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n/* Hide block embed controls */\n.roam-block-container[data-page-links*=\".rm-focus\"] .block-embed,\n.roam-block-container[data-page-links*=\".rm-focus\"] .rm-embed-container {\n    border: none !important;\n    background: transparent !important;\n}\n\n/* Clean up when zoomed into the focus block */\n.rm-zoom[data-page-links*=\".rm-focus\"] .rm-bullet,\n.rm-zoom[data-page-links*=\".rm-focus\"] .controls {\n    display: none !important;\n}\n\n/* Additional cleanup for zoom state borders */\n.rm-zoom[data-page-links*=\".rm-focus\"] {\n    border: none !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n/* Nuclear option - remove ALL left borders in focus mode */\n.roam-block-container[data-page-links*=\".rm-focus\"] {\n    border-left-width: 0px !important;\n    border-left-style: none !important;\n    border-left-color: transparent !important;\n}\n\n.rm-zoom[data-page-links*=\".rm-focus\"] {\n    border-left-width: 0px !important;\n    border-left-style: none !important;\n    border-left-color: transparent !important;\n}\n```",
+            "uid": "hawxILKLf"
+           }
+          ],
+          "order": 0,
+          "string": "{{roam/css}}",
+          "uid": "OCiJyUaG7"
+         }
+        ],
+        "order": 0,
+        "string": "#.rm-focus",
+        "uid": "YLL35YvC3"
+       }
+      ],
+      "order": 4,
+      "string": "Roam hide stuff ",
+      "uid": "UFdlDNH7_"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n/* Increase Clickable Area */\n.rm-reference-count-container {\n  padding: 5px; /* Add padding around the counter */\n}\n\n.rm-reference-count {\n  cursor: pointer; /* Show pointer cursor on hover */\n}\n```",
+          "uid": "rX-EcakbY"
+         }
+        ],
+        "order": 0,
+        "string": "{{roam/css}}",
+        "uid": "xpabyByyQ"
+       }
+      ],
+      "order": 5,
+      "string": "block references ",
+      "uid": "JigOx8P8f"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\nspan.rm-page-ref[data-tag=\"N/A\"],\nspan.rm-page-ref[data-tag=\"hide-this\"] {\n    display: none;\n}\n```",
+        "uid": "lKDa7t4Bh"
+       }
+      ],
+      "order": 7,
+      "string": "#N/A [[N/A]] tags ",
+      "uid": "s849QAoC1"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan.rm-page-ref[data-tag=\"Inbox\"],\nspan[data-link-title=\"Inbox\"]\n{\n    background: var(--black);\n    color: var(--white);\n    padding: var(--tagpad);\n    font-size: 1.0em;\n    line-height: 1.0em;\n    font-weight: 500;\n    border-radius: var(--tagborder-radius);\n    position: var(--tagposition);\n}\n\nspan.rm-page-ref[data-tag=\"Inbox\"]:before, \nspan[data-link-title=\"Inbox\"]:before\n{\ncontent: '📥 ';\n}\n\nspan[data-link-title=\"Inbox\"] .rm-page-ref {\n  color: var(--white) !important;\n  font-weight: 500;\n}```",
+            "uid": "d2RvwVWrB"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "fe6sq9Csr"
+         }
+        ],
+        "order": 0,
+        "string": "#Inbox [[Inbox]]",
+        "uid": "KP_dotxk9"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Agenda\"] {\n  background: var(--deepblue);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Agenda\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Agenda\"]:before {\n  content: '📃 ';\n}```",
+            "uid": "-07l6UQ8V"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "G4oBMjLDf"
+         }
+        ],
+        "order": 1,
+        "string": "[[Agenda]]",
+        "uid": "IDtf10BcO"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Self-coaching\"] {\n  background: var(--white);\n  border: .5px solid var(--red);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Self-coaching\"] .rm-page-ref {\n  color: var(--red) !important;\n}\n\nspan[data-link-title=\"Self-coaching\"]:before {\n  content: '🩺 '\n}```",
+            "uid": "XuxxXAdAo"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "prP5e-8ku"
+         }
+        ],
+        "order": 2,
+        "string": "[[Self-coaching]]",
+        "uid": "MSlKQHzO5"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Morning plan\"] {\n  background: var(--skyblue);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n  }\n\nspan[data-link-title=\"Morning plan\"] .rm-page-ref {\n  color: var(--black) !important;\n}\n\nspan[data-link-title=\"Morning plan\"]:before {\n  content: '⛅ '\n}```",
+            "uid": "FS3llN2uP"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "W4KFZkyoa"
+         }
+        ],
+        "order": 3,
+        "string": "[[Morning plan]]",
+        "uid": "0uX0LMDx-"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Log\"] {\n  background: saddlebrown;\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Log\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Log\"]:before {\n  content: '⏱ '\n}```",
+            "uid": "ClmEyPNLs"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "mXHDPZ2QF"
+         }
+        ],
+        "order": 4,
+        "string": "[[Log]]",
+        "uid": "9LaW24ErV"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Weekly Accomplishments\"] {\n  background: var(--white);\n  border: .5px solid var(--gold);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Weekly Accomplishments\"] .rm-page-ref {\n  color: var(--gold) !important;\n}\n\nspan[data-link-title=\"Weekly Accomplishments\"]:before {\n  content: '🏆 '\n}```",
+            "uid": "GfwC2Ap2L"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "7COQNrrO0"
+         }
+        ],
+        "order": 5,
+        "string": "[[Weekly Accomplishments]]",
+        "uid": "Phc2JZtb5"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Daily Tasks\"] {\n  background: var(--green);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Daily Tasks\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Daily Tasks\"]:before {\n    content: '🔁 '\n}```",
+            "uid": "7M565fUBx"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "JZOCcx6gz"
+         }
+        ],
+        "order": 6,
+        "string": "[[Daily Tasks]]",
+        "uid": "Saafs1jNH"
+       }
+      ],
+      "heading": 1,
+      "order": 10,
+      "string": "Productivity Tags",
+      "uid": "0BYlFRskQ"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n /* THIS CODEBLOCK IS OVERWRITTEN ON EVERY VERSION UPDATE\nDO NOT MODIFY*/\n\n:root {\n  --progress-bar-default: #137cbd;\n  --progress-bar: #137cbd;\n  --progress-border: #B6B6B6;\n  --progress-bg: #dfe2e5;\n  --circle-bg: #e6e6e6;\n  --circle-fill: #3b82f6;\n}\n\n:root .rm-dark-theme {\n  --progress-border: #137cbd;\n  --progress-bg: #EFEFEF;\n  --circle-bg: #4b5563;\n  --circle-fill: #137cbd;\n}\n\n/* Linear progress bar styles */\nprogress[name=\"percent-done\"],\n.todo-progress-bar progress {\n  display: inline-block;\n  height: 6px;\n  background: none;\n  border-radius: 15px;\n  margin-bottom: 2px;\n}\n  \nprogress::-webkit-progress-bar,\n.todo-progress-bar progress::-webkit-progress-bar {\n  height: 6px;\n  background-color: var(--progress-bg);\n  border-radius: 15px;\n}\n\n.rm-dark-theme progress::-webkit-progress-bar,\n.rm-dark-theme .todo-progress-bar progress::-webkit-progress-bar {\n  box-shadow: 0px 0px 6px var(--progress-border) inset;\n}\n\nprogress::-webkit-progress-value,\n.todo-progress-bar progress::-webkit-progress-value {\n  display: inline-block;\n  float: left;\n  height: 6px;\n  margin: 0px -10px 0 0;\n  background: var(--progress-bar);\n  border-radius: 5px;\n}\n\n/* Circle progress bar styles */\n.progress-circle circle {\n  fill: var(--circle-bg);\n  stroke: var(--circle-bg);\n}\n\n.progress-circle path {\n  fill: var(--circle-fill);\n} ```",
+        "uid": "roam-render-todo-progress-css"
+       }
+      ],
+      "heading": 3,
+      "order": 11,
+      "string": "TODO Progress Bar STYLE [[March 2nd, 2025]]",
+      "uid": "todo-progress-css-parent"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n/*\n.block-ref-count-button {\n\tcolor: grey !important;\n//\tbackground: yellow !important;\n//\tborder-bottom: 1.5px solid blue !important;\n\ttransition: color 0.3s ease;\n//\tfont-family: 'Impact';\n} \n.block-ref-count-button:hover {\n//\tcolor: #607D8B !important;\n \tfont-weight: 700;\n//    border: 1.5px solid rgb(119,119,119) !important;\n\ttransition: color 0.3s ease, border 0.3s ease;\n} */```",
+        "uid": "ZrnX-4T08"
+       }
+      ],
+      "order": 8,
+      "string": "Block ref number",
+      "uid": "GzIhSfqa9"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\n\n.rm-reference-footnote {\n\n}\n\n.rm-block__ref-count-footnote {\n  color: rgb(161,23,23);\n  font-size: 60%;\n  padding-right: 3px;\n}\n\n.rm-block__ref-count-footnote.rm-active {\n  background: rgb(233,233,233);\n  color: black;\n  font-size: 65%;\n  padding-left: 1.5px;\n  padding-right: 3px;\n}```",
+            "uid": "JtmRbVWeB"
+           }
+          ],
+          "order": 0,
+          "string": "{{roam/css}}",
+          "uid": "SnIWmab2q"
+         }
+        ],
+        "order": 0,
+        "string": "Count",
+        "uid": "GGmNWf9n-"
+       }
+      ],
+      "order": 9,
+      "string": "Reference inline",
+      "uid": "P6IF_dYG3"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n.rm-jump-date-picker .DayPicker-Day--today {\n    outline: 2px dashed;\n    border-radius: 2rem;\n    outline-offset: -3px;\n}```",
+        "uid": "jP9X6o2vJ"
+       }
+      ],
+      "order": 6,
+      "string": "Better date picker ",
+      "uid": "I_JhY4H_b"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n/* Mermaid full-width — maximize chart size in Roam */\n\n/* Target Mermaid SVGs only. Do not change overflow on every Roam block:\n   that forces expensive layout during ordinary typing and deletion. */\nsvg[aria-roledescription=\"gantt\"],\nsvg[aria-roledescription=\"pie\"],\nsvg[aria-roledescription=\"flowchart\"],\nsvg[aria-roledescription=\"sequence\"],\nsvg[role=\"graphics-document document\"] {\n  max-width: none !important;\n  width: 95vw !important;\n  height: auto !important;\n  min-height: 750px;\n  position: relative;\n  left: calc(-1 * (95vw - 100%) / 2);\n  z-index: 10;\n  background: white;\n  border-radius: 8px;\n  box-shadow: 0 2px 12px rgba(0,0,0,0.08);\n  padding: 16px;\n}\n\n/* Bigger text inside mermaid charts */\nsvg[role=\"graphics-document document\"] text {\n  font-size: 14px !important;\n}\nsvg[role=\"graphics-document document\"] .titleText {\n  font-size: 22px !important;\n  font-weight: bold !important;\n}\nsvg[role=\"graphics-document document\"] .sectionTitle {\n  font-size: 14px !important;\n  font-weight: bold !important;\n}\nsvg[role=\"graphics-document document\"] .task {\n  height: 26px !important;\n}\n```",
+        "uid": "V23Bpf_1E"
+       }
+      ],
+      "order": 12,
+      "string": "Mermaid full-width charts",
+      "uid": "gv1mfM1xr"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "Scoped compatibility for the Blueprint v7 Roam Depot theme; it changes only Roam Grid rg-* surfaces.",
+          "uid": "XDrKQSOcf"
+         },
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\n/* Blueprint v7 × Roam Grid — local portal compatibility.\n   Scoped to Roam Grid only; safe to remove as one block. */\n:root.bp3-dark :is(.rg-editor-popover, .rg-context-menu, .rg-dialog) {\n  color-scheme: dark;\n  color: #f5f8fa !important;\n  background: #293742 !important;\n  border-color: #394b59 !important;\n}\n\n:root.bp3-dark :is(\n  .rg-floating-editor-input,\n  .rg-formula-suggestions\n) {\n  color: #f5f8fa !important;\n  background: #293742 !important;\n  border-color: #394b59 !important;\n}\n\n:root.bp3-dark :is(\n  .rg-formula-suggestion > span,\n  .rg-formula-signature,\n  .rg-formula-signature > small,\n  .rg-menu-section,\n  .rg-context-menu .bp3-icon\n) {\n  color: #a7b6c2 !important;\n}\n\n:root.bp3-dark .rg-formula-suggestion:hover {\n  background: rgba(138, 155, 168, 0.15) !important;\n}\n\n:root.bp3-dark .rg-formula-suggestion--active {\n  background: rgba(138, 155, 168, 0.3) !important;\n}\n\n@media (prefers-color-scheme: dark) {\n  :root:not(.bp3-light) :is(.rg-editor-popover, .rg-context-menu, .rg-dialog) {\n    color-scheme: dark;\n    color: #f5f8fa !important;\n    background: #293742 !important;\n    border-color: #394b59 !important;\n  }\n\n  :root:not(.bp3-light) :is(\n    .rg-floating-editor-input,\n    .rg-formula-suggestions\n  ) {\n    color: #f5f8fa !important;\n    background: #293742 !important;\n    border-color: #394b59 !important;\n  }\n}```",
+            "uid": "muaOHAkVD"
+           }
+          ],
+          "order": 1,
+          "string": "{{roam/css}}",
+          "uid": "vSOuEdoQ_"
+         }
+        ],
+        "order": 0,
+        "string": "**Roam Grid — dark editor and completion portals**",
+        "uid": "OCTXt56aj"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\n/* ==========================================================================\n * Svy Beam for Roam Blueprint\n *\n * Personal compatibility patch for rcvd/blueprint. The third-party theme is\n * intentionally left untouched. Resize, drag, grab, and column/row handles\n * keep their native purpose-specific cursors.\n * ======================================================================= */\n\n:root {\n  --svy-roam-caret: #008478;\n  --svy-roam-caret-line: rgba(0, 122, 112, 0.045);\n  --svy-roam-cursor-default:\n    url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='%2348aff0' stroke='%23182026' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 5L12 21' stroke='%233fc7b5' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E\")\n    4 3, auto;\n  --svy-roam-cursor-pointer:\n    url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23182026' stroke='%2348aff0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%233fc7b5' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E\")\n    16 16, pointer;\n  --svy-roam-cursor-text:\n    url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23182026' stroke='%2348aff0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2366e3d0'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f5f8fa'/%3E%3C/svg%3E\")\n    16 16, text;\n}\n\n:root.bp3-dark,\n:root:has(body.bt-theme-dark),\n.rm-dark-theme {\n  --svy-roam-caret: #66e3d0;\n  --svy-roam-caret-line: rgba(63, 199, 181, 0.055);\n}\n\nbody {\n  cursor: var(--svy-roam-cursor-default);\n}\n\n:is(a, button, [role=\"button\"], [role=\"link\"], summary, label, select,\n    .rm-page-ref, .rm-block-ref, .bp3-menu-item, .bp3-button) {\n  cursor: var(--svy-roam-cursor-pointer);\n}\n\nbody :is(\n  input,\n  textarea,\n  [contenteditable=\"true\"],\n  .rm-block-input,\n  .rm-block__input,\n  .rm-block-text,\n  .rm-title-textarea\n) {\n  caret-color: var(--svy-roam-caret) !important;\n  /* Chromium builds that implement CSS UI 4 render the insertion point as a\n   * filled teal block. Unsupported builds safely keep the native bar caret. */\n  caret-shape: block !important;\n  caret-animation: manual !important;\n  cursor: var(--svy-roam-cursor-text) !important;\n}\n\n/* Thymer has a movable caret element; Roam uses the browser's native textarea\n * caret, so position animation would require a typing-path JavaScript overlay.\n * Keep Roam native-fast and carry the same sense of motion with a tiny,\n * compositor-friendly focus wash instead. */\n.roam-block-container > .rm-block-main {\n  transition: background-color 70ms linear;\n  border-radius: 4px;\n}\n\n.roam-block-container:focus-within > .rm-block-main {\n  background-color: var(--svy-roam-caret-line);\n}\n\n@media (color-gamut: p3) {\n  :root { --svy-roam-caret: oklch(0.55 0.13 184); }\n  :root.bp3-dark,\n  :root:has(body.bt-theme-dark),\n  .rm-dark-theme { --svy-roam-caret: oklch(0.84 0.15 182); }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .roam-block-container > .rm-block-main { transition: none; }\n}\n```",
+            "uid": "5bvTkzGk6"
+           }
+          ],
+          "order": 0,
+          "string": "{{roam/css}}",
+          "uid": "_SAZxdHOn"
+         }
+        ],
+        "order": 1,
+        "string": "**Svy Beam — cursor and caret**",
+        "uid": "1AGdRN0_T"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\n/* Find-or-Create topbar search input — dark Blueprint theme fix.\n   Scoped under .rm-topbar only; never global .bp3-input. */\n.rm-topbar .rm-find-or-create-wrapper input,\n.rm-topbar .rm-find-or-create-wrapper .bp3-input {\n  background: rgba(255, 255, 255, 0.06);\n  color: inherit;\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 4px;\n}\n\n.rm-topbar .rm-find-or-create-wrapper input::placeholder {\n  opacity: 0.6;\n}```",
+            "uid": "df2k3doEA"
+           }
+          ],
+          "order": 0,
+          "string": "{{roam/css}}",
+          "uid": "IH9fv-m2Y"
+         }
+        ],
+        "order": 2,
+        "string": "**Find-or-Create search input — dark theme fix [[August 4th, 2026]]**",
+        "uid": "MM3LV4KWT"
+       }
+      ],
+      "order": 13,
+      "string": "Blueprint CSS patches  ",
+      "uid": "SNv_JgLvR"
+     }
+    ],
+    "uid": "A7CSCL_Xj",
+    "title": "roam/css"
+   }
+  ]
+ ],
+ "LTr4LQ6By": []
+}

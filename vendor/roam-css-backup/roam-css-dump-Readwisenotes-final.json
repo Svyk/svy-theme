@@ -1,0 +1,412 @@
+{
+ "graph": "Readwisenotes",
+ "page": [
+  [
+   {
+    "children": [
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "[What is CSS?](https://roamresearch.com/#/app/Help/page/v6uVYjoT0)",
+        "uid": "XLsvabGsa"
+       }
+      ],
+      "order": 0,
+      "string": "[[Beau Haan]]",
+      "uid": "Q9TRLubNq"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Fleeting Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #f21da140;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "omK86lfhz"
+         }
+        ],
+        "order": 0,
+        "string": "#[[Fleeting Notes]]",
+        "uid": "2zXGgvL3a"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Literature Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #215F0040;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "1fexkaont"
+         }
+        ],
+        "order": 1,
+        "string": "#[[Literature Notes]]",
+        "uid": "lUZSxU-lo"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Reference Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #f26e1d40;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "7UoWj809C"
+         }
+        ],
+        "order": 2,
+        "string": "#[[Reference Notes]]",
+        "uid": "lKT6p2O4l"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Translation Notes\"] \n{ background: #fff;\n  background-size: 100%;\n  color: #000;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #391DF240;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}```",
+          "uid": "o5AWt7QpE"
+         }
+        ],
+        "order": 3,
+        "string": "#[[Translation Notes]]",
+        "uid": "_He70tBud"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"] \n{ background-image: linear-gradient(90deg, #1DA1F2, #1DA1F2);\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:after, span.rm-page-ref[data-tag=\"Permanent Notes\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1DA1F2;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Permanent Notes\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1DA1F2;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "0P9BcRHyZ"
+         }
+        ],
+        "order": 4,
+        "string": "#[[Permanent Notes]] [[test]]",
+        "uid": "xMGFszyOT"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\nspan.rm-page-ref[data-tag=\"Relevant Notes\"] \n{ background: white;\n  background-size: 100%;\n  color: #1DA1F2;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Notes\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "De-2jKYJw"
+         }
+        ],
+        "order": 5,
+        "string": "#[[Relevant Notes]] [[test]]",
+        "uid": "zCbjUf9W5"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name\"] \n{ background-color:  #6A5ACD;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #6A5ACD;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #6A5ACD;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "3tdMFu2ct"
+         }
+        ],
+        "order": 6,
+        "string": "#[[Project Name]] [[test]]",
+        "uid": "iDaEayugj"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project\"] \n{ background: white;\n  background-size: 100%;\n  color: #6A5ACD;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "oxN7svJes"
+         }
+        ],
+        "order": 7,
+        "string": "#[[Relevant Project]] [[test]]",
+        "uid": "_OjXP2aaV"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name2\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name2\"] \n{ background-color:  #1877F2;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name2\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name2\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1877F2;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Notes2\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #1877F2;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "MMy83KhEd"
+         }
+        ],
+        "order": 8,
+        "string": "#[[Project Name2]] [[test]]",
+        "uid": "pLWAvy-TE"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project2\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project2\"] \n{ background: white;\n  background-size: 100%;\n  color: #1877F2;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project2\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "zoWLqrbPu"
+         }
+        ],
+        "order": 9,
+        "string": "#[[Relevant Project2]] [[test]]",
+        "uid": "5orW_Llpt"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Project Name3\" data-tags below accordingly.\n*/\n\nspan.rm-page-ref[data-tag=\"Project Name3\"] \n{ background-color:  #81D8D0;\n  background-size: 100%;\n  color: #FFFFFF;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 3px 0 0 3px;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"] + span[data-link-title] \n{ background: #1DA1F21E !important;\n  color: #F5F8FA !important;\n  padding: 3px 5px 3px 15px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0 3px 3px 0;\n  margin-left: -5px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"]:after, \nspan.rm-page-ref[data-tag=\"Project Name3\"]:before \n{ left: 100%;\n  top: 50%;\n  border: solid transparent;\n  content: \" \";\n  height: 0;\n  width: 0;\n  position: absolute;\n  pointer-events: none;\n}\n\nspan.rm-page-ref[data-tag=\"Project Name3\"]:after \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #81D8D0;\n  border-width: 10px;\n  margin-top: -10px;\n}\n\nspan.rm-page-ref[data-tag=\"Project Notes3\"]:before \n{ border-color: rgba(255,255,255,0);\n  border-left-color: #81D8D0;\n  border-width: 10px;\n  margin-top: -10px;\n}```",
+          "uid": "7AXlReulF"
+         }
+        ],
+        "order": 10,
+        "string": "#[[Project Name3]] [[test]]",
+        "uid": "m9ePbzAop"
+       },
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n\n/*\nRename all \"Relevant Project3\" data-tags below accordingly.\n\nEg: #[[Branching Notes]], #[[Observation Notes]], #[[Intermediary Notes]]\n*/\nspan.rm-page-ref[data-tag=\"Relevant Project3\"] \n{ background: white;\n  background-size: 100%;\n  color: #81D8D0;\n  padding: 2px 5px 2px 5px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 500;\n  border-radius: 5px 5px 5px 5px;\n  border-style: solid;\n  border-color: #FFFFFF;\n  border-width: thin;\n  position:relative;\n  box-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px  #DFDFDF;\n}\n\nspan.rm-page-ref[data-tag=\"Relevant Project3\"] + span[data-link-title] \n{ background: #1DA1F210 !important;\n  color: #F3F7F2 !important;\n  padding: 3px 5px 3px 8px;\n  font-size: 13px;\n  line-height: 1em;\n  font-weight: 400;\n  border-radius: 0px 5px 5px 0px;\n  margin-left: -8px; \n  box-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;\n}\n\n```",
+          "uid": "Ux1nWbRF1"
+         }
+        ],
+        "order": 11,
+        "string": "#[[Relevant Project3]] [[test]]",
+        "uid": "A9zidYybZ"
+       }
+      ],
+      "heading": 3,
+      "order": 1,
+      "string": "> Zettelkasten Tags ",
+      "uid": "yszzuh5OV"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n.rm-article-wrapper .rm-block--side, \n.rm-sidebar-outline-wrapper .rm-block--side {\n    display: block;\n    background-color: transparent;\n}\n\n.rm-article-wrapper .rm-block--side__children, \n.rm-sidebar-outline-wrapper .rm-block--side .rm-block--side__children {\n  display: block;\n  border: none;\n  margin-left: 27px;\n  background-color: transparent;\n}\n\n@media screen and (min-width: 900px) {\n  .rm-article-wrapper .rm-block--side {\n    display: flex;\n  }\n  \n  .rm-article-wrapper  .rm-block--side .rm-block--side__children {\n    min-width: 25%;\n    max-width: 25%;\n  }\n  \n  .rm-article-wrapper .rm-block--side .rm-inline-img__resize,\n  .rm-article-wrapper .rm-block--side .rm-block--side__children .rm-inline-img,\n  .rm-article-wrapper .rm-block--side .rm-block--side__children .react-resizable {\n    max-width: 100%;\n  }\n\n  .rm-article-wrapper .rm-block--side__children div {\n    font-size: 0.85rem;\n  }\n\n.rm-article-wrapper  .rm-block--side__children .rm-block-input {\n    font-size: 0.85rem!important;\n  }\n\n  .rm-article-wrapper  .rm-block--side .rm-block--side__children {\n    align-self: flex-start;\n  }\n}```",
+          "uid": "bAmWZzVLu"
+         }
+        ],
+        "order": 0,
+        "string": "{{roam/css}}",
+        "uid": "PqC9evHPE"
+       }
+      ],
+      "order": 2,
+      "string": "Tufte Style Notes ",
+      "uid": "PPU4GyMGp"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "order": 0,
+          "string": "```css\n/* Quattro theme */ \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query {\n   margin-left: -28.5px;\n   margin-top: -14px;\n}\n\n#right-sidebar .rm-sidebar-outline-wrapper .rm-block[data-path-page-links*=\".list-query\"] .rm-reference-main {\n    margin-top: 10px;\n}```",
+          "uid": "Yn6OfT0Xg"
+         },
+         {
+          "order": 1,
+          "string": "```css\n.rm-block[data-path-page-links*=\".list-query\"] .rm-title-arrow-wrapper, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query-content > span[style*=\"font-size: 0.9em;\"], \n.rm-block[data-path-page-links*=\".list-query\"] .rm-query-title,\n.rm-block[data-path-page-links*=\".list-query\"] .rm-zoom {\n  display: none;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query {\n  border: none;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query .rm-query-content {\n  border-top: none!important;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-query, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-search-query, \n.rm-block[data-path-page-links*=\".list-query\"] .rm-reference-item {\n  background: transparent;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-mentions .rm-ref-page-view:first-child {\n  border-top: none!important;\n}\n\n.rm-block[data-path-page-links*=\".list-query\"] .rm-reference-item {\n  margin: 0;\n}```",
+          "uid": "7mW5Y35og"
+         }
+        ],
+        "order": 0,
+        "string": "{{roam/css}}",
+        "uid": "QLcKkohOp"
+       }
+      ],
+      "order": 3,
+      "string": "Roam Query ",
+      "uid": "DRc6hRs-a"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\nspan.rm-page-ref[data-tag=\"N/A\"],\nspan.rm-page-ref[data-tag=\"hide-this\"] {\n    display: none;\n}\n```",
+        "uid": "lKDa7t4Bh"
+       }
+      ],
+      "order": 4,
+      "string": "#N/A [[N/A]] tags ",
+      "uid": "s849QAoC1"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n :root{\n  --progress-bar-default:#137cbd;\n  --progress-bar:#137cbd;\n  --progress-border:#B6B6B6;\n  --progress-bg:#dfe2e5;\n}\n:root .rm-dark-theme {\n  --progress-border:#137cbd;\n  --progress-bg:#EFEFEF;\n}\n/* THIS CODEBLOCK IS OVERWRITTEN ON EVERY VERSION UPDATE\nDO NOT MODIFY*/\nprogress[name=\"percent-done\"],\n.todo-progress-bar progress{\n  display:inline-block;\n  height:6px;\n  background:none;\n  border-radius: 15px;\n  margin-bottom:2px;\n}\n  \nprogress::-webkit-progress-bar,\n.todo-progress-bar progress::-webkit-progress-bar{\n  height:6px;\n  background-color: var(--progress-bg);\n  border-radius: 15px;\n}\n\n.rm-dark-theme progress::-webkit-progress-bar,\n.rm-dark-theme .todo-progress-bar progress::-webkit-progress-bar{\nbox-shadow:0px 0px 6px var(--progress-border) inset;\n}\n\nprogress::-webkit-progress-value,\n.todo-progress-bar progress::-webkit-progress-value{\n  display:inline-block;\n  float:left;\n  height:6px;\n  margin:0px -10px 0 0;\n  background: var(--progress-bar);\n  border-radius: 5px;\n} ```",
+        "uid": "roam-render-todo-progress-css"
+       }
+      ],
+      "heading": 3,
+      "order": 5,
+      "string": "TODO PROGRESS BAR STYLE [[December 23rd, 2024]]",
+      "uid": "todo-progress-css-parent"
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan.rm-page-ref[data-tag=\"Inbox\"],\nspan[data-link-title=\"Inbox\"]\n{\n    background: var(--black);\n    color: var(--white);\n    padding: var(--tagpad);\n    font-size: 1.0em;\n    line-height: 1.0em;\n    font-weight: 500;\n    border-radius: var(--tagborder-radius);\n    position: var(--tagposition);\n}\n\nspan.rm-page-ref[data-tag=\"Inbox\"]:before, \nspan[data-link-title=\"Inbox\"]:before\n{\ncontent: '📥 ';\n}\n\nspan[data-link-title=\"Inbox\"] .rm-page-ref {\n  color: var(--white) !important;\n  font-weight: 500;\n}```",
+            "uid": "d2RvwVWrB"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "fe6sq9Csr"
+         }
+        ],
+        "order": 0,
+        "string": "#Inbox [[Inbox]]",
+        "uid": "KP_dotxk9"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Agenda\"] {\n  background: var(--deepblue);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Agenda\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Agenda\"]:before {\n  content: '📃 ';\n}```",
+            "uid": "-07l6UQ8V"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "G4oBMjLDf"
+         }
+        ],
+        "order": 1,
+        "string": "[[Agenda]]",
+        "uid": "IDtf10BcO"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Self-coaching\"] {\n  background: var(--white);\n  border: .5px solid var(--red);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Self-coaching\"] .rm-page-ref {\n  color: var(--red) !important;\n}\n\nspan[data-link-title=\"Self-coaching\"]:before {\n  content: '🩺 '\n}```",
+            "uid": "XuxxXAdAo"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "prP5e-8ku"
+         }
+        ],
+        "order": 2,
+        "string": "[[Self-coaching]]",
+        "uid": "MSlKQHzO5"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Morning plan\"] {\n  background: var(--skyblue);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n  }\n\nspan[data-link-title=\"Morning plan\"] .rm-page-ref {\n  color: var(--black) !important;\n}\n\nspan[data-link-title=\"Morning plan\"]:before {\n  content: '⛅ '\n}```",
+            "uid": "FS3llN2uP"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "W4KFZkyoa"
+         }
+        ],
+        "order": 3,
+        "string": "[[Morning plan]]",
+        "uid": "0uX0LMDx-"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Log\"] {\n  background: saddlebrown;\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Log\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Log\"]:before {\n  content: '⏱ '\n}```",
+            "uid": "ClmEyPNLs"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "mXHDPZ2QF"
+         }
+        ],
+        "order": 4,
+        "string": "[[Log]]",
+        "uid": "9LaW24ErV"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Weekly Accomplishments\"] {\n  background: var(--white);\n  border: .5px solid var(--gold);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Weekly Accomplishments\"] .rm-page-ref {\n  color: var(--gold) !important;\n}\n\nspan[data-link-title=\"Weekly Accomplishments\"]:before {\n  content: '🏆 '\n}```",
+            "uid": "GfwC2Ap2L"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "7COQNrrO0"
+         }
+        ],
+        "order": 5,
+        "string": "[[Weekly Accomplishments]]",
+        "uid": "Phc2JZtb5"
+       },
+       {
+        "children": [
+         {
+          "children": [
+           {
+            "order": 0,
+            "string": "```css\nspan[data-link-title=\"Daily Tasks\"] {\n  background: var(--green);\n  padding: var(--tagpad);\n  font-size: var(--tagfont-size);\n  line-height: var(--tagline-height);\n  font-weight: var(--tagfont-weight);\n  border-radius: var(--tagborder-radius);\n  position: var(--tagposition);\n}\n\nspan[data-link-title=\"Daily Tasks\"] .rm-page-ref {\n  color: var(--white) !important;\n}\n\nspan[data-link-title=\"Daily Tasks\"]:before {\n    content: '🔁 '\n}```",
+            "uid": "7M565fUBx"
+           }
+          ],
+          "order": 0,
+          "string": "Code",
+          "uid": "JZOCcx6gz"
+         }
+        ],
+        "order": 6,
+        "string": "[[Daily Tasks]]",
+        "uid": "Saafs1jNH"
+       }
+      ],
+      "heading": 1,
+      "order": 6,
+      "string": "Productivity Tags",
+      "uid": "0BYlFRskQ"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n .cycle-button {\n    cursor: pointer;\n    background:rgb(230,242,247);\n    border-radius: 3px 0 0 3px;\n    padding: 2px 3px 3px 4px;\n    user-select: none;\n    cursor: pointer;\n  }\n  .dont-focus-block:has(span.cycle-button)+[data-tag] {\n    background:rgb(230,242,247);\n    padding: 2px 3px 3px 4px;\n    border-radius: 0 3px 3px 0;\n  }\n  .rm-block[data-page-links*=\"attr-table\"] .dont-focus-block:has(span.cycle-button)+[data-tag]{\n    background:inherit;\n    padding: inherit;\n    border-radius: inherit;\n    color: #106BA3;\n  } ```",
+        "uid": "roam-render-tag-cycle-css"
+       }
+      ],
+      "heading": 3,
+      "order": 7,
+      "string": "Tag Cycle Component STYLE [[January 1st, 2025]]",
+      "uid": "tag-cycle-css-parent"
+     },
+     {
+      "children": [
+       {
+        "order": 0,
+        "string": "```css\n/* H1 gutter: center the collapse caret + bullet on the heading's first line.\n\n   Roam ships `.rm-heading-level-1 > .rm-block-main > .rm-block__controls\n   { padding-top: 12px }`. That box is already `display:flex; align-items:center;\n   min-height:42px`, so the padding shifts the centering down by exactly half —\n   the bullet lands padding-top/2 = 6px BELOW the text center.\n\n   Measured live (Readwisenotes, CDP): offset = padding-top / 2, and\n   padding-top:0 gives -0.02px. So zero is the centered value, not a magic number. */\n\n.rm-heading-level-1 > .rm-block-main > .rm-block__controls {\n  padding-top: 2 !important;\n}\n\n/* Same +padTop/2 offset exists on H2 (8px -> 4px low) and H3 (5px -> 2.5px low).\n   Uncomment to center those too:\n\n.rm-heading-level-2 > .rm-block-main > .rm-block__controls,\n.rm-heading-level-3 > .rm-block-main > .rm-block__controls {\n  padding-top: 0 !important;\n}\n*/```",
+        "uid": "9y_EINQzN"
+       }
+      ],
+      "heading": 3,
+      "order": 8,
+      "string": "H1 BULLET / CARET ALIGNMENT [[August 5th, 2026]]",
+      "uid": "9zhm-XQRp"
+     }
+    ],
+    "uid": "A7CSCL_Xj",
+    "title": "roam/css"
+   }
+  ]
+ ]
+}
