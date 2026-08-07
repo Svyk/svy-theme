@@ -38,6 +38,23 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
   ]);
 });
 
+test("a failed onload records window.__BP_LAST_ERROR before rethrowing", async () => {
+  const api = fakeExtensionApi();
+  api.settings.panel.create = async () => { throw new Error("panel.create boom"); };
+
+  const originalWindow = globalThis.window;
+  globalThis.window = {};
+  try {
+    await assert.rejects(
+      extension.onload({ extensionAPI: api, extension: { version: "test" } }),
+      /panel\.create boom/,
+    );
+    assert.match(globalThis.window.__BP_LAST_ERROR, /panel\.create boom/);
+  } finally {
+    globalThis.window = originalWindow;
+  }
+});
+
 test("a second load disposes the previous runtime before registering again", async () => {
   const firstApi = fakeExtensionApi();
   const secondApi = fakeExtensionApi();

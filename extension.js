@@ -91,9 +91,21 @@ var SETTING_IDS = Object.freeze({
 });
 var APPEARANCE_MODES = Object.freeze(["auto", "dark", "light"]);
 var DEFAULT_APPEARANCE = "auto";
+function normalizeMode(value) {
+  if (typeof value !== "string") return DEFAULT_APPEARANCE;
+  const lowered = value.toLowerCase();
+  return APPEARANCE_MODES.includes(lowered) ? lowered : DEFAULT_APPEARANCE;
+}
 async function initializeSettings(extensionAPI) {
-  if (extensionAPI.settings.canSet !== false && extensionAPI.settings.get(SETTING_IDS.appearance) == null) {
+  if (extensionAPI.settings.canSet === false) return;
+  const raw = extensionAPI.settings.get(SETTING_IDS.appearance);
+  if (raw == null) {
     await extensionAPI.settings.set(SETTING_IDS.appearance, DEFAULT_APPEARANCE);
+    return;
+  }
+  const normalized = normalizeMode(raw);
+  if (raw !== normalized) {
+    await extensionAPI.settings.set(SETTING_IDS.appearance, normalized);
   }
 }
 function createSettingsPanel({ onAppearanceChange } = {}) {
@@ -122,8 +134,9 @@ var ALL_ICON_CLASSES = Object.freeze(Object.values(ICON_BY_MODE).map((icon) => `
 var TOGGLE_CLASS = "blueprint-dm-toggle";
 var ICON_CLASS = "blueprint-toggle-icon";
 var CONTAINER_ID = "blueprintToggleDarkMode-flex-space";
-function normalizeMode(value) {
-  return APPEARANCE_MODES.includes(value) ? value : "auto";
+var INSTALL_RETRY_BOUND_MS = 3e4;
+function recordError(err) {
+  if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(err?.stack || err);
 }
 function nextMode(mode) {
   const index = APPEARANCE_MODES.indexOf(normalizeMode(mode));
@@ -150,14 +163,11 @@ function applyAppearance(mode, doc = globalThis.document) {
     }
   }
 }
-async function installDarkModeToggle({ extensionAPI, lifecycle, doc = globalThis.document }) {
-  if (!doc?.createElement) return;
-  const currentMode = () => normalizeMode(extensionAPI.settings.get(SETTING_IDS.appearance));
-  applyAppearance(currentMode(), doc);
-  if (doc.getElementById?.(CONTAINER_ID)) return;
+function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
+  if (doc.getElementById?.(CONTAINER_ID)) return true;
   const topbar = doc.getElementsByClassName?.("rm-topbar")?.[0];
   const anchor = topbar?.lastElementChild;
-  if (!anchor?.insertAdjacentElement) return;
+  if (!anchor?.insertAdjacentElement) return false;
   const wrapper = doc.createElement("span");
   wrapper.className = "bp3-popover-wrapper";
   const icon = doc.createElement("span");
@@ -176,11 +186,45 @@ async function installDarkModeToggle({ extensionAPI, lifecycle, doc = globalThis
   lifecycle.add(() => spacerBefore.remove());
   lifecycle.add(() => spacerAfter.remove());
   const handleClick = async () => {
-    const mode = nextMode(currentMode());
-    if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
-    applyAppearance(mode, doc);
+    try {
+      const mode = nextMode(currentMode());
+      if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
+      applyAppearance(mode, doc);
+    } catch (err) {
+      recordError(err);
+      throw err;
+    }
   };
   lifecycle.event(wrapper, "click", handleClick);
+  return true;
+}
+async function installDarkModeToggle({
+  extensionAPI,
+  lifecycle,
+  doc = globalThis.document,
+  ObserverImpl = globalThis.MutationObserver,
+  retryBoundMs = INSTALL_RETRY_BOUND_MS
+}) {
+  if (!doc?.createElement) return;
+  const currentMode = () => normalizeMode(extensionAPI.settings.get(SETTING_IDS.appearance));
+  applyAppearance(currentMode(), doc);
+  const attempt = () => mountToggle({ doc, extensionAPI, lifecycle, currentMode });
+  if (attempt()) return;
+  if (!doc.body || typeof ObserverImpl !== "function") return;
+  let settled = false;
+  const observer = new ObserverImpl(() => {
+    if (settled) return;
+    if (attempt()) {
+      settled = true;
+      observer.disconnect();
+    }
+  });
+  lifecycle.observer(observer, doc.body, { childList: true, subtree: true });
+  lifecycle.timeout(() => {
+    if (settled) return;
+    settled = true;
+    observer.disconnect();
+  }, retryBoundMs);
 }
 
 // src/extension.js
@@ -199,8 +243,12 @@ async function onload({ extensionAPI, extension }) {
     await installDarkModeToggle({ extensionAPI, lifecycle });
     console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
   } catch (error) {
+    if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);
     if (activeLifecycle === lifecycle) activeLifecycle = null;
-    await lifecycle.dispose().catch((cleanupError) => console.error(cleanupError));
+    await lifecycle.dispose().catch((cleanupError) => {
+      if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(cleanupError?.stack || cleanupError);
+      console.error(cleanupError);
+    });
     throw error;
   }
   return async () => {

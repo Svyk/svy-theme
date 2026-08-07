@@ -1,4 +1,4 @@
-import { APPEARANCE_MODES, SETTING_IDS } from "./settings.js";
+import { APPEARANCE_MODES, SETTING_IDS, normalizeMode } from "./settings.js";
 
 // Ported from upstream rcvd/blueprint src/components/dm-toggle.ts (pinned commit
 // cc1c71784a26bc86da99a1572733c624e9196299), rewritten as plain JS against this
@@ -10,8 +10,13 @@ const TOGGLE_CLASS = "blueprint-dm-toggle";
 const ICON_CLASS = "blueprint-toggle-icon";
 const CONTAINER_ID = "blueprintToggleDarkMode-flex-space";
 
-function normalizeMode(value) {
-  return APPEARANCE_MODES.includes(value) ? value : "auto";
+// Bound on how long we'll wait for .rm-topbar to mount before giving up. A URL-installed
+// developer extension can load before Roam's own topbar mounts, so we can't assume it's
+// there on the first attempt — but we also must not watch forever.
+const INSTALL_RETRY_BOUND_MS = 30_000;
+
+function recordError(err) {
+  if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(err?.stack || err);
 }
 
 function nextMode(mode) {
@@ -49,18 +54,14 @@ export function applyAppearance(mode, doc = globalThis.document) {
   }
 }
 
-export async function installDarkModeToggle({ extensionAPI, lifecycle, doc = globalThis.document }) {
-  if (!doc?.createElement) return; // no browser DOM (e.g. under node:test) — nothing to install
-
-  const currentMode = () => normalizeMode(extensionAPI.settings.get(SETTING_IDS.appearance));
-
-  applyAppearance(currentMode(), doc);
-
-  if (doc.getElementById?.(CONTAINER_ID)) return; // already installed (defensive; onload disposes first)
+// Attempts one install. Returns true if the toggle is present in the DOM afterward
+// (either just installed, or already installed by a prior attempt).
+function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
+  if (doc.getElementById?.(CONTAINER_ID)) return true; // already installed
 
   const topbar = doc.getElementsByClassName?.("rm-topbar")?.[0];
   const anchor = topbar?.lastElementChild;
-  if (!anchor?.insertAdjacentElement) return; // topbar not ready; nothing to attach to
+  if (!anchor?.insertAdjacentElement) return false; // topbar not ready yet
 
   const wrapper = doc.createElement("span");
   wrapper.className = "bp3-popover-wrapper";
@@ -86,10 +87,54 @@ export async function installDarkModeToggle({ extensionAPI, lifecycle, doc = glo
   lifecycle.add(() => spacerAfter.remove());
 
   const handleClick = async () => {
-    const mode = nextMode(currentMode());
-    if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
-    applyAppearance(mode, doc);
+    try {
+      const mode = nextMode(currentMode());
+      if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
+      applyAppearance(mode, doc);
+    } catch (err) {
+      recordError(err);
+      throw err;
+    }
   };
 
   lifecycle.event(wrapper, "click", handleClick);
+  return true;
+}
+
+export async function installDarkModeToggle({
+  extensionAPI,
+  lifecycle,
+  doc = globalThis.document,
+  ObserverImpl = globalThis.MutationObserver,
+  retryBoundMs = INSTALL_RETRY_BOUND_MS,
+}) {
+  if (!doc?.createElement) return; // no browser DOM (e.g. under node:test) — nothing to install
+
+  const currentMode = () => normalizeMode(extensionAPI.settings.get(SETTING_IDS.appearance));
+  applyAppearance(currentMode(), doc);
+
+  const attempt = () => mountToggle({ doc, extensionAPI, lifecycle, currentMode });
+  if (attempt()) return;
+
+  // .rm-topbar (or its lastElementChild) isn't there yet. This breaks a hard contract —
+  // Better Tasks detects this theme via document.querySelector(".blueprint-dm-toggle")
+  // (~/better-tasks/src/index.js:19874) — so don't just give up silently. Watch for the
+  // topbar to mount, bounded so we don't watch forever if it never shows up.
+  if (!doc.body || typeof ObserverImpl !== "function") return;
+
+  let settled = false;
+  const observer = new ObserverImpl(() => {
+    if (settled) return;
+    if (attempt()) {
+      settled = true;
+      observer.disconnect();
+    }
+  });
+  lifecycle.observer(observer, doc.body, { childList: true, subtree: true });
+
+  lifecycle.timeout(() => {
+    if (settled) return;
+    settled = true;
+    observer.disconnect();
+  }, retryBoundMs);
 }

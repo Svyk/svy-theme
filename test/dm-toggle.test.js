@@ -18,7 +18,7 @@ function fakeExtensionApi(initial = {}) {
 
 // Minimal fake DOM: only the surface installDarkModeToggle/applyAppearance touch
 // (classList, insertAdjacentElement, getElementsByClassName/Id, click dispatch).
-function createFakeDocument() {
+function createFakeDocument({ includeTopbar = true } = {}) {
   const allElements = [];
   const idIndex = new Map();
 
@@ -74,11 +74,19 @@ function createFakeDocument() {
   }
 
   const documentElement = makeElement("html");
-  const topbar = makeElement("div");
-  topbar.className = "rm-topbar";
-  const existingTopbarIcon = makeElement("span");
-  topbar.appendChild(existingTopbarIcon);
-  documentElement.appendChild(topbar);
+  const body = makeElement("body");
+  documentElement.appendChild(body);
+
+  function attachTopbar() {
+    const topbar = makeElement("div");
+    topbar.className = "rm-topbar";
+    const existingTopbarIcon = makeElement("span");
+    topbar.appendChild(existingTopbarIcon);
+    documentElement.appendChild(topbar);
+    return topbar;
+  }
+
+  if (includeTopbar) attachTopbar();
 
   function isConnected(el) {
     let node = el;
@@ -91,13 +99,45 @@ function createFakeDocument() {
 
   return {
     documentElement,
+    body,
     createElement: makeElement,
     // Real getElementsByClassName only finds nodes still attached to the document —
     // removing a wrapper detaches its children too, even though this fake never marks
     // descendants "removed" individually. Walk up to documentElement to match that.
     getElementsByClassName: (name) => allElements.filter((el) => !el.removed && isConnected(el) && el._classes.has(name)),
     getElementById: (id) => idIndex.get(id) || null,
+    // Test-only hook: simulate Roam's topbar mounting after this extension already loaded
+    // (e.g. a URL-installed developer extension racing Roam's own UI mount).
+    mountTopbarLate: attachTopbar,
   };
+}
+
+// Fake MutationObserver: no real DOM mutation plumbing, just a `trigger()` the test calls
+// to simulate "something changed under the observed target."
+function createFakeObserverImpl() {
+  const instances = [];
+  function FakeMutationObserver(callback) {
+    const instance = {
+      callback,
+      observedTarget: null,
+      observedOptions: null,
+      disconnected: false,
+      observe(target, options) {
+        this.observedTarget = target;
+        this.observedOptions = options;
+      },
+      disconnect() {
+        this.disconnected = true;
+      },
+      trigger() {
+        this.callback([], this);
+      },
+    };
+    instances.push(instance);
+    return instance;
+  }
+  FakeMutationObserver.instances = instances;
+  return FakeMutationObserver;
 }
 
 test("installs a toggle whose clickable element carries the blueprint-dm-toggle class", async () => {
@@ -139,6 +179,17 @@ test("clicking cycles auto -> dark -> light -> auto and stamps documentElement",
   await lifecycle.dispose();
 });
 
+test("a legacy capitalized stored value (e.g. upstream's \"Dark\") is honored on install", async () => {
+  const doc = createFakeDocument();
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "Dark" });
+  const lifecycle = createLifecycle();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc });
+
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+  await lifecycle.dispose();
+});
+
 test("unload removes every inserted node — native Roam UI fully restored, no reload", async () => {
   const doc = createFakeDocument();
   const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
@@ -174,4 +225,78 @@ test("install is a no-op outside a browser-like environment", async () => {
   const lifecycle = createLifecycle();
   await installDarkModeToggle({ extensionAPI: fakeExtensionApi(), lifecycle, doc: undefined });
   await lifecycle.dispose();
+});
+
+test("observer path installs the toggle once the topbar mounts late, then disconnects", async () => {
+  const doc = createFakeDocument({ includeTopbar: false }); // simulate .rm-topbar not mounted yet
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc, ObserverImpl });
+
+  assert.equal(doc.getElementsByClassName("blueprint-dm-toggle").length, 0, "not installed yet — topbar absent");
+  assert.equal(ObserverImpl.instances.length, 1, "expected a MutationObserver to be registered");
+  assert.equal(ObserverImpl.instances[0].observedTarget, doc.body, "observer should watch document.body");
+
+  doc.mountTopbarLate();
+  ObserverImpl.instances[0].trigger();
+
+  const toggles = doc.getElementsByClassName("blueprint-dm-toggle");
+  assert.ok(toggles.length >= 1, "expected the toggle to install once the topbar appeared");
+  assert.ok(ObserverImpl.instances[0].disconnected, "observer should disconnect once installed");
+
+  await lifecycle.dispose();
+  assert.equal(doc.getElementsByClassName("blueprint-dm-toggle").length, 0, "dispose should tear down the late-installed toggle");
+});
+
+test("observer path gives up after the bound and does not watch forever", async () => {
+  const doc = createFakeDocument({ includeTopbar: false });
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc, ObserverImpl, retryBoundMs: 5 });
+
+  assert.equal(ObserverImpl.instances[0].disconnected, false);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(ObserverImpl.instances[0].disconnected, true, "expected the bounded timeout to disconnect the observer");
+
+  // The topbar never showed up, so nothing should be installed, and disposing afterward
+  // must not throw even though the observer/timeout already resolved on their own.
+  assert.equal(doc.getElementsByClassName("blueprint-dm-toggle").length, 0);
+  await assert.doesNotReject(lifecycle.dispose());
+});
+
+test("dispose before the topbar ever appears tears down the observer and timeout cleanly", async () => {
+  const doc = createFakeDocument({ includeTopbar: false });
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc, ObserverImpl });
+  assert.equal(ObserverImpl.instances[0].disconnected, false);
+
+  await lifecycle.dispose();
+  assert.equal(ObserverImpl.instances[0].disconnected, true);
+});
+
+test("a click handler failure sets window.__BP_LAST_ERROR before rethrowing", async () => {
+  const doc = createFakeDocument();
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  extensionAPI.settings.set = async () => { throw new Error("settings.set boom"); };
+  const lifecycle = createLifecycle();
+
+  const originalWindow = globalThis.window;
+  globalThis.window = {};
+  try {
+    await installDarkModeToggle({ extensionAPI, lifecycle, doc });
+    const [wrapper] = doc.getElementsByClassName("bp3-popover-wrapper");
+
+    await assert.rejects(wrapper.dispatch("click"), /settings\.set boom/);
+    assert.match(globalThis.window.__BP_LAST_ERROR, /settings\.set boom/);
+  } finally {
+    globalThis.window = originalWindow;
+    await lifecycle.dispose();
+  }
 });

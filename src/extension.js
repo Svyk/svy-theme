@@ -19,8 +19,12 @@ export async function onload({ extensionAPI, extension }) {
     await installDarkModeToggle({ extensionAPI, lifecycle });
     console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
   } catch (error) {
+    if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);
     if (activeLifecycle === lifecycle) activeLifecycle = null;
-    await lifecycle.dispose().catch((cleanupError) => console.error(cleanupError));
+    await lifecycle.dispose().catch((cleanupError) => {
+      if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(cleanupError?.stack || cleanupError);
+      console.error(cleanupError);
+    });
     throw error;
   }
 
