@@ -1,5 +1,5 @@
 import { createLifecycle } from "./lifecycle.js";
-import { installExampleFeature } from "./feature.js";
+import { applyAppearance, installDarkModeToggle } from "./dm-toggle.js";
 import { createSettingsPanel, initializeSettings } from "./settings.js";
 
 let activeLifecycle = null;
@@ -12,9 +12,12 @@ export async function onload({ extensionAPI, extension }) {
   activeLifecycle = lifecycle;
   try {
     await initializeSettings(extensionAPI);
-    await lifecycle.settingsPanel(extensionAPI, createSettingsPanel());
-    await installExampleFeature({ extensionAPI, lifecycle });
-    console.info(`[example-extension] Loaded v${extension?.version || "development"}`);
+    await lifecycle.settingsPanel(
+      extensionAPI,
+      createSettingsPanel({ onAppearanceChange: (mode) => applyAppearance(mode) }),
+    );
+    await installDarkModeToggle({ extensionAPI, lifecycle });
+    console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (activeLifecycle === lifecycle) activeLifecycle = null;
     await lifecycle.dispose().catch((cleanupError) => console.error(cleanupError));
@@ -32,8 +35,7 @@ export async function onunload() {
   const lifecycle = activeLifecycle;
   activeLifecycle = null;
   if (lifecycle) await lifecycle.dispose();
-  console.info("[example-extension] Unloaded");
+  console.info("[roam-blueprint] Unloaded");
 }
 
 export default { onload, onunload };
-

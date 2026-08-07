@@ -16,12 +16,6 @@ function fakeExtensionApi() {
         create: async (config) => { calls.push(["panel:create", config.tabTitle]); return null; },
       },
     },
-    ui: {
-      commandPalette: {
-        addCommand: async ({ label }) => { calls.push(["command:add", label]); return null; },
-        removeCommand: async ({ label }) => { calls.push(["command:remove", label]); return null; },
-      },
-    },
   };
 }
 
@@ -36,12 +30,11 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
   await extension.onunload();
   await extension.onunload();
 
-  assert.equal(api.calls.filter(([name]) => name === "command:add").length, 1);
-  assert.equal(api.calls.filter(([name]) => name === "command:remove").length, 1);
-  assert.deepEqual(api.calls.slice(0, 3), [
-    ["setting:set", "include-timestamp", true],
-    ["panel:create", "Example Extension"],
-    ["command:add", "Example Extension: Say hello"],
+  // No document global under node:test, so installDarkModeToggle no-ops — DOM-facing
+  // behavior is covered by test/dm-toggle.test.js with an injected fake document.
+  assert.deepEqual(api.calls, [
+    ["setting:set", "bp-appearance", "auto"],
+    ["panel:create", "Blueprint (Svy fork)"],
   ]);
 });
 
@@ -52,8 +45,13 @@ test("a second load disposes the previous runtime before registering again", asy
   await extension.onload({ extensionAPI: firstApi, extension: { version: "one" } });
   const cleanup = await extension.onload({ extensionAPI: secondApi, extension: { version: "two" } });
 
-  assert.equal(firstApi.calls.filter(([name]) => name === "command:remove").length, 1);
-  assert.equal(secondApi.calls.filter(([name]) => name === "command:add").length, 1);
+  assert.deepEqual(firstApi.calls, [
+    ["setting:set", "bp-appearance", "auto"],
+    ["panel:create", "Blueprint (Svy fork)"],
+  ]);
+  assert.deepEqual(secondApi.calls, [
+    ["setting:set", "bp-appearance", "auto"],
+    ["panel:create", "Blueprint (Svy fork)"],
+  ]);
   await cleanup();
 });
-

@@ -1,4 +1,4 @@
-/* Example Roam Extension v0.1.0 | MIT | generated; edit src/ */
+/* Blueprint (Svy fork) v0.1.0 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -14,7 +14,7 @@ function createLifecycle() {
   const add = (disposer) => {
     if (typeof disposer !== "function") throw new TypeError("A disposer must be a function");
     if (disposed) {
-      void callSafely(disposer).catch((error) => console.error("[example-extension] Late cleanup failed", error));
+      void callSafely(disposer).catch((error) => console.error("[roam-blueprint] Late cleanup failed", error));
       return disposer;
     }
     disposers.push(disposer);
@@ -87,25 +87,28 @@ function createLifecycle() {
 
 // src/settings.js
 var SETTING_IDS = Object.freeze({
-  includeTimestamp: "include-timestamp"
+  appearance: "bp-appearance"
 });
+var APPEARANCE_MODES = Object.freeze(["auto", "dark", "light"]);
+var DEFAULT_APPEARANCE = "auto";
 async function initializeSettings(extensionAPI) {
-  if (extensionAPI.settings.canSet !== false && extensionAPI.settings.get(SETTING_IDS.includeTimestamp) == null) {
-    await extensionAPI.settings.set(SETTING_IDS.includeTimestamp, true);
+  if (extensionAPI.settings.canSet !== false && extensionAPI.settings.get(SETTING_IDS.appearance) == null) {
+    await extensionAPI.settings.set(SETTING_IDS.appearance, DEFAULT_APPEARANCE);
   }
 }
-function createSettingsPanel() {
+function createSettingsPanel({ onAppearanceChange } = {}) {
   return {
-    tabTitle: "Example Extension",
+    tabTitle: "Blueprint (Svy fork)",
     settings: [
       {
-        id: SETTING_IDS.includeTimestamp,
-        name: "Include timestamp",
-        description: "Include the current time in the example command's console greeting.",
+        id: SETTING_IDS.appearance,
+        name: "Appearance",
+        description: "Light/dark mode for the Blueprint theme. Auto defers to Roam's own theme setting; the topbar toggle cycles the same three values.",
         action: {
-          type: "switch",
+          type: "select",
+          items: [...APPEARANCE_MODES],
           onChange: (event) => {
-            console.info("[example-extension] Include timestamp:", event.target.checked);
+            onAppearanceChange?.(event?.target?.value);
           }
         }
       }
@@ -113,16 +116,71 @@ function createSettingsPanel() {
   };
 }
 
-// src/feature.js
-function greeting(extensionAPI, now = /* @__PURE__ */ new Date()) {
-  const suffix = extensionAPI.settings.get(SETTING_IDS.includeTimestamp) ? ` at ${now.toLocaleTimeString()}` : "";
-  return `Hello from Example Extension${suffix}!`;
+// src/dm-toggle.js
+var ICON_BY_MODE = Object.freeze({ auto: "clean", dark: "moon", light: "flash" });
+var ALL_ICON_CLASSES = Object.freeze(Object.values(ICON_BY_MODE).map((icon) => `bp3-icon-${icon}`));
+var TOGGLE_CLASS = "blueprint-dm-toggle";
+var ICON_CLASS = "blueprint-toggle-icon";
+var CONTAINER_ID = "blueprintToggleDarkMode-flex-space";
+function normalizeMode(value) {
+  return APPEARANCE_MODES.includes(value) ? value : "auto";
 }
-async function installExampleFeature({ extensionAPI, lifecycle }) {
-  await lifecycle.command(extensionAPI.ui.commandPalette, {
-    label: "Example Extension: Say hello",
-    callback: () => console.info(greeting(extensionAPI))
-  });
+function nextMode(mode) {
+  const index = APPEARANCE_MODES.indexOf(normalizeMode(mode));
+  return APPEARANCE_MODES[(index + 1) % APPEARANCE_MODES.length];
+}
+function applyAppearance(mode, doc = globalThis.document) {
+  if (!doc) return;
+  const normalized = normalizeMode(mode);
+  const button = doc.getElementsByClassName?.(ICON_CLASS)?.[0];
+  if (button?.classList) {
+    for (const iconClass of ALL_ICON_CLASSES) button.classList.remove(iconClass);
+    button.classList.add(`bp3-icon-${ICON_BY_MODE[normalized]}`);
+  }
+  const root = doc.documentElement;
+  if (root?.classList) {
+    if (normalized === "dark") {
+      root.classList.remove("bp3-light");
+      root.classList.add("bp3-dark");
+    } else if (normalized === "light") {
+      root.classList.remove("bp3-dark");
+      root.classList.add("bp3-light");
+    } else {
+      root.classList.remove("bp3-light");
+    }
+  }
+}
+async function installDarkModeToggle({ extensionAPI, lifecycle, doc = globalThis.document }) {
+  if (!doc?.createElement) return;
+  const currentMode = () => normalizeMode(extensionAPI.settings.get(SETTING_IDS.appearance));
+  applyAppearance(currentMode(), doc);
+  if (doc.getElementById?.(CONTAINER_ID)) return;
+  const topbar = doc.getElementsByClassName?.("rm-topbar")?.[0];
+  const anchor = topbar?.lastElementChild;
+  if (!anchor?.insertAdjacentElement) return;
+  const wrapper = doc.createElement("span");
+  wrapper.className = "bp3-popover-wrapper";
+  const icon = doc.createElement("span");
+  icon.className = `bp3-button bp3-minimal bp3-small bp3-icon-${ICON_BY_MODE[currentMode()]} ${TOGGLE_CLASS} ${ICON_CLASS}`;
+  wrapper.appendChild(icon);
+  const spacerBefore = doc.createElement("div");
+  spacerBefore.className = `rm-topbar__spacer-sm ${TOGGLE_CLASS}`;
+  spacerBefore.id = CONTAINER_ID;
+  const spacerAfter = doc.createElement("div");
+  spacerAfter.className = `rm-topbar__spacer-sm ${TOGGLE_CLASS}`;
+  spacerAfter.id = `${CONTAINER_ID}-after`;
+  anchor.insertAdjacentElement("afterend", wrapper);
+  wrapper.insertAdjacentElement("beforebegin", spacerBefore);
+  wrapper.insertAdjacentElement("afterend", spacerAfter);
+  lifecycle.add(() => wrapper.remove());
+  lifecycle.add(() => spacerBefore.remove());
+  lifecycle.add(() => spacerAfter.remove());
+  const handleClick = async () => {
+    const mode = nextMode(currentMode());
+    if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
+    applyAppearance(mode, doc);
+  };
+  lifecycle.event(wrapper, "click", handleClick);
 }
 
 // src/extension.js
@@ -134,9 +192,12 @@ async function onload({ extensionAPI, extension }) {
   activeLifecycle = lifecycle;
   try {
     await initializeSettings(extensionAPI);
-    await lifecycle.settingsPanel(extensionAPI, createSettingsPanel());
-    await installExampleFeature({ extensionAPI, lifecycle });
-    console.info(`[example-extension] Loaded v${extension?.version || "development"}`);
+    await lifecycle.settingsPanel(
+      extensionAPI,
+      createSettingsPanel({ onAppearanceChange: (mode) => applyAppearance(mode) })
+    );
+    await installDarkModeToggle({ extensionAPI, lifecycle });
+    console.info(`[roam-blueprint] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (activeLifecycle === lifecycle) activeLifecycle = null;
     await lifecycle.dispose().catch((cleanupError) => console.error(cleanupError));
@@ -151,7 +212,7 @@ async function onunload() {
   const lifecycle = activeLifecycle;
   activeLifecycle = null;
   if (lifecycle) await lifecycle.dispose();
-  console.info("[example-extension] Unloaded");
+  console.info("[roam-blueprint] Unloaded");
 }
 var extension_default = { onload, onunload };
 export {

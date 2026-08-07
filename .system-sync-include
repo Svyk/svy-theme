@@ -1,5 +1,0 @@
-# Keep source and release tooling in the system backup.
-exclude:
-  - node_modules/
-  - coverage/
-

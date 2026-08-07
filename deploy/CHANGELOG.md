@@ -4,6 +4,17 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Changed
+
+- Forked from `roam-extension-template` as `roam-blueprint`: vendored upstream
+  `rcvd/blueprint` theme CSS (pinned commit `cc1c71784a26bc86da99a1572733c624e9196299`)
+  as a real `extension.css`, replacing upstream's JS-string-inlined `add_css.sh`
+  mechanism.
+- Ported upstream's dark-mode toggle (`src/components/dm-toggle.ts`) to plain JS at
+  `src/dm-toggle.js`, wired onto this template's lifecycle disposal contract. Preserves
+  the `blueprint-dm-toggle` class Better Tasks depends on and the `bp-appearance`
+  auto/dark/light setting.
+
 ## [0.1.0] - 2026-08-03
 
 ### Added
