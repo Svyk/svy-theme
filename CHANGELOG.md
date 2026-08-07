@@ -26,6 +26,24 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Theme-adaptive cursors.** Beam v1 painted one cursor set on both surfaces, with
+  `#182026` ink that vanishes into the dark page. `theme-vars.js` now publishes a set per
+  mode: light keeps the v1 art, dark uses an `#E1E8ED` outline (APCA Lc -88.5 on the dark
+  surface) with `#182026` as the interior fill and `#48D0C0` — the dark caret — as the
+  accent and spark, so the cursors and the caret read as one identity hue. The dark set is
+  published under the same five dark signals the rest of the theme uses, and
+  `40-beam.css` carries the same values baked into zero-specificity `:where()` blocks so
+  the behavior holds with JavaScript absent without ever outranking a user's own caret
+  color. Customizing either caret still recolors that mode's spark.
+- **Light caret contrast**: the default moved from `#008478` (APCA Lc 66.8) to `#00695E`
+  (Lc 77.6), which clears the thin-stroke floor a caret has to meet. A graph that already
+  seeded the old default is migrated once on load; any other stored value is left alone.
+- **Native table add-row / add-column affordance on dark.** Roam's `site.css` ships a
+  `.bp3-dark` block for `.rm-table` but no entry for the two add buttons, whose only
+  visible state is a mode-independent `:hover { background: #E1E8ED; color: #5C7080 }` —
+  so hovering a dark table painted a near-white bar across its bottom edge and down its
+  right side. `10-fixes-dark.css` now gives them the dark table palette (`#2b3a42`
+  surface, `#738091` border, `#8A9BA8` glyph) under all five dark signals.
 - Beam auto-mode dark defect: with nothing stamped and the OS in dark mode, the light
   teal caret `#008478` sat on the dark page at APCA Lc -26.6. Added the guarded
   `@media (prefers-color-scheme: dark) { :root:not(.bp3-light) … }` fallback — the same

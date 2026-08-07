@@ -101,9 +101,10 @@ var BEAM_SETTING_IDS = Object.freeze({
 var CARET_SHAPES = Object.freeze(["block", "bar"]);
 var WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 var CURSOR_STYLES = Object.freeze(["svy", "native"]);
+var LEGACY_CARET_LIGHT = "#008478";
 var BEAM_DEFAULTS = Object.freeze({
   pack: true,
-  caretLight: "#008478",
+  caretLight: "#00695e",
   caretDark: "#48d0c0",
   caretShape: "block",
   caretBlink: false,
@@ -112,7 +113,7 @@ var BEAM_DEFAULTS = Object.freeze({
   cursor: "svy"
 });
 var DEFAULT_WASH_RGB = Object.freeze({ light: "0, 122, 112", dark: "72, 208, 192" });
-var DEFAULT_CARET_P3 = Object.freeze({ light: "0.55 0.13 184", dark: "0.78 0.15 184" });
+var DEFAULT_CARET_P3 = Object.freeze({ light: "0.47 0.11 182", dark: "0.78 0.15 184" });
 var WASH_ALPHA = Object.freeze({
   subtle: Object.freeze({ light: 0.045, dark: 0.055 }),
   medium: Object.freeze({ light: 0.09, dark: 0.11 })
@@ -173,7 +174,7 @@ function encodeSvg(svg) {
   return svg.replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E").replace(/"/g, "%22").replace(/\s+/g, " ").trim();
 }
 var CURSOR_SVG = Object.freeze({
-  default: ({ outline, accent, spark }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='${accent}' stroke='${outline}' stroke-width='2' stroke-linejoin='round'/><path d='M6 5L12 21' stroke='${spark}' stroke-width='2.5' stroke-linecap='round'/></svg>`,
+  default: ({ outline, body, spark }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='${body}' stroke='${outline}' stroke-width='2' stroke-linejoin='round'/><path d='M6 5L12 21' stroke='${spark}' stroke-width='2.5' stroke-linecap='round'/></svg>`,
   pointer: ({ outline, accent, spark, highlight }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><circle cx='16' cy='16' r='10' fill='${outline}' stroke='${accent}' stroke-width='3'/><circle cx='16' cy='16' r='4' fill='${spark}' stroke='${highlight}' stroke-width='1'/></svg>`,
   text: ({ outline, accent, spark, highlight }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><rect x='10' y='3' width='12' height='26' rx='6' fill='${outline}' stroke='${accent}' stroke-width='2'/><rect x='13' y='6' width='6' height='20' rx='3' fill='${spark}'/><circle cx='16' cy='16' r='2' fill='${highlight}'/></svg>`
 });
@@ -182,58 +183,88 @@ var CURSOR_ANCHOR = Object.freeze({
   pointer: "16 16, pointer",
   text: "16 16, text"
 });
+var CURSOR_MODES = Object.freeze(["light", "dark"]);
+var CURSOR_PALETTE = Object.freeze({
+  light: Object.freeze({ outline: "#182026", body: "#48aff0", accent: "#48aff0", highlight: "#f5f8fa" }),
+  dark: Object.freeze({ outline: "#e1e8ed", body: "#182026", accent: "#48d0c0", highlight: "#182026" })
+});
 function buildCursorValue(kind, palette) {
   const svg = CURSOR_SVG[kind];
   if (!svg) throw new TypeError(`Unknown cursor kind: ${kind}`);
   return `url("data:image/svg+xml,${encodeSvg(svg(palette))}") ${CURSOR_ANCHOR[kind]}`;
 }
+function cursorVarsForMode(normalized, mode) {
+  if (normalized.cursor === "native") {
+    return {
+      "--svy-beam-cursor-default": "auto",
+      "--svy-beam-cursor-pointer": "pointer",
+      "--svy-beam-cursor-text": "text"
+    };
+  }
+  const palette = {
+    ...CURSOR_PALETTE[mode],
+    spark: mode === "light" ? normalized.caretLight : normalized.caretDark
+  };
+  return {
+    "--svy-beam-cursor-default": buildCursorValue("default", palette),
+    "--svy-beam-cursor-pointer": buildCursorValue("pointer", palette),
+    "--svy-beam-cursor-text": buildCursorValue("text", palette)
+  };
+}
 function computeThemeVars(config) {
   const normalized = normalizeBeamConfig(config);
   const washOn = normalized.wash && normalized.washIntensity !== "off";
-  const vars = {};
-  for (const mode of ["light", "dark"]) {
+  const base = {};
+  for (const mode of CURSOR_MODES) {
     const caret = mode === "light" ? normalized.caretLight : normalized.caretDark;
     const isDefault = caret === (mode === "light" ? BEAM_DEFAULTS.caretLight : BEAM_DEFAULTS.caretDark);
     const alpha = washOn ? WASH_ALPHA[normalized.washIntensity][mode] : null;
-    vars[`--svy-beam-caret-${mode}`] = caret;
-    vars[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
+    base[`--svy-beam-caret-${mode}`] = caret;
+    base[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
     if (alpha == null) {
-      vars[`--svy-beam-wash-${mode}`] = "transparent";
-      vars[`--svy-beam-wash-${mode}-p3`] = "transparent";
+      base[`--svy-beam-wash-${mode}`] = "transparent";
+      base[`--svy-beam-wash-${mode}-p3`] = "transparent";
     } else {
       const rgb = isDefault ? DEFAULT_WASH_RGB[mode] : hexToRgbTriplet(caret);
-      vars[`--svy-beam-wash-${mode}`] = `rgba(${rgb}, ${alpha})`;
-      vars[`--svy-beam-wash-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]} / ${alpha})` : `rgba(${rgb}, ${alpha})`;
+      base[`--svy-beam-wash-${mode}`] = `rgba(${rgb}, ${alpha})`;
+      base[`--svy-beam-wash-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]} / ${alpha})` : `rgba(${rgb}, ${alpha})`;
     }
   }
-  vars["--svy-beam-caret-shape"] = normalized.caretShape;
-  vars["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
-  vars["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
-  vars["--svy-beam-wash-radius"] = WASH_RADIUS;
-  if (normalized.cursor === "native") {
-    vars["--svy-beam-cursor-default"] = "auto";
-    vars["--svy-beam-cursor-pointer"] = "pointer";
-    vars["--svy-beam-cursor-text"] = "text";
-  } else {
-    const palette = {
-      outline: "#182026",
-      accent: "#48aff0",
-      spark: normalized.caretDark,
-      highlight: "#f5f8fa"
-    };
-    vars["--svy-beam-cursor-default"] = buildCursorValue("default", palette);
-    vars["--svy-beam-cursor-pointer"] = buildCursorValue("pointer", palette);
-    vars["--svy-beam-cursor-text"] = buildCursorValue("text", palette);
-  }
-  return vars;
+  base["--svy-beam-caret-shape"] = normalized.caretShape;
+  base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
+  base["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
+  base["--svy-beam-wash-radius"] = WASH_RADIUS;
+  const light = cursorVarsForMode(normalized, "light");
+  const dark = cursorVarsForMode(normalized, "dark");
+  Object.assign(base, light);
+  const differs = Object.keys(dark).some((name) => dark[name] !== light[name]);
+  return { base, dark: differs ? dark : {} };
+}
+var DARK_SELECTORS = Object.freeze([
+  ":root.bp3-dark",
+  "body.bt-theme-dark",
+  ".rm-dark-theme",
+  "body.roam-body.dark"
+]);
+var DARK_MEDIA_SELECTOR = ":root:not(.bp3-light)";
+function block(selector, vars, indent = "") {
+  const declarations = Object.entries(vars).map(([name, value]) => `${indent}  ${name}: ${value};`);
+  return `${indent}${selector} {
+${declarations.join("\n")}
+${indent}}
+`;
 }
 function renderThemeVarsCss(config) {
-  const vars = computeThemeVars(config);
-  const declarations = Object.entries(vars).map(([name, value]) => `  ${name}: ${value};`);
-  return `:root {
-${declarations.join("\n")}
-}
+  const { base, dark } = computeThemeVars(config);
+  let css = block(":root", base);
+  if (!Object.keys(dark).length) return css;
+  css += `
+${block(DARK_SELECTORS.join(",\n"), dark)}`;
+  css += `
+@media (prefers-color-scheme: dark) {
+${block(DARK_MEDIA_SELECTOR, dark, "  ")}}
 `;
+  return css;
 }
 function applyPackClasses(doc, config) {
   const root = doc?.documentElement;
@@ -288,6 +319,10 @@ async function initializeBeamSettings(extensionAPI) {
       await extensionAPI.settings.set(id, BEAM_DEFAULTS[key]);
     }
   }
+  const storedLight = extensionAPI.settings.get(BEAM_SETTING_IDS.caretLight);
+  if (normalizeHex(storedLight) === LEGACY_CARET_LIGHT) {
+    await extensionAPI.settings.set(BEAM_SETTING_IDS.caretLight, BEAM_DEFAULTS.caretLight);
+  }
 }
 function createBeamPreviewComponent(React = globalThis.window?.React) {
   if (typeof React?.createElement !== "function") return null;
@@ -303,7 +338,7 @@ function createBeamPreviewComponent(React = globalThis.window?.React) {
           padding: "8px 10px",
           borderRadius: "var(--svy-beam-wash-radius, 4px)",
           background: "var(--svy-beam-wash, rgba(0, 122, 112, 0.045))",
-          border: "1px solid var(--svy-beam-caret, #008478)"
+          border: "1px solid var(--svy-beam-caret, #00695e)"
         }
       },
       h("span", {
@@ -312,7 +347,7 @@ function createBeamPreviewComponent(React = globalThis.window?.React) {
           width: "8px",
           height: "18px",
           borderRadius: "1px",
-          background: "var(--svy-beam-caret, #008478)"
+          background: "var(--svy-beam-caret, #00695e)"
         }
       }),
       h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "caret and focus wash, live")
@@ -346,13 +381,13 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: BEAM_SETTING_IDS.caretLight,
       name: "Caret color (light)",
-      description: "Hex color for the text insertion point in light mode. Accepts #rgb or #rrggbb; anything else falls back to the default #008478.",
+      description: "Hex color for the text insertion point in light mode, and the accent color of the light-mode cursors. Accepts #rgb or #rrggbb; anything else falls back to the default #00695E (APCA Lc 77.6 on the light surface).",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretLight, onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.caretDark,
       name: "Caret color (dark)",
-      description: "Hex color for the insertion point in dark mode, and the accent color of the custom cursors. Default #48D0C0 (APCA Lc -62.9 on the dark surface).",
+      description: "Hex color for the insertion point in dark mode, and the accent color of the dark-mode cursors. Default #48D0C0 (APCA Lc -62.9 on the dark surface).",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretDark, onChange: changed }
     },
     {
@@ -382,7 +417,7 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: BEAM_SETTING_IDS.cursor,
       name: "Cursor style",
-      description: "svy uses the custom SVG arrow/target/beam cursors tinted from the dark caret color; native leaves Roam's cursors alone.",
+      description: "svy uses the custom SVG arrow/target/beam cursors, published as a light and a dark set and tinted from that mode's caret color; native leaves Roam's cursors alone.",
       action: { type: "select", items: [...CURSOR_STYLES], onChange: changed }
     }
   ];

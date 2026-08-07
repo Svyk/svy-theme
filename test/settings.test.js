@@ -10,7 +10,7 @@ import {
   initializeSettings,
   normalizeMode,
 } from "../src/settings.js";
-import { BEAM_DEFAULTS, BEAM_SETTING_IDS } from "../src/theme-vars.js";
+import { BEAM_DEFAULTS, BEAM_SETTING_IDS, LEGACY_CARET_LIGHT } from "../src/theme-vars.js";
 
 function fakeExtensionApi(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -85,7 +85,7 @@ test("initializeBeamSettings seeds every beam default once, then is a no-op", as
   await initializeBeamSettings(api);
   assert.deepEqual(api.calls, [
     ["setting:set", "bp-pack-beam", true],
-    ["setting:set", "bp-beam-caret-light", "#008478"],
+    ["setting:set", "bp-beam-caret-light", "#00695e"],
     ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
     ["setting:set", "bp-beam-caret-shape", "block"],
     ["setting:set", "bp-beam-caret-blink", false],
@@ -97,6 +97,68 @@ test("initializeBeamSettings seeds every beam default once, then is a no-op", as
   api.calls.length = 0;
   await initializeBeamSettings(api);
   assert.deepEqual(api.calls, []);
+});
+
+test("a fresh seed never triggers the light-caret migration", async () => {
+  // The seed writes the NEW default, so the migration must not fire on top of it — one
+  // write for that id, not two.
+  const api = fakeExtensionApi();
+  await initializeBeamSettings(api);
+  const writes = api.calls.filter(([, id]) => id === BEAM_SETTING_IDS.caretLight);
+  assert.deepEqual(writes, [["setting:set", BEAM_SETTING_IDS.caretLight, "#00695e"]]);
+});
+
+test("initializeBeamSettings migrates the stored Beam v1 light caret once, then is a no-op", async () => {
+  const api = fakeExtensionApi({ [BEAM_SETTING_IDS.caretLight]: LEGACY_CARET_LIGHT });
+  assert.equal(LEGACY_CARET_LIGHT, "#008478");
+
+  await initializeBeamSettings(api);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.caretLight), "#00695e");
+  assert.deepEqual(
+    api.calls.filter(([, id]) => id === BEAM_SETTING_IDS.caretLight),
+    [["setting:set", BEAM_SETTING_IDS.caretLight, "#00695e"]],
+  );
+
+  // Second load: the stored value is the new default, so nothing is rewritten.
+  api.calls.length = 0;
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, []);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.caretLight), "#00695e");
+});
+
+test("the light-caret migration recognizes the old default however it was stored", async () => {
+  for (const stored of ["#008478", "#008478 ", "008478", "#008478".toUpperCase()]) {
+    const api = fakeExtensionApi({ [BEAM_SETTING_IDS.caretLight]: stored });
+    await initializeBeamSettings(api);
+    assert.equal(
+      api.settings.get(BEAM_SETTING_IDS.caretLight),
+      "#00695e",
+      `${JSON.stringify(stored)} is the old default and must migrate`,
+    );
+  }
+});
+
+test("the light-caret migration leaves every other stored value alone", async () => {
+  // Anything that is not the old default is a user choice (or junk the normalizer will
+  // reject at render time) and must survive the upgrade untouched.
+  for (const stored of ["#ff8800", "#00695e", "#008479", "#abc", "teal", "", "#48d0c0"]) {
+    const api = fakeExtensionApi({ [BEAM_SETTING_IDS.caretLight]: stored });
+    await initializeBeamSettings(api);
+    assert.equal(
+      api.settings.get(BEAM_SETTING_IDS.caretLight),
+      stored,
+      `${JSON.stringify(stored)} must not be rewritten`,
+    );
+    assert.deepEqual(api.calls.filter(([, id]) => id === BEAM_SETTING_IDS.caretLight), []);
+  }
+});
+
+test("the light-caret migration never writes when canSet is false", async () => {
+  const api = fakeExtensionApi({ [BEAM_SETTING_IDS.caretLight]: LEGACY_CARET_LIGHT });
+  api.settings.canSet = false;
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, []);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.caretLight), LEGACY_CARET_LIGHT);
 });
 
 test("initializeBeamSettings preserves a stored beam value and never touches bp-appearance", async () => {

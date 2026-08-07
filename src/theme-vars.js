@@ -33,11 +33,16 @@ export const CARET_SHAPES = Object.freeze(["block", "bar"]);
 export const WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 export const CURSOR_STYLES = Object.freeze(["svy", "native"]);
 
+// Beam v1's light caret. Kept as a named constant because initializeBeamSettings has to
+// recognize it to run the one-time migration to the value below; nothing else reads it.
+export const LEGACY_CARET_LIGHT = "#008478";
+
 // Dark caret is #48D0C0 (APCA Lc -62.9 on #202B33) per the U6 design-token research;
-// it replaces Beam v1's #66E3D0. Light caret is unchanged.
+// it replaces Beam v1's #66E3D0. The light caret moved off Beam v1's #008478 (Lc 66.8)
+// to #00695E (Lc 77.6), which clears the APCA thin-stroke floor a caret has to meet.
 export const BEAM_DEFAULTS = Object.freeze({
   pack: true,
-  caretLight: "#008478",
+  caretLight: "#00695e",
   caretDark: "#48d0c0",
   caretShape: "block",
   caretBlink: false,
@@ -46,14 +51,18 @@ export const BEAM_DEFAULTS = Object.freeze({
   cursor: "svy",
 });
 
-// Beam v1's wash base is a hair deeper than the caret it accompanies, and that pairing
-// is what shipped, so the default keeps it byte-for-byte. A customized caret has no
-// matching hand-tuned wash, so the wash is derived from the caret instead.
+// Beam v1's hand-tuned wash bases, kept byte-for-byte: the wash is a 4.5% tint, so its
+// exact hue is cosmetic and re-tuning it is not part of the caret contrast fix. A
+// customized caret has no matching hand-tuned wash, so the wash is derived from the
+// caret instead.
 const DEFAULT_WASH_RGB = Object.freeze({ light: "0, 122, 112", dark: "72, 208, 192" });
 
 // Gamut-expanded equivalents of the default carets, used only inside @media
-// (color-gamut: p3). A customized caret is published as-is in both blocks.
-const DEFAULT_CARET_P3 = Object.freeze({ light: "0.55 0.13 184", dark: "0.78 0.15 184" });
+// (color-gamut: p3). Each is its caret's own OKLCH lightness and hue with the chroma
+// pushed out of sRGB by the same factor Beam v1 used, so the P3 rendering is a more
+// saturated version of the same colour and not a different contrast. A customized caret
+// is published as-is in both blocks.
+const DEFAULT_CARET_P3 = Object.freeze({ light: "0.47 0.11 182", dark: "0.78 0.15 184" });
 
 const WASH_ALPHA = Object.freeze({
   subtle: Object.freeze({ light: 0.045, dark: 0.055 }),
@@ -140,7 +149,7 @@ function encodeSvg(svg) {
 }
 
 const CURSOR_SVG = Object.freeze({
-  default: ({ outline, accent, spark }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='${accent}' stroke='${outline}' stroke-width='2' stroke-linejoin='round'/><path d='M6 5L12 21' stroke='${spark}' stroke-width='2.5' stroke-linecap='round'/></svg>`,
+  default: ({ outline, body, spark }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='${body}' stroke='${outline}' stroke-width='2' stroke-linejoin='round'/><path d='M6 5L12 21' stroke='${spark}' stroke-width='2.5' stroke-linecap='round'/></svg>`,
   pointer: ({ outline, accent, spark, highlight }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><circle cx='16' cy='16' r='10' fill='${outline}' stroke='${accent}' stroke-width='3'/><circle cx='16' cy='16' r='4' fill='${spark}' stroke='${highlight}' stroke-width='1'/></svg>`,
   text: ({ outline, accent, spark, highlight }) => `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><rect x='10' y='3' width='12' height='26' rx='6' fill='${outline}' stroke='${accent}' stroke-width='2'/><rect x='13' y='6' width='6' height='20' rx='3' fill='${spark}'/><circle cx='16' cy='16' r='2' fill='${highlight}'/></svg>`,
 });
@@ -151,69 +160,120 @@ const CURSOR_ANCHOR = Object.freeze({
   text: "16 16, text",
 });
 
-// The cursor art is one set for both modes (its outline is dark either way, which is why
-// v1 shipped a single set). Its palette comes from the tokens: theme accent for the
-// body, the beam's dark caret for the spark, so cursor color follows the caret setting.
+export const CURSOR_MODES = Object.freeze(["light", "dark"]);
+
+// Beam v1 shipped ONE cursor set whose ink is #182026 in both modes: on the dark surface
+// that ink disappears into the page and only the #48AFF0 body kept the arrow findable.
+// v2 publishes a set per mode. `outline` is the ink that separates the glyph from the
+// page — #182026 (APCA Lc 99.0 on the light surface) going light, #E1E8ED (Lc -88.5 on
+// the dark surface) going dark. On dark, #182026 becomes the interior fill that keeps the
+// glyph's own shapes legible against that near-white ink. `spark` is not listed here: it
+// is the mode's caret, injected per call, so recolouring a caret recolours its cursors.
+const CURSOR_PALETTE = Object.freeze({
+  light: Object.freeze({ outline: "#182026", body: "#48aff0", accent: "#48aff0", highlight: "#f5f8fa" }),
+  dark: Object.freeze({ outline: "#e1e8ed", body: "#182026", accent: "#48d0c0", highlight: "#182026" }),
+});
+
 export function buildCursorValue(kind, palette) {
   const svg = CURSOR_SVG[kind];
   if (!svg) throw new TypeError(`Unknown cursor kind: ${kind}`);
   return `url("data:image/svg+xml,${encodeSvg(svg(palette))}") ${CURSOR_ANCHOR[kind]}`;
 }
 
+// The three cursor properties for one mode. `native` yields the CSS keywords rather than
+// art, and is identical in both modes — renderThemeVarsCss drops the dark block when the
+// two sets match, so switching to native cursors emits no dark-scoped rules at all.
+export function cursorVarsForMode(normalized, mode) {
+  if (normalized.cursor === "native") {
+    return {
+      "--svy-beam-cursor-default": "auto",
+      "--svy-beam-cursor-pointer": "pointer",
+      "--svy-beam-cursor-text": "text",
+    };
+  }
+  const palette = {
+    ...CURSOR_PALETTE[mode],
+    spark: mode === "light" ? normalized.caretLight : normalized.caretDark,
+  };
+  return {
+    "--svy-beam-cursor-default": buildCursorValue("default", palette),
+    "--svy-beam-cursor-pointer": buildCursorValue("pointer", palette),
+    "--svy-beam-cursor-text": buildCursorValue("text", palette),
+  };
+}
+
+// Returns the two blocks the injected sheet publishes: `base` at :root (everything the
+// layer selects per mode by name, plus the LIGHT cursor set), and `dark` — the cursor set
+// only, because a cursor is a single property that has to already carry its mode by the
+// time `body { cursor: … }` resolves it. Empty when the two sets are identical.
 export function computeThemeVars(config) {
   const normalized = normalizeBeamConfig(config);
   const washOn = normalized.wash && normalized.washIntensity !== "off";
-  const vars = {};
+  const base = {};
 
-  for (const mode of ["light", "dark"]) {
+  for (const mode of CURSOR_MODES) {
     const caret = mode === "light" ? normalized.caretLight : normalized.caretDark;
     const isDefault = caret === (mode === "light" ? BEAM_DEFAULTS.caretLight : BEAM_DEFAULTS.caretDark);
     const alpha = washOn ? WASH_ALPHA[normalized.washIntensity][mode] : null;
 
-    vars[`--svy-beam-caret-${mode}`] = caret;
-    vars[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
+    base[`--svy-beam-caret-${mode}`] = caret;
+    base[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
 
     if (alpha == null) {
-      vars[`--svy-beam-wash-${mode}`] = "transparent";
-      vars[`--svy-beam-wash-${mode}-p3`] = "transparent";
+      base[`--svy-beam-wash-${mode}`] = "transparent";
+      base[`--svy-beam-wash-${mode}-p3`] = "transparent";
     } else {
       const rgb = isDefault ? DEFAULT_WASH_RGB[mode] : hexToRgbTriplet(caret);
-      vars[`--svy-beam-wash-${mode}`] = `rgba(${rgb}, ${alpha})`;
-      vars[`--svy-beam-wash-${mode}-p3`] = isDefault
+      base[`--svy-beam-wash-${mode}`] = `rgba(${rgb}, ${alpha})`;
+      base[`--svy-beam-wash-${mode}-p3`] = isDefault
         ? `oklch(${DEFAULT_CARET_P3[mode]} / ${alpha})`
         : `rgba(${rgb}, ${alpha})`;
     }
   }
 
-  vars["--svy-beam-caret-shape"] = normalized.caretShape;
+  base["--svy-beam-caret-shape"] = normalized.caretShape;
   // caret-animation: manual means the author owns the animation, i.e. no blink.
-  vars["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
-  vars["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
-  vars["--svy-beam-wash-radius"] = WASH_RADIUS;
+  base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
+  base["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
+  base["--svy-beam-wash-radius"] = WASH_RADIUS;
 
-  if (normalized.cursor === "native") {
-    vars["--svy-beam-cursor-default"] = "auto";
-    vars["--svy-beam-cursor-pointer"] = "pointer";
-    vars["--svy-beam-cursor-text"] = "text";
-  } else {
-    const palette = {
-      outline: "#182026",
-      accent: "#48aff0",
-      spark: normalized.caretDark,
-      highlight: "#f5f8fa",
-    };
-    vars["--svy-beam-cursor-default"] = buildCursorValue("default", palette);
-    vars["--svy-beam-cursor-pointer"] = buildCursorValue("pointer", palette);
-    vars["--svy-beam-cursor-text"] = buildCursorValue("text", palette);
-  }
+  const light = cursorVarsForMode(normalized, "light");
+  const dark = cursorVarsForMode(normalized, "dark");
+  Object.assign(base, light);
 
-  return vars;
+  const differs = Object.keys(dark).some((name) => dark[name] !== light[name]);
+  return { base, dark: differs ? dark : {} };
+}
+
+// The same four class signals 10-fixes-dark.css uses, in the same order. Every one of them
+// lands the declaration on an element that `body { cursor: … }` resolves against: on
+// <html> for the :root forms (body inherits the custom property), on <body> itself for the
+// two body forms (a declaration on the element wins over the inherited one). The
+// descendant-only case — .rm-dark-theme on some inner node — reaches that node's subtree,
+// which is the same reach the caret has in 40-beam.css.
+export const DARK_SELECTORS = Object.freeze([
+  ":root.bp3-dark",
+  "body.bt-theme-dark",
+  ".rm-dark-theme",
+  "body.roam-body.dark",
+]);
+
+// Fifth signal: Roam in auto mode stamps nothing, so an OS-dark user gets no class at all.
+// Guarded with :not(.bp3-light) so an explicit light choice still wins over the OS hint.
+export const DARK_MEDIA_SELECTOR = ":root:not(.bp3-light)";
+
+function block(selector, vars, indent = "") {
+  const declarations = Object.entries(vars).map(([name, value]) => `${indent}  ${name}: ${value};`);
+  return `${indent}${selector} {\n${declarations.join("\n")}\n${indent}}\n`;
 }
 
 export function renderThemeVarsCss(config) {
-  const vars = computeThemeVars(config);
-  const declarations = Object.entries(vars).map(([name, value]) => `  ${name}: ${value};`);
-  return `:root {\n${declarations.join("\n")}\n}\n`;
+  const { base, dark } = computeThemeVars(config);
+  let css = block(":root", base);
+  if (!Object.keys(dark).length) return css;
+  css += `\n${block(DARK_SELECTORS.join(",\n"), dark)}`;
+  css += `\n@media (prefers-color-scheme: dark) {\n${block(DARK_MEDIA_SELECTOR, dark, "  ")}}\n`;
+  return css;
 }
 
 export function applyPackClasses(doc, config) {

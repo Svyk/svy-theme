@@ -181,3 +181,32 @@ body.roam-body.dark .rm-page-ref--tag {
 .rm-heading-level-3 > .rm-block__self > .rm-block__controls {
   padding: 0;
 }
+
+/* 9. Native table add-row / add-column affordance.
+ *
+ * Roam's site.css ships a `.bp3-dark` block for `.rm-table` — table background, cell
+ * border-color, column menu, ref count, and the drag pills' border-color — but nothing
+ * for the two add buttons. Their entire visible state is one mode-independent rule,
+ * `.rm-table__add-row-btn:hover, .rm-table__add-col-btn:hover { background: #E1E8ED;
+ * color: #5C7080 }`, so hovering a table on the dark surface paints a near-white bar
+ * across its bottom edge and down its right side. (At rest both buttons are
+ * `background: transparent; color: transparent`, which is correct in both modes and is
+ * left alone.) Probed live on Roam Desktop 0.0.38 / Chrome 140.
+ *
+ * Values are this file's dark table palette: the #2b3a42 surface already used for dark
+ * `th`, the #738091 border used for every dark cell, and #8A9BA8 for the plus glyph,
+ * which the `.bp3-icon` child inherits. Specificity is 0-3-0 against Roam's 0-2-0, so no
+ * !important is needed. */
+:root.bp3-dark .rm-table__add-row-btn:hover, :root.bp3-dark .rm-table__add-col-btn:hover, body.bt-theme-dark .rm-table__add-row-btn:hover, body.bt-theme-dark .rm-table__add-col-btn:hover, .rm-dark-theme .rm-table__add-row-btn:hover, .rm-dark-theme .rm-table__add-col-btn:hover,
+body.roam-body.dark .rm-table__add-row-btn:hover, body.roam-body.dark .rm-table__add-col-btn:hover {
+  background: #2b3a42;
+  border: 1px solid #738091;
+  color: #8A9BA8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) .rm-table__add-row-btn:hover, :root:not(.bp3-light) .rm-table__add-col-btn:hover {
+    background: #2b3a42;
+    border: 1px solid #738091;
+    color: #8A9BA8;
+  }
+}

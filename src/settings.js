@@ -3,7 +3,9 @@ import {
   BEAM_SETTING_IDS,
   CARET_SHAPES,
   CURSOR_STYLES,
+  LEGACY_CARET_LIGHT,
   WASH_INTENSITIES,
+  normalizeHex,
 } from "./theme-vars.js";
 
 export const SETTING_IDS = Object.freeze({
@@ -55,6 +57,17 @@ export async function initializeBeamSettings(extensionAPI) {
       await extensionAPI.settings.set(id, BEAM_DEFAULTS[key]);
     }
   }
+
+  // One-time migration: a graph that seeded the light caret before the contrast fix has
+  // Beam v1's #008478 stored, which reads as an explicit user choice and would keep the
+  // failing colour forever. Only the exact old default moves — compared through
+  // normalizeHex so "#008478", "008478" and "#008478 " are all recognized as that colour,
+  // while any other stored value, valid or junk, is left alone. After the write the stored
+  // value is the new default, so this never fires twice.
+  const storedLight = extensionAPI.settings.get(BEAM_SETTING_IDS.caretLight);
+  if (normalizeHex(storedLight) === LEGACY_CARET_LIGHT) {
+    await extensionAPI.settings.set(BEAM_SETTING_IDS.caretLight, BEAM_DEFAULTS.caretLight);
+  }
 }
 
 // Roam exposes its own React on window, so a reactComponent row costs zero bundled
@@ -75,7 +88,7 @@ export function createBeamPreviewComponent(React = globalThis.window?.React) {
           padding: "8px 10px",
           borderRadius: "var(--svy-beam-wash-radius, 4px)",
           background: "var(--svy-beam-wash, rgba(0, 122, 112, 0.045))",
-          border: "1px solid var(--svy-beam-caret, #008478)",
+          border: "1px solid var(--svy-beam-caret, #00695e)",
         },
       },
       h("span", {
@@ -84,7 +97,7 @@ export function createBeamPreviewComponent(React = globalThis.window?.React) {
           width: "8px",
           height: "18px",
           borderRadius: "1px",
-          background: "var(--svy-beam-caret, #008478)",
+          background: "var(--svy-beam-caret, #00695e)",
         },
       }),
       h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "caret and focus wash, live"),
@@ -118,13 +131,13 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
     {
       id: BEAM_SETTING_IDS.caretLight,
       name: "Caret color (light)",
-      description: "Hex color for the text insertion point in light mode. Accepts #rgb or #rrggbb; anything else falls back to the default #008478.",
+      description: "Hex color for the text insertion point in light mode, and the accent color of the light-mode cursors. Accepts #rgb or #rrggbb; anything else falls back to the default #00695E (APCA Lc 77.6 on the light surface).",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretLight, onChange: changed },
     },
     {
       id: BEAM_SETTING_IDS.caretDark,
       name: "Caret color (dark)",
-      description: "Hex color for the insertion point in dark mode, and the accent color of the custom cursors. Default #48D0C0 (APCA Lc -62.9 on the dark surface).",
+      description: "Hex color for the insertion point in dark mode, and the accent color of the dark-mode cursors. Default #48D0C0 (APCA Lc -62.9 on the dark surface).",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretDark, onChange: changed },
     },
     {
@@ -154,7 +167,7 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
     {
       id: BEAM_SETTING_IDS.cursor,
       name: "Cursor style",
-      description: "svy uses the custom SVG arrow/target/beam cursors tinted from the dark caret color; native leaves Roam's cursors alone.",
+      description: "svy uses the custom SVG arrow/target/beam cursors, published as a light and a dark set and tinted from that mode's caret color; native leaves Roam's cursors alone.",
       action: { type: "select", items: [...CURSOR_STYLES], onChange: changed },
     },
   ];
