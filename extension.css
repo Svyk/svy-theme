@@ -15745,27 +15745,33 @@ body.roam-body.dark .rm-page-ref--tag {
 /* === 20-plugins.css === */
 /* U3 — Quick-insert + block-info tooltip compatibility (third-party extension fixes). */
 
-/* 1. Heading hit-target fix: re-anchor #inserts_btns per heading level, hide lower dash. */
+/* 1. Heading hit-target fix: re-anchor #inserts_btns per heading level and push the
+   lower dash (insert-sibling-below) past the fold caret and bullet via the .place
+   spacer. Spacer heights are measured, not chosen: with tops -6/-8/-12 the lower
+   dash center clears the caret and bullet centers by >=24px (WCAG 2.5.8 spacing)
+   at all three heading control heights (42/33/27px). Only one #inserts_btns exists
+   at a time (the plugin recreates it per hovered block), so cross-block spacing
+   does not apply. */
 .rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns {
   top: -6px;
   left: 6px;
 }
-.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
-  display: none;
+.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns .place {
+  height: 43px;
 }
 .rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns {
   top: -8px;
   left: 6px;
 }
-.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
-  display: none;
+.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns .place {
+  height: 39px;
 }
 .rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns {
   top: -12px;
   left: 6px;
 }
-.rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
-  display: none;
+.rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns .place {
+  height: 39px;
 }
 
 /* 2. Dark color for the dashes (light mode untouched). */
