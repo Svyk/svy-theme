@@ -1,18 +1,15 @@
 /* U2 — Dark-mode defect pack: tooltips, tables, chips, heading bullets. */
 
-/* 1. Tooltips: un-invert (base :6717-6828 + roamjs :14480). */
+/* 1. Tooltips: un-invert (base :6717-6828). */
 :root.bp3-dark .bp3-tooltip .bp3-popover-content, body.bt-theme-dark .bp3-tooltip .bp3-popover-content, .rm-dark-theme .bp3-tooltip .bp3-popover-content,
-body.roam-body.dark .bp3-tooltip .bp3-popover-content,
-:root.bp3-dark .roamjs-workbench-livepreview-toolip.bp3-tooltip .bp3-popover-content, body.bt-theme-dark .roamjs-workbench-livepreview-toolip.bp3-tooltip .bp3-popover-content, .rm-dark-theme .roamjs-workbench-livepreview-toolip.bp3-tooltip .bp3-popover-content,
-body.roam-body.dark .roamjs-workbench-livepreview-toolip.bp3-tooltip .bp3-popover-content {
+body.roam-body.dark .bp3-tooltip .bp3-popover-content {
   background-color: #30404d !important;
-  color: rgb(245, 248, 250) !important;
+  color: #E1E8ED !important;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not(.bp3-light) .bp3-tooltip .bp3-popover-content,
-  :root:not(.bp3-light) .roamjs-workbench-livepreview-toolip.bp3-tooltip .bp3-popover-content {
+  :root:not(.bp3-light) .bp3-tooltip .bp3-popover-content {
     background-color: #30404d !important;
-    color: rgb(245, 248, 250) !important;
+    color: #E1E8ED !important;
   }
 }
 
@@ -26,79 +23,69 @@ body.roam-body.dark .bp3-tooltip .bp3-popover-arrow-fill {
   }
 }
 
-:root.bp3-dark .bp3-tooltip .bp3-popover-arrow-border, body.bt-theme-dark .bp3-tooltip .bp3-popover-arrow-border, .rm-dark-theme .bp3-tooltip .bp3-popover-arrow-border,
-body.roam-body.dark .bp3-tooltip .bp3-popover-arrow-border {
-  fill: black;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not(.bp3-light) .bp3-tooltip .bp3-popover-arrow-border {
-    fill: black;
-  }
-}
-
 :root.bp3-dark .bp3-tooltip .bp3-heading, body.bt-theme-dark .bp3-tooltip .bp3-heading, .rm-dark-theme .bp3-tooltip .bp3-heading,
 body.roam-body.dark .bp3-tooltip .bp3-heading {
-  color: rgb(245, 248, 250);
+  color: #E1E8ED;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .bp3-tooltip .bp3-heading {
-    color: rgb(245, 248, 250);
+    color: #E1E8ED;
   }
 }
 
 :root.bp3-dark .bp3-tooltip .bp3-popover-content code, body.bt-theme-dark .bp3-tooltip .bp3-popover-content code, .rm-dark-theme .bp3-tooltip .bp3-popover-content code,
 body.roam-body.dark .bp3-tooltip .bp3-popover-content code {
   background-color: rgba(16, 22, 26, 0.3);
-  color: rgb(245, 248, 250);
+  color: #E1E8ED;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .bp3-tooltip .bp3-popover-content code {
     background-color: rgba(16, 22, 26, 0.3);
-    color: rgb(245, 248, 250);
+    color: #E1E8ED;
   }
 }
 
 /* 2. Tooltip token contract (consumed by block-stats): dark tooltips in BOTH modes. */
 :root {
-  --bc-tooltip__content: #394b59;
-  --co-tooltip__content: rgba(255, 255, 255, 0.87);
-  --bt-tooltip: 1px solid rgba(255, 255, 255, 0.14);
+  --bc-tooltip__content: #30404D;
+  --co-tooltip__content: #E1E8ED;
+  --bt-tooltip: 1px solid #5C7080;
   --ff-app__div: inherit;
-  --fs-tooltip__content: 13px;
+  --fs-tooltip__content: 14px;
 }
 :root.bp3-dark, body.bt-theme-dark, .rm-dark-theme,
 body.roam-body.dark {
-  --bc-tooltip__content: #394b59;
-  --co-tooltip__content: rgba(255, 255, 255, 0.87);
-  --bt-tooltip: 1px solid rgba(255, 255, 255, 0.14);
+  --bc-tooltip__content: #30404D;
+  --co-tooltip__content: #E1E8ED;
+  --bt-tooltip: 1px solid #5C7080;
   --ff-app__div: inherit;
-  --fs-tooltip__content: 13px;
+  --fs-tooltip__content: 14px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) {
-    --bc-tooltip__content: #394b59;
-    --co-tooltip__content: rgba(255, 255, 255, 0.87);
-    --bt-tooltip: 1px solid rgba(255, 255, 255, 0.14);
+    --bc-tooltip__content: #30404D;
+    --co-tooltip__content: #E1E8ED;
+    --bt-tooltip: 1px solid #5C7080;
     --ff-app__div: inherit;
-    --fs-tooltip__content: 13px;
+    --fs-tooltip__content: 14px;
   }
 }
 
 /* 3. .roam-table borders (base :12150): restore contrast + font-size on dark. */
 :root.bp3-dark .roam-table th, :root.bp3-dark .roam-table td, :root.bp3-dark .roam-table tr, body.bt-theme-dark .roam-table th, body.bt-theme-dark .roam-table td, body.bt-theme-dark .roam-table tr, .rm-dark-theme .roam-table th, .rm-dark-theme .roam-table td, .rm-dark-theme .roam-table tr,
 body.roam-body.dark .roam-table th, body.roam-body.dark .roam-table td, body.roam-body.dark .roam-table tr {
-  border-top: 1px solid #5f6b7c;
-  border-right: 1px solid #5f6b7c;
-  border-bottom: 1px solid #5f6b7c;
-  border-left: 1px solid #5f6b7c;
+  border-top: 1px solid #738091;
+  border-right: 1px solid #738091;
+  border-bottom: 1px solid #738091;
+  border-left: 1px solid #738091;
   font-size: 1rem;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .roam-table th, :root:not(.bp3-light) .roam-table td, :root:not(.bp3-light) .roam-table tr {
-    border-top: 1px solid #5f6b7c;
-    border-right: 1px solid #5f6b7c;
-    border-bottom: 1px solid #5f6b7c;
-    border-left: 1px solid #5f6b7c;
+    border-top: 1px solid #738091;
+    border-right: 1px solid #738091;
+    border-bottom: 1px solid #738091;
+    border-left: 1px solid #738091;
     font-size: 1rem;
   }
 }
@@ -109,52 +96,56 @@ table.bp3-html-table {
 }
 table.bp3-html-table th,
 table.bp3-html-table td {
-  border: 1px solid #d4d8de;
+  border: 1px solid #A7B6C2;
 }
 :root.bp3-dark table.bp3-html-table th, :root.bp3-dark table.bp3-html-table td, body.bt-theme-dark table.bp3-html-table th, body.bt-theme-dark table.bp3-html-table td, .rm-dark-theme table.bp3-html-table th, .rm-dark-theme table.bp3-html-table td,
 body.roam-body.dark table.bp3-html-table th, body.roam-body.dark table.bp3-html-table td {
-  border: 1px solid #5f6b7c;
+  border: 1px solid #738091;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) table.bp3-html-table th, :root:not(.bp3-light) table.bp3-html-table td {
-    border: 1px solid #5f6b7c;
+    border: 1px solid #738091;
   }
 }
 :root.bp3-dark table.bp3-html-table th, body.bt-theme-dark table.bp3-html-table th, .rm-dark-theme table.bp3-html-table th,
 body.roam-body.dark table.bp3-html-table th {
   background-color: #2b3a42;
+  border-bottom: 2px solid #738091;
+  font-weight: 600;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) table.bp3-html-table th {
     background-color: #2b3a42;
+    border-bottom: 2px solid #738091;
+    font-weight: 600;
   }
 }
 
 /* 5. .rm-table* (newer Roam table DOM): minimal themed coverage. */
 .rm-table {
   border-collapse: collapse;
-  border: 1px solid #d4d8de;
+  border: 1px solid #A7B6C2;
 }
 .rm-table th,
 .rm-table td {
-  border: 1px solid #d4d8de;
+  border: 1px solid #A7B6C2;
 }
 :root.bp3-dark .rm-table, body.bt-theme-dark .rm-table, .rm-dark-theme .rm-table,
 body.roam-body.dark .rm-table {
-  border: 1px solid #5f6b7c;
+  border: 1px solid #738091;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .rm-table {
-    border: 1px solid #5f6b7c;
+    border: 1px solid #738091;
   }
 }
 :root.bp3-dark .rm-table th, :root.bp3-dark .rm-table td, body.bt-theme-dark .rm-table th, body.bt-theme-dark .rm-table td, .rm-dark-theme .rm-table th, .rm-dark-theme .rm-table td,
 body.roam-body.dark .rm-table th, body.roam-body.dark .rm-table td {
-  border: 1px solid #5f6b7c;
+  border: 1px solid #738091;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .rm-table th, :root:not(.bp3-light) .rm-table td {
-    border: 1px solid #5f6b7c;
+    border: 1px solid #738091;
   }
 }
 
@@ -162,32 +153,25 @@ body.roam-body.dark .rm-table th, body.roam-body.dark .rm-table td {
 :root.bp3-dark .bp3-tag, body.bt-theme-dark .bp3-tag, .rm-dark-theme .bp3-tag,
 body.roam-body.dark .bp3-tag {
   background-color: #3b4c58;
+  border: 1px solid #5C7080;
   color: #e8edf2;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .bp3-tag {
     background-color: #3b4c58;
+    border: 1px solid #5C7080;
     color: #e8edf2;
   }
 }
 
-/* 7. .rm-page-ref--tag + brackets (base :12318, :11123): differentiate on dark. */
+/* 7. .rm-page-ref--tag (base :12318): raise contrast on dark. */
 :root.bp3-dark .rm-page-ref--tag, body.bt-theme-dark .rm-page-ref--tag, .rm-dark-theme .rm-page-ref--tag,
 body.roam-body.dark .rm-page-ref--tag {
-  color: #9fb3c1;
+  color: #B3D9F2;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) .rm-page-ref--tag {
-    color: #9fb3c1;
-  }
-}
-:root.bp3-dark .rm-page-ref__brackets, body.bt-theme-dark .rm-page-ref__brackets, .rm-dark-theme .rm-page-ref__brackets,
-body.roam-body.dark .rm-page-ref__brackets {
-  color: #7a8b98;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not(.bp3-light) .rm-page-ref__brackets {
-    color: #7a8b98;
+    color: #B3D9F2;
   }
 }
 

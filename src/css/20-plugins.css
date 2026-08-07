@@ -1,42 +1,47 @@
 /* U3 — Quick-insert + block-info tooltip compatibility (third-party extension fixes). */
 
-/* 1. Heading hit-target fix: re-anchor #inserts_btns per heading level. */
-.rm-heading-level-1 #inserts_btns {
+/* 1. Heading hit-target fix: re-anchor #inserts_btns per heading level, hide lower dash. */
+.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns {
+  top: -6px;
+  left: 6px;
+}
+.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
+  display: none;
+}
+.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns {
+  top: -8px;
+  left: 6px;
+}
+.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
+  display: none;
+}
+.rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns {
   top: -12px;
-  left: 28px;
+  left: 6px;
 }
-.rm-heading-level-2 #inserts_btns {
-  top: -9px;
-  left: 28px;
-}
-.rm-heading-level-3 #inserts_btns {
-  top: -7px;
-  left: 28px;
+.rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns span.bp3-icon:last-of-type {
+  display: none;
 }
 
 /* 2. Dark color for the dashes (light mode untouched). */
 :root.bp3-dark #inserts_btns span, body.bt-theme-dark #inserts_btns span, .rm-dark-theme #inserts_btns span,
 body.roam-body.dark #inserts_btns span {
-  color: #55636e;
+  color: #8A9BA8;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light) #inserts_btns span {
-    color: #55636e;
+    color: #8A9BA8;
   }
 }
 
 /* 3. Undo the base layer's box distortion. */
-.rm-block__controls #inserts_btns > span {
+.rm-block__controls #inserts_btns > span,
+.controls #inserts_btns > span {
   display: inline-flex;
 }
 
-/* 4. Neutralize the plugin's global .insert-item leak. */
-.insert-item {
-  border-bottom: 0;
-}
-
 /* Block-stats tooltip safety net: intentionally dark in BOTH modes. */
-.rm-bullet__tooltip, .tooltiptext {
-  background-color: var(--bc-tooltip__content, #394b59) !important;
+.rm-bullet__tooltip, .roam-app .tooltiptext {
+  background-color: var(--bc-tooltip__content, #30404d) !important;
   color: var(--co-tooltip__content, rgba(255, 255, 255, 0.87)) !important;
 }
