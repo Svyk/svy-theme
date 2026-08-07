@@ -1,5 +1,5 @@
 import { build as esbuild } from "esbuild";
-import { copyFile, mkdir, readFile, rm, watch, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, rm, watch, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,12 +43,34 @@ export async function bundleEntry({
   return output.text;
 }
 
+export const cssLayerDirectory = "src/css";
+
+export function cssLayerBanner(filename) {
+  return `/* === ${filename} === */\n`;
+}
+
+export async function cssLayerFilenames(rootDirectory = defaultRoot) {
+  const entries = await readdir(resolve(rootDirectory, cssLayerDirectory));
+  return entries.filter((name) => name.endsWith(".css")).sort();
+}
+
+export async function renderStylesheet(rootDirectory = defaultRoot) {
+  const filenames = await cssLayerFilenames(rootDirectory);
+  if (!filenames.length) throw new Error(`No CSS layers found in ${cssLayerDirectory}`);
+  const layers = [];
+  for (const filename of filenames) {
+    const body = await readFile(resolve(rootDirectory, cssLayerDirectory, filename), "utf8");
+    layers.push(cssLayerBanner(filename) + (body.endsWith("\n") ? body : `${body}\n`));
+  }
+  return layers.join("");
+}
+
 export async function renderArtifacts(rootDirectory = defaultRoot) {
   const packageMetadata = JSON.parse(await readFile(resolve(rootDirectory, "package.json"), "utf8"));
   const banner = `/* Svy Theme v${packageMetadata.version} | MIT | generated; edit src/ */`;
   return {
     javascript: await bundleEntry({ rootDirectory, banner }),
-    css: await readFile(resolve(rootDirectory, "src/extension.css"), "utf8"),
+    css: await renderStylesheet(rootDirectory),
   };
 }
 

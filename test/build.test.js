@@ -7,7 +7,21 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import test from "node:test";
 
-import { bundleEntry, verifyGeneratedArtifacts } from "../build.mjs";
+import {
+  bundleEntry,
+  cssLayerBanner,
+  cssLayerDirectory,
+  cssLayerFilenames,
+  verifyGeneratedArtifacts,
+} from "../build.mjs";
+
+const expectedCssLayers = [
+  "00-upstream-base.css",
+  "10-fixes-dark.css",
+  "20-plugins.css",
+  "30-absorbed.css",
+  "40-beam.css",
+];
 
 const run = promisify(execFile);
 const root = new URL("../", import.meta.url);
@@ -35,6 +49,11 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   assert.equal(pagesJs, rootJs);
   assert.equal(pagesCss, rootCss);
   assert.doesNotMatch(rootJs, /sourceMappingURL/);
+  assert.equal(
+    Buffer.byteLength(pagesCss, "utf8"),
+    Buffer.byteLength(rootCss, "utf8"),
+    "root and deploy stylesheets must be byte-identical",
+  );
   assert.doesNotMatch(rootJs, /^import\s/m);
   assert.match(rootJs, /export\s*\{[\s\S]*default/);
   const rebuilt = await bundleEntry({
@@ -47,6 +66,66 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   const loaded = await import(`${pathToFileURL(resolve(rootPath, "extension.js")).href}?test=${Date.now()}`);
   assert.equal(typeof loaded.default.onload, "function");
   assert.equal(typeof loaded.default.onunload, "function");
+});
+
+test("extension.css concatenates every src/css layer in lexicographic order", async () => {
+  await run(process.execPath, ["build.mjs"], { cwd: rootPath });
+  const filenames = await cssLayerFilenames(rootPath);
+  assert.deepEqual(filenames, expectedCssLayers);
+
+  const css = await readFile(resolve(rootPath, "extension.css"), "utf8");
+  const bodies = await Promise.all(filenames.map((name) => (
+    readFile(resolve(rootPath, cssLayerDirectory, name), "utf8")
+  )));
+
+  let expectedLength = 0;
+  let cursor = 0;
+  for (const [index, filename] of filenames.entries()) {
+    const banner = cssLayerBanner(filename);
+    const body = bodies[index].endsWith("\n") ? bodies[index] : `${bodies[index]}\n`;
+    const bannerAt = css.indexOf(banner);
+    assert.notEqual(bannerAt, -1, `${filename} banner is missing from extension.css`);
+    assert.equal(bannerAt, cursor, `${filename} banner is out of order in extension.css`);
+    assert.equal(css.slice(cursor + banner.length, cursor + banner.length + body.length), body);
+    cursor += banner.length + body.length;
+    expectedLength += banner.length + body.length;
+  }
+  assert.equal(cursor, css.length, "extension.css carries content outside the declared layers");
+  assert.equal(css.length, expectedLength, "extension.css size must equal layers plus banners");
+
+  const bannerBytes = filenames.reduce((total, name) => total + cssLayerBanner(name).length, 0);
+  const baseBytes = Buffer.byteLength(bodies[0], "utf8");
+  const placeholderBytes = bodies
+    .slice(1)
+    .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
+  assert.equal(baseBytes, 455049, "the upstream-derived base layer must stay a byte-move");
+  assert.ok(
+    Buffer.byteLength(css, "utf8") - (baseBytes + bannerBytes) <= placeholderBytes + 1,
+    "extension.css must be the base plus banners plus the fix layers only",
+  );
+
+  const deployCss = await readFile(resolve(rootPath, "deploy/extension.css"), "utf8");
+  assert.equal(deployCss, css);
+});
+
+test("generated artifact verification detects a CSS layer edit", async () => {
+  const temporaryParent = await mkdtemp(resolve(tmpdir(), "roam-template-css-drift-"));
+  const copyPath = resolve(temporaryParent, "repository");
+  try {
+    await cp(rootPath, copyPath, {
+      recursive: true,
+      filter: (source) => ![".git", "node_modules"].includes(basename(source)),
+    });
+    await verifyGeneratedArtifacts(copyPath);
+    await writeFile(
+      resolve(copyPath, cssLayerDirectory, "10-fixes-dark.css"),
+      "/* drift */\n.svy-drift { color: red; }\n",
+      "utf8",
+    );
+    await assert.rejects(verifyGeneratedArtifacts(copyPath), /extension\.css is stale/);
+  } finally {
+    await rm(temporaryParent, { recursive: true, force: true });
+  }
 });
 
 test("esbuild bundles legitimate relative source modules", async () => {

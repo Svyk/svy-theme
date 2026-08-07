@@ -1,3 +1,4 @@
+/* === 00-upstream-base.css === */
 @charset "UTF-8";
 /* stylelint-disable @blueprintjs/no-color-literal */
 .rm-all-pages .table .rm-pages-row .rm-pages-col.bp3-text-small {
@@ -15557,3 +15558,11 @@ code {
     color: transparent;
   }
 }
+/* === 10-fixes-dark.css === */
+/* U2 — Dark-mode defect pack: tooltips, tables, chips, heading bullets. */
+/* === 20-plugins.css === */
+/* U3 — Quick-insert + block-info tooltip compatibility (third-party extension fixes). */
+/* === 30-absorbed.css === */
+/* U4 — Absorbed Blueprint CSS patches and roam/css modules. */
+/* === 40-beam.css === */
+/* U5 — Svy Beam v2: caret, focus wash, custom cursors. */
