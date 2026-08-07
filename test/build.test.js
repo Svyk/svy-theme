@@ -98,7 +98,7 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   const placeholderBytes = bodies
     .slice(1)
     .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
-  assert.equal(baseBytes, 455049, "the upstream-derived base layer must stay a byte-move");
+  assert.equal(baseBytes, 260077, "the upstream-derived base layer must stay a byte-move");
   assert.ok(
     Buffer.byteLength(css, "utf8") - (baseBytes + bannerBytes) <= placeholderBytes + 1,
     "extension.css must be the base plus banners plus the fix layers only",

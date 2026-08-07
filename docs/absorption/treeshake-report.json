@@ -1,0 +1,45 @@
+{
+  "unit": "U7-treeshake",
+  "input_dead_rules": 1879,
+  "dead_list_breakdown": {
+    "deleted": 1348,
+    "kept_by_carveout": 419,
+    "kept_ambiguous": 0,
+    "out_of_scope_layers": {
+      "10-fixes-dark.css": 22,
+      "20-plugins.css": 9,
+      "not-in-base (layers 30/40, offsets drifted)": 79,
+      "30-absorbed.css": 2
+    }
+  },
+  "kept_by_carveout_reasons": {
+    "media:mobile": 9,
+    "popup:bp3-menu": 60,
+    "pseudo:focus": 36,
+    "popup:bp3-popover": 37,
+    "extension-carveout": 62,
+    "attr:aria": 9,
+    "chrome:bp3-dialog": 23,
+    "chrome:rm-modal": 2,
+    "popup:rm-find-or-create": 21,
+    "pseudo:active": 104,
+    "chrome:bp3-toast": 34,
+    "pseudo:placeholder": 18,
+    "popup:bp3-tooltip": 3,
+    "pseudo:selection": 1
+  },
+  "base_layer": {
+    "bytes_before": 455049,
+    "bytes_after": 260077,
+    "rules_before": 2867,
+    "rules_after": 1519,
+    "kept_by_coverage": 1100,
+    "empty_media_wrappers_removed": 3
+  },
+  "kept_ambiguous_selectors": [],
+  "notes": [
+    "dead-rules.json byte offsets had drifted from every available extension.css blob (sweep ran on an uncommitted intermediate build); rules were matched on selector text + declarations via windowed search (+/-1200B) against the 292a74a blob, whose base layer is byte-identical to HEAD",
+    "79 dead-listed selectors do not exist in the base layer at all (layers 30/40 content) and were classified out-of-scope rather than ambiguous; kept_ambiguous for the base layer is 0",
+    "test/build.test.js base-layer size pin updated 455049 -> 260077 (the pin guards against accidental base drift; U7 is the intentional shrink)"
+  ]
+}
