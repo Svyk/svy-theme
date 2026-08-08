@@ -117,6 +117,19 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
   that actually paints (Roam paints only `<body>`), withdrawing the stamp if the page still
   reads dark. Measuring after the stamp is deliberate — an unstamped measurement on an
   OS-dark machine reads the colour this very stylesheet just painted.
+- **Implied ancestors flattened** in the same layer: 42 selector parts drop 104 compounds
+  of pure specificity padding. `.roam-body .roam-app .roam-sidebar-container
+  .roam-sidebar-content .top-row` becomes `.roam-sidebar-content` (×4)` .top-row` — Roam's
+  own layout chrome nests those containers unconditionally, so the shortened selector
+  matches exactly the same elements while ending the ancestor walk three levels earlier.
+  Specificity is held constant by repeating the retained class, which is asserted per rule
+  and recorded before/after in the report: nothing in `10-fixes-dark.css`,
+  `30-absorbed.css`, or the user's live `roam/css` wins or loses a cascade fight it did not
+  win or lose before. `.roam-sidebar-container .rm-graph-dropdown` is deliberately left
+  alone — the dropdown is a Blueprint popover and can be portaled out of the sidebar.
+- `tools/cascade_collapse.py` reads `vendor/upstream/blueprint.css` and writes
+  `src/css/00-upstream-base.css`, so re-running it reproduces the committed layer instead
+  of transforming its own output. `--no-flatten` emits the collapse-only sheet.
 - `test/build.test.js` retires the 455,049-byte pin on the base layer ("must stay a
   byte-move") for a SHA-256 content pin, since the layer is now generated rather than
   vendored verbatim.

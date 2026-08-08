@@ -188,3 +188,34 @@ test("the committed report describes the committed stylesheet", async () => {
     report.tokens,
   );
 });
+
+test("the ancestry flatten preserves specificity on every rewritten selector", async () => {
+  const layers = await readLayers();
+  const base = layers.get("00-upstream-base.css");
+  const report = JSON.parse(
+    await readFile(resolve(rootPath, "docs/absorption/cascade-collapse-report.json"), "utf8"),
+  );
+  const flatten = report.ancestry_flatten;
+
+  assert.ok(flatten.rewritten_selector_parts > 0);
+  assert.equal(flatten.rewrites.length, flatten.rewritten_selector_parts);
+  assert.equal(flatten.specificity_preserved, true);
+
+  // Upstream left commented-out CSS in the sheet; those blocks keep their original text,
+  // so the "is it gone" checks have to look at live rules only.
+  const live = base.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  for (const row of flatten.rewrites) {
+    // Specificity is the whole contract here: the shortened chain keeps its exact weight
+    // by repeating a retained class, so no later rule — including the user's absorbed
+    // roam/css in 30-absorbed.css — wins a fight it loses today.
+    assert.deepEqual(row.specificity_after, row.specificity_before, row.before);
+    assert.ok(row.depth_after < row.depth_before, row.before);
+    assert.ok(live.includes(row.after), `flattened selector missing: ${row.after}`);
+    assert.ok(!live.includes(row.before), `unflattened selector still present: ${row.before}`);
+  }
+
+  // `.roam-app` is inside `body.roam-body` by construction, so the pair never carries
+  // meaning — every live occurrence should be gone.
+  assert.equal(live.includes(".roam-body .roam-app"), false);
+});

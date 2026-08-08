@@ -81,7 +81,10 @@ from cssnodes import (  # noqa: E402
 )
 
 REPOSITORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SOURCE = os.path.join(REPOSITORY, "src", "css", "00-upstream-base.css")
+# Read the vendored upstream sheet and write the layer, so the tool is idempotent: running
+# it again reproduces the committed layer instead of transforming its own output.
+SOURCE = os.path.join(REPOSITORY, "vendor", "upstream", "blueprint.css")
+OUTPUT = os.path.join(REPOSITORY, "src", "css", "00-upstream-base.css")
 REPORT = os.path.join(REPOSITORY, "docs", "absorption", "cascade-collapse-report.json")
 LAYER_DIRECTORY = os.path.join(REPOSITORY, "src", "css")
 
@@ -360,7 +363,8 @@ def sheet_rules_in_cascade_order(base_nodes):
     for filename in sorted(os.listdir(LAYER_DIRECTORY)):
         if not filename.endswith(".css"):
             continue
-        if filename == os.path.basename(SOURCE):
+        if filename == os.path.basename(OUTPUT):
+            # The layer on disk is last run's output; use the tree being transformed.
             add(filename, base_nodes)
             continue
         css = open(os.path.join(LAYER_DIRECTORY, filename), encoding="utf-8").read()
@@ -633,7 +637,7 @@ def verify_family_equivalence(runs, classifications, replacements, deletions, he
     return failures
 
 
-def collapse(css):
+def collapse(css, flatten=True):
     nodes = parse(css)
     if serialize(nodes) != css:
         raise SystemExit("parser round-trip failed on the input sheet; refusing to transform")
@@ -767,10 +771,173 @@ def collapse(css):
     else:
         output.insert(0, Raw(header.lstrip("\n")))
 
-    result = serialize(output)
-    if serialize(parse(result)) != result:
+    collapsed = serialize(output)
+    if serialize(parse(collapsed)) != collapsed:
         raise SystemExit("the emitted sheet does not round-trip; refusing to write")
-    return result, runs, classifications, tokens, report_entries, guarded_media
+
+    # R2 — ancestry flatten, on the collapsed tree. Kept as a second pass so its effect is
+    # a clean diff against the collapse alone, and so `--no-flatten` reproduces R1 exactly.
+    if not flatten:
+        return collapsed, runs, classifications, tokens, report_entries, guarded_media, []
+    flattened_nodes = parse(collapsed)
+    rewrites = flatten_ancestry(flattened_nodes)
+    result = serialize(flattened_nodes)
+    if serialize(parse(result)) != result:
+        raise SystemExit("the flattened sheet does not round-trip; refusing to write")
+    return result, runs, classifications, tokens, report_entries, guarded_media, rewrites
+
+
+# --------------------------------------------------------------------- ancestry flatten
+
+# Upstream pads its layout-chrome selectors with ancestors that are already implied by the
+# next one. Each entry is a containment fact about Roam's OWN chrome, which is never
+# portaled: the class on the left may be dropped only when one of the classes on the right
+# is the very next compound, so the shortened selector matches exactly the same elements.
+#
+#   .roam-app                is the app root inside <body class="roam-body">
+#   .roam-sidebar-container  .roam-main  .roam-body-main   are children of .roam-app
+#   .roam-sidebar-content    is the scroller inside .roam-sidebar-container
+#
+# Deliberately absent: `.roam-sidebar-container .rm-graph-dropdown`. The graph dropdown is
+# a Blueprint popover and can be portaled out of the sidebar, so dropping the container
+# would widen the match set rather than preserve it.
+REDUNDANT_ANCESTORS = (
+    (".roam-body", (".roam-app",)),
+    (".roam-app", (".roam-sidebar-container", ".roam-main", ".roam-body-main")),
+    (".roam-sidebar-container", (".roam-sidebar-content",)),
+)
+
+COMPOUND_SPLIT = re.compile(r"(\s*[>+~]\s*|\s+)")
+
+
+def split_compounds(part):
+    """Split a selector into ``[compound, combinator, compound, ...]``, parens-aware."""
+    pieces = []
+    depth = 0
+    start = 0
+    index = 0
+    while index < len(part):
+        char = part[index]
+        if char in "([":
+            depth += 1
+        elif char in ")]":
+            depth -= 1
+        elif depth == 0:
+            match = COMPOUND_SPLIT.match(part, index)
+            if match:
+                pieces.append(part[start:index])
+                pieces.append(match.group(0))
+                index = match.end()
+                start = index
+                continue
+        index += 1
+    pieces.append(part[start:])
+    return pieces
+
+
+def leading_class(compound):
+    match = re.match(r"^\.([\w-]+)", compound)
+    return match.group(1) if match else None
+
+
+def flatten_selector_part(part):
+    """Drop implied ancestors, repeating a retained class to hold specificity constant.
+
+    Shortening a descendant chain removes one class of specificity per dropped compound,
+    which would hand later rules — including the user's absorbed `roam/css` — fights they
+    lose today. Repeating the leftmost retained class restores the exact count without
+    changing which elements match: a compound may list the same class twice, and each
+    occurrence counts.
+    """
+    pieces = split_compounds(part)
+    if len(pieces) < 3:
+        return part, 0
+
+    # The chain does not have to start the selector: a kept family's copies begin with
+    # `.bp3-light`/`.bp3-dark`, and a guarded media rule begins with :where(...). Find the
+    # first position where a redundant ancestor actually sits.
+    def droppable(offset):
+        if offset + 2 >= len(pieces) or pieces[offset + 1] != " ":
+            return False
+        if offset > 0 and pieces[offset - 1] != " ":
+            return False
+        entry = next((row for row in REDUNDANT_ANCESTORS if row[0] == pieces[offset]), None)
+        if entry is None:
+            return False
+        following = leading_class(pieces[offset + 2])
+        return following is not None and f".{following}" in entry[1]
+
+    offset = next((index for index in range(0, len(pieces), 2) if droppable(index)), None)
+    if offset is None:
+        return part, 0
+
+    dropped = 0
+    while droppable(offset):
+        del pieces[offset:offset + 2]
+        dropped += 1
+
+    anchor = leading_class(pieces[offset])
+    if anchor is None:
+        return part, 0
+    pieces[offset] = pieces[offset] + f".{anchor}" * dropped
+    return "".join(pieces), dropped
+
+
+def selector_segments(selector):
+    """Raw slices of a selector list between top-level commas, whitespace included."""
+    segments = []
+    depth = 0
+    start = 0
+    index = 0
+    while index < len(selector):
+        char = selector[index]
+        if char in "([":
+            depth += 1
+        elif char in ")]":
+            depth -= 1
+        elif char == "," and depth == 0:
+            segments.append(selector[start:index])
+            start = index + 1
+        index += 1
+    segments.append(selector[start:])
+    return segments
+
+
+def flatten_ancestry(nodes):
+    """Rewrite every implied-ancestor chain in the sheet. Returns the report rows."""
+    rewrites = []
+    for rule, _context in walk_rules(nodes):
+        if rule.at_rule:
+            continue
+        segments = selector_segments(rule.selector)
+        touched = False
+        for index, segment in enumerate(segments):
+            part = segment.strip()
+            if not part:
+                continue
+            new_part, dropped = flatten_selector_part(part)
+            if not dropped:
+                continue
+            if specificity(new_part) != specificity(part):
+                raise SystemExit(
+                    f"flatten changed specificity: {part!r} "
+                    f"{specificity(part)} -> {specificity(new_part)}"
+                )
+            touched = True
+            # Substitute inside the raw segment so the original line breaks and indentation
+            # of a multi-line selector list survive.
+            segments[index] = segment.replace(part, new_part, 1)
+            rewrites.append({
+                "before": part,
+                "after": new_part,
+                "specificity_before": list(specificity(part)),
+                "specificity_after": list(specificity(new_part)),
+                "depth_before": len(split_compounds(part)) // 2 + 1,
+                "depth_after": len(split_compounds(new_part)) // 2 + 1,
+            })
+        if touched:
+            rule.set_selector(",".join(segments))
+    return rewrites
 
 
 def rule_count(css):
@@ -788,7 +955,10 @@ def main():
                         help="verify the parser round-trips every layer, then exit")
     parser.add_argument("--dry-run", action="store_true",
                         help="run the transform and print the report without writing")
+    parser.add_argument("--no-flatten", action="store_true",
+                        help="skip the R2 ancestry flatten and emit the R1 sheet")
     parser.add_argument("--source", default=SOURCE)
+    parser.add_argument("--out", default=OUTPUT)
     parser.add_argument("--report", default=REPORT)
     arguments = parser.parse_args()
 
@@ -807,7 +977,9 @@ def main():
         return
 
     css = open(arguments.source, encoding="utf-8").read()
-    result, runs, classifications, tokens, entries, guarded_media = collapse(css)
+    result, runs, classifications, tokens, entries, guarded_media, rewrites = collapse(
+        css, flatten=not arguments.no_flatten
+    )
 
     counts = {}
     for verdict in classifications:
@@ -821,6 +993,14 @@ def main():
         "classification_counts": counts,
         "tokens": len(tokens),
         "guarded_media_rules": guarded_media,
+        "ancestry_flatten": {
+            "rewritten_selector_parts": len(rewrites),
+            "compounds_removed": sum(row["depth_before"] - row["depth_after"] for row in rewrites),
+            "specificity_preserved": all(
+                row["specificity_before"] == row["specificity_after"] for row in rewrites
+            ),
+            "rewrites": rewrites,
+        },
         "before": {
             "bytes": len(css.encode("utf-8")),
             "rules": rule_count(css),
@@ -837,10 +1017,13 @@ def main():
     if arguments.dry_run:
         summary = dict(report)
         summary.pop("groups")
+        summary["ancestry_flatten"] = {
+            key: value for key, value in summary["ancestry_flatten"].items() if key != "rewrites"
+        }
         print(json.dumps(summary, indent=2))
         return
 
-    with open(arguments.source, "w", encoding="utf-8") as handle:
+    with open(arguments.out, "w", encoding="utf-8") as handle:
         handle.write(result)
     os.makedirs(os.path.dirname(arguments.report), exist_ok=True)
     with open(arguments.report, "w", encoding="utf-8") as handle:
@@ -848,6 +1031,9 @@ def main():
         handle.write("\n")
     summary = dict(report)
     summary.pop("groups")
+    summary["ancestry_flatten"] = {
+        key: value for key, value in summary["ancestry_flatten"].items() if key != "rewrites"
+    }
     print(json.dumps(summary, indent=2))
 
 

@@ -101,13 +101,15 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
     .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
   // Until the cascade collapse the base layer was pinned at its upstream byte count
   // (455049) to prove it was a pure byte-move. That invariant is deliberately retired:
-  // tools/cascade_collapse.py rewrites the layer, folding upstream's four-copy
-  // light/dark cascade into 588 tokens under the theme's five dark signals. The pin is
-  // now a content hash, so the layer still cannot drift by hand — regenerate with
-  // `python3 tools/cascade_collapse.py` and update this digest in the same commit.
+  // the layer is now generated from vendor/upstream/blueprint.css by
+  // tools/cascade_collapse.py, which folds upstream's four-copy light/dark cascade into
+  // 588 tokens under the theme's five dark signals and flattens 42 implied-ancestor
+  // chains. The pin is a content hash instead, so the layer still cannot drift by hand —
+  // regenerate with `python3 tools/cascade_collapse.py` and update this digest in the
+  // same commit.
   assert.equal(
     createHash("sha256").update(bodies[0], "utf8").digest("hex"),
-    "0fc85c183ee5de8b37deb2f4f9c3ae7e972e93ab923a1b1c0a93508a5b7d2158",
+    "68bed8d2cae56b28980cee289f065a62ffc66b685a7e914e3c6847bb5adf8101",
     "the base layer must match tools/cascade_collapse.py output byte-for-byte",
   );
   assert.ok(
