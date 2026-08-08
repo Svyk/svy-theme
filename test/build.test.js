@@ -12,6 +12,7 @@ import {
   cssLayerBanner,
   cssLayerDirectory,
   cssLayerFilenames,
+  pagesSourceDirectory,
   verifyGeneratedArtifacts,
 } from "../build.mjs";
 
@@ -110,6 +111,21 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   assert.equal(deployCss, css);
 });
 
+test("Pages build ships a themed home page from its checked source", async () => {
+  await run(process.execPath, ["build.mjs"], { cwd: rootPath });
+  const [source, deployed] = await Promise.all([
+    readFile(resolve(rootPath, pagesSourceDirectory, "index.html"), "utf8"),
+    readFile(resolve(rootPath, "deploy/index.html"), "utf8"),
+  ]);
+
+  assert.equal(deployed, source, "the Pages home page must be byte-identical to its source");
+  assert.match(deployed, /^<!doctype html>/i);
+  assert.match(deployed, /#00695e/i, "the page must publish the light caret default");
+  assert.match(deployed, /#48d0c0/i, "the page must publish the dark caret default");
+  assert.match(deployed, /extension\.css/);
+  assert.match(deployed, /extension\.js/);
+});
+
 test("generated artifact verification detects a CSS layer edit", async () => {
   const temporaryParent = await mkdtemp(resolve(tmpdir(), "roam-template-css-drift-"));
   const copyPath = resolve(temporaryParent, "repository");
@@ -125,6 +141,22 @@ test("generated artifact verification detects a CSS layer edit", async () => {
       "utf8",
     );
     await assert.rejects(verifyGeneratedArtifacts(copyPath), /extension\.css is stale/);
+  } finally {
+    await rm(temporaryParent, { recursive: true, force: true });
+  }
+});
+
+test("generated artifact verification detects a Pages source edit", async () => {
+  const temporaryParent = await mkdtemp(resolve(tmpdir(), "svy-theme-page-drift-"));
+  const copyPath = resolve(temporaryParent, "repository");
+  try {
+    await cp(rootPath, copyPath, {
+      recursive: true,
+      filter: (source) => ![".git", "node_modules"].includes(basename(source)),
+    });
+    await verifyGeneratedArtifacts(copyPath);
+    await writeFile(resolve(copyPath, pagesSourceDirectory, "index.html"), "<!doctype html><title>Drift</title>\n", "utf8");
+    await assert.rejects(verifyGeneratedArtifacts(copyPath), /deploy\/index\.html is stale/);
   } finally {
     await rm(temporaryParent, { recursive: true, force: true });
   }

@@ -44,6 +44,7 @@ export async function bundleEntry({
 }
 
 export const cssLayerDirectory = "src/css";
+export const pagesSourceDirectory = "site";
 
 export function cssLayerBanner(filename) {
   return `/* === ${filename} === */\n`;
@@ -86,6 +87,7 @@ export async function build(rootDirectory = defaultRoot) {
   await Promise.all([
     writeFile(resolve(deployDir, "extension.js"), javascript, "utf8"),
     writeFile(resolve(deployDir, "extension.css"), css, "utf8"),
+    copyFile(resolve(rootDirectory, pagesSourceDirectory, "index.html"), resolve(deployDir, "index.html")),
     ...["README.md", "CHANGELOG.md", "LICENSE"].map((name) => (
       copyFile(resolve(rootDirectory, name), resolve(deployDir, name))
     )),
@@ -101,6 +103,7 @@ export async function verifyGeneratedArtifacts(rootDirectory = defaultRoot) {
     ["extension.css", expected.css],
     ["deploy/extension.js", expected.javascript],
     ["deploy/extension.css", expected.css],
+    ["deploy/index.html", await readFile(resolve(rootDirectory, pagesSourceDirectory, "index.html"), "utf8")],
     ["deploy/README.md", await readFile(resolve(rootDirectory, "README.md"), "utf8")],
     ["deploy/CHANGELOG.md", await readFile(resolve(rootDirectory, "CHANGELOG.md"), "utf8")],
     ["deploy/LICENSE", await readFile(resolve(rootDirectory, "LICENSE"), "utf8")],

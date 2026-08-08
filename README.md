@@ -4,6 +4,10 @@ A personal performance fork of the **Blueprint** theme for Roam Research, built 
 [`roam-extension-template`](https://github.com/Svyk/roam-extension-template)'s
 zero-runtime-dependency, esbuild-based Depot extension scaffold.
 
+**Extension URL:** <https://svyk.github.io/svy-theme/> ·
+**Published assets:** [`extension.css`](https://svyk.github.io/svy-theme/extension.css) ·
+[`extension.js`](https://svyk.github.io/svy-theme/extension.js)
+
 This is not affiliated with, endorsed by, or a replacement for the upstream Depot
 listing. It exists to run a locally maintained, auditable copy of the theme with a real
 `extension.css` file (instead of upstream's JS-string-inlined CSS) and a hand-ported
@@ -62,12 +66,12 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
 |---|---|---|---|
 | Appearance | `bp-appearance` | select `auto` / `dark` / `light` | `auto` |
 | Svy Beam | `bp-pack-beam` | switch | on |
-| Caret color (light) | `bp-beam-caret-light` | input (hex) | `#008478` |
+| Caret color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
 | Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
 | Caret shape | `bp-beam-caret-shape` | select `block` / `bar` | `block` |
 | Caret blink | `bp-beam-caret-blink` | switch | off |
-| Focus wash | `bp-beam-wash` | switch | on |
-| Wash intensity | `bp-beam-wash-intensity` | select `subtle` / `medium` / `off` | `subtle` |
+| Focus wash | `bp-beam-wash` | switch | off |
+| Wash intensity | `bp-beam-wash-intensity` | select `subtle` / `medium` / `off` | `off` |
 | Cursor style | `bp-beam-cursor` | select `svy` / `native` | `svy` |
 | Preview | `bp-beam-preview` | `reactComponent` | — |
 

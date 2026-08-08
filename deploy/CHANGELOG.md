@@ -6,6 +6,12 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **GitHub Pages home page** (`site/index.html`): the extension URL now opens a real,
+  responsive landing page instead of GitHub's 404. It uses the canonical Svy light and
+  dark palettes, follows the system theme with an explicit mode toggle, previews the
+  live insertion caret, and links directly to the two published extension assets.
+  `build.mjs` copies the page into `deploy/`, and generated-artifact verification rejects
+  drift between the authored and deployed copies.
 - **Svy Beam v2** (`src/css/40-beam.css`): the caret, focus wash, and custom cursors from
   the personal `roam/css` Beam patch, rebuilt so every value flows through a
   `--svy-beam-*` custom property with the v1 value as its CSS fallback. The layer renders
@@ -26,6 +32,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **README settings drift.** The settings table now matches the shipped runtime defaults:
+  light caret `#00695E`, focus wash off, and wash intensity off.
 - **Theme-adaptive cursors.** Beam v1 painted one cursor set on both surfaces, with
   `#182026` ink that vanishes into the dark page. `theme-vars.js` now publishes a set per
   mode: light keeps the v1 art, dark uses an `#E1E8ED` outline (APCA Lc -88.5 on the dark
