@@ -146,9 +146,9 @@
   --svy-zk-fg: #000000;
   --svy-zk-shadow: 0px 1px 3px -1px #000000, 0px -1px 5px #DFDFDF;
   --svy-zk-relevant-bd: #FFFFFF;
-  --svy-zk-half-b-fg: #F3F7F2;
+  --svy-zk-half-b-fg: #0C5174; /* was #F3F7F2 — APCA Lc 0.0 on #E7F3F9; now Lc 80.8 */
   --svy-zk-half-b-shadow: inset -1px 1px 5px #AAAAAA63, inset 1px -1px 3px #F6F6F6;
-  --svy-zk-half-c-fg: #F5F8FA;
+  --svy-zk-half-c-fg: #0C5174; /* was #F5F8FA — APCA Lc 0.0 on #DCEEF9; now Lc 77.4 */
   --svy-zk-solid-fg: #FFFFFF;
   --svy-zk-solid-fg-lighthue: #FFFFFF;
   /* family A hue borders (legacy 25%-alpha hex) */
