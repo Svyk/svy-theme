@@ -5,7 +5,9 @@ import {
   CURSOR_STYLES,
   LEGACY_CARET_LIGHT,
   WASH_INTENSITIES,
+  WASH_MIGRATION_SETTING_ID,
   normalizeHex,
+  normalizeSwitch,
 } from "./theme-vars.js";
 
 export const SETTING_IDS = Object.freeze({
@@ -67,6 +69,26 @@ export async function initializeBeamSettings(extensionAPI) {
   const storedLight = extensionAPI.settings.get(BEAM_SETTING_IDS.caretLight);
   if (normalizeHex(storedLight) === LEGACY_CARET_LIGHT) {
     await extensionAPI.settings.set(BEAM_SETTING_IDS.caretLight, BEAM_DEFAULTS.caretLight);
+  }
+
+  // One-time FORCED migration (2026-08-07). Unlike the caret migration above, this one
+  // overrides a value the user may have chosen deliberately, because the user explicitly
+  // asked for the new behavior. That makes the marker load-bearing rather than an
+  // optimization: without it, every load would re-flip the switch and a user who turned
+  // the wash back on could never keep it.
+  //
+  // A graph seeded fresh by the loop above already stored `false` and skips the write.
+  // bp-beam-wash-intensity is deliberately left alone — with the switch off it paints
+  // nothing either way, and preserving it means re-enabling the switch restores whatever
+  // intensity the user had picked.
+  //
+  // The marker is written AFTER the flip so an interrupted run retries instead of
+  // recording a migration that never happened.
+  if (!normalizeSwitch(extensionAPI.settings.get(WASH_MIGRATION_SETTING_ID), false)) {
+    if (normalizeSwitch(extensionAPI.settings.get(BEAM_SETTING_IDS.wash), false)) {
+      await extensionAPI.settings.set(BEAM_SETTING_IDS.wash, false);
+    }
+    await extensionAPI.settings.set(WASH_MIGRATION_SETTING_ID, true);
   }
 }
 
@@ -155,13 +177,13 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
     {
       id: BEAM_SETTING_IDS.wash,
       name: "Focus wash",
-      description: "Tints the focused block with the caret color. Always disabled under prefers-reduced-motion, regardless of this switch.",
+      description: "Off by default: the caret alone marks the focused block. On tints the focused block with the caret color. Always disabled under prefers-reduced-motion, regardless of this switch.",
       action: { type: "switch", onChange: changed },
     },
     {
       id: BEAM_SETTING_IDS.washIntensity,
       name: "Wash intensity",
-      description: "subtle is the shipped tint; medium doubles the alpha; off keeps the switch on but paints nothing.",
+      description: "off (default) paints nothing even with the switch on; subtle is the original tint; medium doubles the alpha.",
       action: { type: "select", items: [...WASH_INTENSITIES], onChange: changed },
     },
     {

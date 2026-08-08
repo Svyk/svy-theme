@@ -10,7 +10,12 @@ import {
   initializeSettings,
   normalizeMode,
 } from "../src/settings.js";
-import { BEAM_DEFAULTS, BEAM_SETTING_IDS, LEGACY_CARET_LIGHT } from "../src/theme-vars.js";
+import {
+  BEAM_DEFAULTS,
+  BEAM_SETTING_IDS,
+  LEGACY_CARET_LIGHT,
+  WASH_MIGRATION_SETTING_ID,
+} from "../src/theme-vars.js";
 
 function fakeExtensionApi(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -89,9 +94,10 @@ test("initializeBeamSettings seeds every beam default once, then is a no-op", as
     ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
     ["setting:set", "bp-beam-caret-shape", "block"],
     ["setting:set", "bp-beam-caret-blink", false],
-    ["setting:set", "bp-beam-wash", true],
-    ["setting:set", "bp-beam-wash-intensity", "subtle"],
+    ["setting:set", "bp-beam-wash", false],
+    ["setting:set", "bp-beam-wash-intensity", "off"],
     ["setting:set", "bp-beam-cursor", "svy"],
+    ["setting:set", "bp-beam-wash-migrated-2026-08-07", true],
   ]);
 
   api.calls.length = 0;
@@ -106,6 +112,84 @@ test("a fresh seed never triggers the light-caret migration", async () => {
   await initializeBeamSettings(api);
   const writes = api.calls.filter(([, id]) => id === BEAM_SETTING_IDS.caretLight);
   assert.deepEqual(writes, [["setting:set", BEAM_SETTING_IDS.caretLight, "#00695e"]]);
+});
+
+test("the wash migration id is not a seedable beam setting", async () => {
+  // BEAM_SETTING_IDS drives a seed loop that writes BEAM_DEFAULTS[key]. If the marker were
+  // a member it would be persisted as `undefined` on every fresh graph.
+  assert.ok(!Object.values(BEAM_SETTING_IDS).includes(WASH_MIGRATION_SETTING_ID));
+  assert.equal(WASH_MIGRATION_SETTING_ID, "bp-beam-wash-migrated-2026-08-07");
+
+  const api = fakeExtensionApi();
+  await initializeBeamSettings(api);
+  for (const [, , value] of api.calls) assert.notEqual(value, undefined);
+});
+
+test("a graph carrying the old wash-on default is flipped off exactly once", async () => {
+  // Everything else already seeded, wash stored ON — the pre-2026-08-07 state.
+  const stored = Object.fromEntries(
+    Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [id, BEAM_DEFAULTS[key]]),
+  );
+  stored[BEAM_SETTING_IDS.wash] = true;
+  stored[BEAM_SETTING_IDS.washIntensity] = "subtle";
+  const api = fakeExtensionApi(stored);
+
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, [
+    ["setting:set", BEAM_SETTING_IDS.wash, false],
+    ["setting:set", WASH_MIGRATION_SETTING_ID, true],
+  ]);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.wash), false);
+  // The stored intensity is preserved, so re-enabling the switch restores the user's pick.
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.washIntensity), "subtle");
+
+  api.calls.length = 0;
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, [], "the marker makes the second load a no-op");
+});
+
+test("re-enabling the wash after the migration is never overridden", async () => {
+  const stored = Object.fromEntries(
+    Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [id, BEAM_DEFAULTS[key]]),
+  );
+  // The user turned it back on after the migration already ran.
+  stored[BEAM_SETTING_IDS.wash] = true;
+  stored[BEAM_SETTING_IDS.washIntensity] = "medium";
+  stored[WASH_MIGRATION_SETTING_ID] = true;
+  const api = fakeExtensionApi(stored);
+
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, []);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.wash), true);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.washIntensity), "medium");
+});
+
+test("an interrupted wash migration retries instead of recording a flip it never made", async () => {
+  // The marker is written AFTER the flip. A run that dies between the two writes leaves
+  // wash ON and no marker, so the next load must still flip it.
+  const stored = Object.fromEntries(
+    Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [id, BEAM_DEFAULTS[key]]),
+  );
+  stored[BEAM_SETTING_IDS.wash] = true;
+  const api = fakeExtensionApi(stored);
+  let failed = false;
+  const realSet = api.settings.set;
+  api.settings.set = async (id, value) => {
+    if (id === WASH_MIGRATION_SETTING_ID && !failed) {
+      failed = true;
+      throw new Error("interrupted");
+    }
+    return realSet(id, value);
+  };
+
+  await assert.rejects(initializeBeamSettings(api), /interrupted/);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.wash), false);
+  assert.equal(api.settings.get(WASH_MIGRATION_SETTING_ID), null);
+
+  // Second load: wash is already off, so no flip, but the marker is finally recorded.
+  api.calls.length = 0;
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, [["setting:set", WASH_MIGRATION_SETTING_ID, true]]);
 });
 
 test("initializeBeamSettings migrates the stored Beam v1 light caret once, then is a no-op", async () => {

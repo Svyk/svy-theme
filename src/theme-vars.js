@@ -37,17 +37,31 @@ export const CURSOR_STYLES = Object.freeze(["svy", "native"]);
 // recognize it to run the one-time migration to the value below; nothing else reads it.
 export const LEGACY_CARET_LIGHT = "#008478";
 
+// Marker for the 2026-08-07 forced wash migration (user request: "I don't need this
+// highlighted background, just the cursor"). Deliberately NOT a member of
+// BEAM_SETTING_IDS: initializeBeamSettings seeds every id in that object from
+// BEAM_DEFAULTS[key], and this marker has no BEAM_DEFAULTS entry, so including it would
+// persist `undefined`. It is also not a settings row — it is bookkeeping, not a knob.
+export const WASH_MIGRATION_SETTING_ID = "bp-beam-wash-migrated-2026-08-07";
+
 // Dark caret is #48D0C0 (APCA Lc -62.9 on #202B33) per the U6 design-token research;
 // it replaces Beam v1's #66E3D0. The light caret moved off Beam v1's #008478 (Lc 66.8)
 // to #00695E (Lc 77.6), which clears the APCA thin-stroke floor a caret has to meet.
+// The focus wash defaults OFF as of 2026-08-07 (user: "I don't need this highlighted
+// background, just the cursor"). Both knobs move: the switch so the settings row reads
+// the way the page looks, and the intensity so re-enabling the switch alone does not
+// silently restore a tint the user rejected. computeThemeVars already treats either as
+// sufficient to disable — washOn = wash && washIntensity !== "off" — so no other logic
+// changes. The caret pair is untouched: #00695e is APCA Lc 77.6 on the light surface and
+// #48d0c0 is Lc -62.9 on the dark one, both computed optima.
 export const BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
   caretShape: "block",
   caretBlink: false,
-  wash: true,
-  washIntensity: "subtle",
+  wash: false,
+  washIntensity: "off",
   cursor: "svy",
 });
 

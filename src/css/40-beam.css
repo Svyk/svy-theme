@@ -1,10 +1,17 @@
 /* U5 — Svy Beam v2: caret, focus wash, custom cursors.
  *
  * Every value in this layer flows through a --svy-beam-* custom property whose
- * fallback is the shipped v1 value, so the layer renders exactly like Beam v1 when
+ * fallback is the CURRENT default, so the layer renders like the shipped defaults when
  * src/theme-vars.js never runs (JS disabled, load failure, older cached bundle).
  * theme-vars.js publishes the settings-derived values from one injected
  * <style id="svy-theme-vars"> sheet.
+ *
+ * CONTRACT CHANGE 2026-08-07: these fallbacks used to be pinned to Beam v1's values. They
+ * now track computeThemeVars(BEAM_DEFAULTS) instead. The focus wash defaults OFF, and a
+ * fallback frozen at v1 would repaint the wash precisely in the cases the user cannot
+ * fix from the settings panel — a failed bundle load or a stale cached build. The wash
+ * fallbacks are therefore `transparent` / `0ms`, and the caret keeps its (unchanged)
+ * default colour so the layer's whole reason for existing still works without JS.
  *
  * Pack gate: theme-vars.js puts .svy-off-beam on <html> when the beam pack is
  * switched off, and every rule below carries :root:not(.svy-off-beam).
@@ -23,7 +30,7 @@
 
 :root:not(.svy-off-beam) {
   --svy-beam-caret: var(--svy-beam-caret-light, #00695e);
-  --svy-beam-wash: var(--svy-beam-wash-light, rgba(0, 122, 112, 0.045));
+  --svy-beam-wash: var(--svy-beam-wash-light, transparent);
 }
 
 :root:not(.svy-off-beam).bp3-dark,
@@ -32,13 +39,13 @@
 :root:not(.svy-off-beam) body.bt-theme-dark,
 :root:not(.svy-off-beam) body.roam-body.dark {
   --svy-beam-caret: var(--svy-beam-caret-dark, #48d0c0);
-  --svy-beam-wash: var(--svy-beam-wash-dark, rgba(72, 208, 192, 0.055));
+  --svy-beam-wash: var(--svy-beam-wash-dark, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light):not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-dark, #48d0c0);
-    --svy-beam-wash: var(--svy-beam-wash-dark, rgba(72, 208, 192, 0.055));
+    --svy-beam-wash: var(--svy-beam-wash-dark, transparent);
   }
 }
 
@@ -98,7 +105,7 @@
  * need a typing-path JavaScript overlay. Keep Roam native-fast and carry the same
  * sense of motion with a tiny, compositor-friendly focus wash instead. */
 :root:not(.svy-off-beam) .roam-block-container > .rm-block-main {
-  transition: background-color var(--svy-beam-wash-duration, 70ms) linear;
+  transition: background-color var(--svy-beam-wash-duration, 0ms) linear;
   border-radius: var(--svy-beam-wash-radius, 4px);
 }
 
@@ -110,7 +117,7 @@
 @media (color-gamut: p3) {
   :root:not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-light-p3, oklch(0.47 0.11 182));
-    --svy-beam-wash: var(--svy-beam-wash-light-p3, oklch(0.47 0.11 182 / 0.045));
+    --svy-beam-wash: var(--svy-beam-wash-light-p3, transparent);
   }
 
   :root:not(.svy-off-beam).bp3-dark,
@@ -119,14 +126,14 @@
   :root:not(.svy-off-beam) body.bt-theme-dark,
   :root:not(.svy-off-beam) body.roam-body.dark {
     --svy-beam-caret: var(--svy-beam-caret-dark-p3, oklch(0.78 0.15 184));
-    --svy-beam-wash: var(--svy-beam-wash-dark-p3, oklch(0.78 0.15 184 / 0.055));
+    --svy-beam-wash: var(--svy-beam-wash-dark-p3, transparent);
   }
 }
 
 @media (color-gamut: p3) and (prefers-color-scheme: dark) {
   :root:not(.bp3-light):not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-dark-p3, oklch(0.78 0.15 184));
-    --svy-beam-wash: var(--svy-beam-wash-dark-p3, oklch(0.78 0.15 184 / 0.055));
+    --svy-beam-wash: var(--svy-beam-wash-dark-p3, transparent);
   }
 }
 

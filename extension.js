@@ -102,14 +102,15 @@ var CARET_SHAPES = Object.freeze(["block", "bar"]);
 var WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 var CURSOR_STYLES = Object.freeze(["svy", "native"]);
 var LEGACY_CARET_LIGHT = "#008478";
+var WASH_MIGRATION_SETTING_ID = "bp-beam-wash-migrated-2026-08-07";
 var BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
   caretShape: "block",
   caretBlink: false,
-  wash: true,
-  washIntensity: "subtle",
+  wash: false,
+  washIntensity: "off",
   cursor: "svy"
 });
 var DEFAULT_WASH_RGB = Object.freeze({ light: "0, 122, 112", dark: "72, 208, 192" });
@@ -323,6 +324,12 @@ async function initializeBeamSettings(extensionAPI) {
   if (normalizeHex(storedLight) === LEGACY_CARET_LIGHT) {
     await extensionAPI.settings.set(BEAM_SETTING_IDS.caretLight, BEAM_DEFAULTS.caretLight);
   }
+  if (!normalizeSwitch(extensionAPI.settings.get(WASH_MIGRATION_SETTING_ID), false)) {
+    if (normalizeSwitch(extensionAPI.settings.get(BEAM_SETTING_IDS.wash), false)) {
+      await extensionAPI.settings.set(BEAM_SETTING_IDS.wash, false);
+    }
+    await extensionAPI.settings.set(WASH_MIGRATION_SETTING_ID, true);
+  }
 }
 function createBeamPreviewComponent(React = globalThis.window?.React) {
   if (typeof React?.createElement !== "function") return null;
@@ -405,13 +412,13 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: BEAM_SETTING_IDS.wash,
       name: "Focus wash",
-      description: "Tints the focused block with the caret color. Always disabled under prefers-reduced-motion, regardless of this switch.",
+      description: "Off by default: the caret alone marks the focused block. On tints the focused block with the caret color. Always disabled under prefers-reduced-motion, regardless of this switch.",
       action: { type: "switch", onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.washIntensity,
       name: "Wash intensity",
-      description: "subtle is the shipped tint; medium doubles the alpha; off keeps the switch on but paints nothing.",
+      description: "off (default) paints nothing even with the switch on; subtle is the original tint; medium doubles the alpha.",
       action: { type: "select", items: [...WASH_INTENSITIES], onChange: changed }
     },
     {

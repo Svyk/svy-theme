@@ -21,15 +21,18 @@ function fakeExtensionApi() {
 
 // U5 seeds the beam knobs so the settings panel renders switches in the state the
 // stylesheet is actually in. bp-appearance keeps its own untouched default/migration path.
+// The trailing marker write is the 2026-08-07 forced wash migration recording itself. On
+// a fresh graph the seed already stored wash:false, so the marker is set without any flip.
 const EXPECTED_BEAM_SEED = [
   ["setting:set", "bp-pack-beam", true],
   ["setting:set", "bp-beam-caret-light", "#00695e"],
   ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
   ["setting:set", "bp-beam-caret-shape", "block"],
   ["setting:set", "bp-beam-caret-blink", false],
-  ["setting:set", "bp-beam-wash", true],
-  ["setting:set", "bp-beam-wash-intensity", "subtle"],
+  ["setting:set", "bp-beam-wash", false],
+  ["setting:set", "bp-beam-wash-intensity", "off"],
   ["setting:set", "bp-beam-cursor", "svy"],
+  ["setting:set", "bp-beam-wash-migrated-2026-08-07", true],
 ];
 
 test("extension exports the Roam lifecycle contract and survives repeated unload", async () => {

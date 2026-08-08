@@ -1,4 +1,170 @@
-/* U2 — Dark-mode defect pack: tooltips, tables, chips, heading bullets. */
+/* U2 — Dark-mode defect pack: tooltips, tables, chips, heading bullets.
+ *
+ * Despite the filename this layer also carries mode-agnostic rules (sections 4, 5, 8
+ * already did before this change). Section 0 below is the theme's canonical palette and
+ * its public token API, which are light-first by definition.
+ */
+
+/* 0. CANONICAL PALETTE + PUBLIC TOKEN API.
+ *
+ * Values are verbatim from ~/research/2026-08-07-svy-theme-design-tokens.json
+ * (palette.light on :root, palette.dark under the dark signals). The two palettes are
+ * independently calibrated — no dark value is derived by inverting its light twin.
+ *
+ * WHY THE FULL BLOCK IS REPEATED THREE TIMES rather than declaring the aliases once on
+ * :root: custom-property substitution happens at the element carrying the *referencing*
+ * declaration. `--bc-main: var(--svy-raised)` written only on :root computes on <html>,
+ * where --svy-raised is still the LIGHT value; <body> would then inherit that resolved
+ * light colour even though `body.bt-theme-dark` redeclares --svy-raised. Two of the five
+ * dark signals land on <body> and one can land on an inner node, so every block that
+ * redeclares the primitives must redeclare the aliases with them.
+ *
+ * LEGACY NAME MAPPING — the names lie, so they are mapped by ROLE, not by name.
+ * The `bc-` prefix means background-color in the inherited Blueprint/roam-css vocabulary,
+ * but the live consumer (~/roam-grid/extension.css:21-31) reads two of them as line
+ * colours. Each mapping below is pinned to roam-grid's own fallback literal, which is the
+ * only evidence of what the token was meant to be:
+ *
+ *   --bc-main       -> --svy-raised         .rg-root: --rg-bg, --rg-toolbar   (#ffffff / #293742) exact
+ *   --bc-menu       -> --svy-border-subtle  .rg-root: --rg-border             (#d3d8de / #5f6b7c) near-exact
+ *                                           NOTE: a background token here would erase the
+ *                                           grid's inner lines. Mapped as a border tone.
+ *   --bc-hover      -> --svy-hover / dark --svy-overlay
+ *                                           .rg-root: --rg-header             (#f6f7f9 / #30404d) exact on dark
+ *   --bc-topbar     -> --svy-surface / dark --svy-canvas
+ *                                           unread by roam-grid; legacy public API only
+ *   --cl-gray-550   -> --svy-text-muted     .rg-root: --rg-muted              (#5f6b7c / #abb3bf) near-exact
+ *   --cl-blue       -> --svy-accent         .rg-root: --rg-active             (#2d72d2 / #48aff0) exact on dark
+ *   --cl-text-color -> --svy-text           .rg-root: color
+ *   --ff-main       -> --svy-ff-main        .rg-root: font-family
+ *
+ * roam-grid's dark block keys on .bp3-dark / body.bt-theme-dark / body.roam-body.dark and
+ * has NO prefers-color-scheme fallback for .rg-root, but its light branch still reads
+ * these tokens — so publishing dark values under the OS-dark guard below carries the grid
+ * into dark in Roam's auto mode as well. Section 12 handles the one place that breaks.
+ */
+:root {
+  --svy-canvas: #FFFFFF;
+  --svy-surface: #F5F8FA;
+  --svy-raised: #FFFFFF;
+  --svy-overlay: #FFFFFF;
+  --svy-hover: #F1F5F8;
+  --svy-selected: #DBEAF7;
+  --svy-border-subtle: #C5CBD3;
+  --svy-border: #A7B6C2;
+  --svy-border-strong: #8A9BA8;
+  --svy-text: #182026;
+  --svy-text-strong: #10161A;
+  --svy-text-muted: #5C7080;
+  --svy-text-faint: #738091;
+  --svy-link: #0E5A8A;
+  --svy-accent: #137CBD;
+  --svy-tag-bg: #D3E3F2;
+  --svy-tag-text: #106BA3;
+  --svy-tag-border: #A7B6C2;
+  /* Typography is mode-invariant by design (U6): no dark-mode size or weight
+     compensation, so --svy-ff-main is declared once and never redeclared. */
+  --svy-ff-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --bc-main: var(--svy-raised);
+  --bc-menu: var(--svy-border-subtle);
+  --bc-hover: var(--svy-hover);
+  --bc-topbar: var(--svy-surface);
+  --cl-gray-550: var(--svy-text-muted);
+  --cl-blue: var(--svy-accent);
+  --cl-text-color: var(--svy-text);
+  --ff-main: var(--svy-ff-main);
+  --bc-page: var(--svy-canvas);
+  --bc-surface: var(--svy-surface);
+  --bc-raised: var(--svy-raised);
+  --cl-main: var(--svy-text);
+  --cl-muted: var(--svy-text-muted);
+  --cl-accent: var(--svy-accent);
+  --tagBg: var(--svy-tag-bg);
+  --tagText: var(--svy-tag-text);
+  --tagBorder: var(--svy-tag-border);
+}
+
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme,
+body.roam-body.dark {
+  --svy-canvas: #182026;
+  --svy-surface: #202B33;
+  --svy-raised: #293742;
+  --svy-overlay: #30404D;
+  --svy-hover: #26333D;
+  --svy-selected: #33485C;
+  --svy-border-subtle: #5C7080;
+  --svy-border: #738091;
+  --svy-border-strong: #8A9BA8;
+  --svy-text: #E1E8ED;
+  --svy-text-strong: #E1E8ED;
+  --svy-text-muted: #B3C1CC;
+  --svy-text-faint: #8A9BA8;
+  --svy-link: #B3D9F2;
+  --svy-accent: #48AFF0;
+  --svy-tag-bg: #3D566B;
+  --svy-tag-text: #B3D9F2;
+  --svy-tag-border: #5C7080;
+
+  --bc-main: var(--svy-raised);
+  --bc-menu: var(--svy-border-subtle);
+  --bc-hover: var(--svy-overlay);
+  --bc-topbar: var(--svy-canvas);
+  --cl-gray-550: var(--svy-text-muted);
+  --cl-blue: var(--svy-accent);
+  --cl-text-color: var(--svy-text);
+  --ff-main: var(--svy-ff-main);
+  --bc-page: var(--svy-canvas);
+  --bc-surface: var(--svy-surface);
+  --bc-raised: var(--svy-raised);
+  --cl-main: var(--svy-text);
+  --cl-muted: var(--svy-text-muted);
+  --cl-accent: var(--svy-accent);
+  --tagBg: var(--svy-tag-bg);
+  --tagText: var(--svy-tag-text);
+  --tagBorder: var(--svy-tag-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-canvas: #182026;
+    --svy-surface: #202B33;
+    --svy-raised: #293742;
+    --svy-overlay: #30404D;
+    --svy-hover: #26333D;
+    --svy-selected: #33485C;
+    --svy-border-subtle: #5C7080;
+    --svy-border: #738091;
+    --svy-border-strong: #8A9BA8;
+    --svy-text: #E1E8ED;
+    --svy-text-strong: #E1E8ED;
+    --svy-text-muted: #B3C1CC;
+    --svy-text-faint: #8A9BA8;
+    --svy-link: #B3D9F2;
+    --svy-accent: #48AFF0;
+    --svy-tag-bg: #3D566B;
+    --svy-tag-text: #B3D9F2;
+    --svy-tag-border: #5C7080;
+
+    --bc-main: var(--svy-raised);
+    --bc-menu: var(--svy-border-subtle);
+    --bc-hover: var(--svy-overlay);
+    --bc-topbar: var(--svy-canvas);
+    --cl-gray-550: var(--svy-text-muted);
+    --cl-blue: var(--svy-accent);
+    --cl-text-color: var(--svy-text);
+    --ff-main: var(--svy-ff-main);
+    --bc-page: var(--svy-canvas);
+    --bc-surface: var(--svy-surface);
+    --bc-raised: var(--svy-raised);
+    --cl-main: var(--svy-text);
+    --cl-muted: var(--svy-text-muted);
+    --cl-accent: var(--svy-accent);
+    --tagBg: var(--svy-tag-bg);
+    --tagText: var(--svy-tag-text);
+    --tagBorder: var(--svy-tag-border);
+  }
+}
 
 /* 1. Tooltips: un-invert (base :6717-6828). */
 :root.bp3-dark .bp3-tooltip .bp3-popover-content, body.bt-theme-dark .bp3-tooltip .bp3-popover-content, .rm-dark-theme .bp3-tooltip .bp3-popover-content,
@@ -71,7 +237,37 @@ body.roam-body.dark {
   }
 }
 
-/* 3. .roam-table borders (base :12150): restore contrast + font-size on dark. */
+/* 3. .roam-table borders (base :12150): restore contrast + font-size on dark.
+ *
+ * The legacy table DOM gets the same cell surfaces as .rm-table in section 5, so a graph
+ * still holding old-style tables reads identically. Roam ships no background at all here
+ * (only `border: 1px solid grey` at 0-1-1), so 0-1-1 in this later sheet is enough for
+ * light and 0-3-1 for the signals. font-size is never reduced on dark (U6/Piepenbrock:
+ * the dark-mode legibility penalty grows as type shrinks). */
+.roam-table th,
+.roam-table td {
+  background: var(--svy-surface);
+}
+.roam-table th {
+  background: var(--svy-raised);
+}
+:root.bp3-dark .roam-table th, :root.bp3-dark .roam-table td, body.bt-theme-dark .roam-table th, body.bt-theme-dark .roam-table td, .rm-dark-theme .roam-table th, .rm-dark-theme .roam-table td,
+body.roam-body.dark .roam-table th, body.roam-body.dark .roam-table td {
+  background: var(--svy-raised);
+}
+:root.bp3-dark .roam-table th, body.bt-theme-dark .roam-table th, .rm-dark-theme .roam-table th,
+body.roam-body.dark .roam-table th {
+  background: #2b3a42;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) .roam-table th, :root:not(.bp3-light) .roam-table td {
+    background: var(--svy-raised);
+  }
+  :root:not(.bp3-light) .roam-table th {
+    background: #2b3a42;
+  }
+}
+
 :root.bp3-dark .roam-table th, :root.bp3-dark .roam-table td, :root.bp3-dark .roam-table tr, body.bt-theme-dark .roam-table th, body.bt-theme-dark .roam-table td, body.bt-theme-dark .roam-table tr, .rm-dark-theme .roam-table th, .rm-dark-theme .roam-table td, .rm-dark-theme .roam-table tr,
 body.roam-body.dark .roam-table th, body.roam-body.dark .roam-table td, body.roam-body.dark .roam-table tr {
   border-top: 1px solid #738091;
@@ -121,7 +317,29 @@ body.roam-body.dark table.bp3-html-table th {
   }
 }
 
-/* 5. .rm-table* (newer Roam table DOM): minimal themed coverage. */
+/* 5. .rm-table* (newer Roam table DOM): themed borders AND cell surfaces.
+ *
+ * Probed live (Roam Desktop 0.0.38 / Chrome 140, CSSOM read). Roam's own site.css ships:
+ *   light  .rm-table table { background: white }
+ *          .rm-table th    { background: rgb(245,248,250); border: 1px solid rgb(206,217,224) }
+ *          .rm-table td    { border: 1px solid rgb(206,217,224) }
+ *   dark   .bp3-dark .rm-table table  { background: rgb(41,55,66) }
+ *          .bp3-dark .rm-table th     { background: rgba(255,255,255,.05) }
+ *          .bp3-dark .rm-table th, td { border-color: rgb(57,75,89) }
+ *
+ * Two defects follow from that. (a) The dark branch is keyed on .bp3-dark ONLY, so under
+ * the other four dark signals — body.bt-theme-dark, .rm-dark-theme, body.roam-body.dark,
+ * and Roam's auto mode with nothing stamped — the table renders WHITE on the dark page.
+ * (b) #394B59 on #293742 is APCA Lc -7.8, under the Lc 15 invisibility point, which is the
+ * reported "near-invisible borders"; the existing #738091 rules below already fix that.
+ *
+ * The light fix is the user-visible one: Roam paints the table the same #FFFFFF as the
+ * page canvas, so a light table reads as bare cells floating on the page. Cells take
+ * --svy-surface and the header takes --svy-raised, inverting the usual relationship the
+ * same way Roam's own dark branch does (header lighter than body).
+ *
+ * Specificity: Roam's rules are 0-1-1 (light) and 0-2-1 (.bp3-dark). Ours are 0-1-1 in a
+ * later sheet and 0-3-1 under the signals, so nothing here needs !important. */
 .rm-table {
   border-collapse: collapse;
   border: 1px solid #A7B6C2;
@@ -129,6 +347,32 @@ body.roam-body.dark table.bp3-html-table th {
 .rm-table th,
 .rm-table td {
   border: 1px solid #A7B6C2;
+}
+.rm-table table {
+  background: var(--svy-surface);
+}
+.rm-table th {
+  background: var(--svy-raised);
+}
+:root.bp3-dark .rm-table table, body.bt-theme-dark .rm-table table, .rm-dark-theme .rm-table table,
+body.roam-body.dark .rm-table table {
+  background: var(--svy-raised);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) .rm-table table {
+    background: var(--svy-raised);
+  }
+}
+/* #2b3a42 is this file's established dark table-header band (sections 4 and 9 use it):
+ * one step off the #293742 body, distinct without becoming a second surface. */
+:root.bp3-dark .rm-table th, body.bt-theme-dark .rm-table th, .rm-dark-theme .rm-table th,
+body.roam-body.dark .rm-table th {
+  background: #2b3a42;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) .rm-table th {
+    background: #2b3a42;
+  }
 }
 :root.bp3-dark .rm-table, body.bt-theme-dark .rm-table, .rm-dark-theme .rm-table,
 body.roam-body.dark .rm-table {
@@ -209,4 +453,116 @@ body.roam-body.dark .rm-table__add-row-btn:hover, body.roam-body.dark .rm-table_
     border: 1px solid #738091;
     color: #8A9BA8;
   }
+}
+
+/* 10. Roam Grid outer border — the one place the token contract needs compensating.
+ *
+ * ~/roam-grid/extension.css:21-31 reads --bc-main TWICE in its light branch, for two
+ * different jobs and with two different fallbacks:
+ *     --rg-border-strong: var(--bc-main, #c5cbd3);   <- outer border
+ *     --rg-bg:            var(--bc-main, #ffffff);   <- body fill
+ * With --bc-main undefined those fallbacks disagree and the grid looks right. Section 0
+ * defines --bc-main, which collapses both onto the same colour and leaves the light grid
+ * with no outline. (Its dark branch hardcodes --rg-border-strong: #738091, so dark was
+ * never affected.)
+ *
+ * Fixed here, in the theme, with roam-grid untouched. Safe in both modes by construction:
+ * this rule is 0-2-0 and the grid's dark rule is also 0-2-0, so which one wins depends on
+ * sheet order — but --svy-border resolves to #738091 on dark, the exact value the grid
+ * hardcodes, so both outcomes paint the same pixel. The subject is a grid-owned class. */
+:root .rg-root {
+  --rg-border-strong: var(--svy-border);
+}
+
+/* 11. `[[` / `((` autocomplete menu.
+ *
+ * DOM confirmed live (trusted CDP keystrokes into a scratch block, Roam Desktop 0.0.38):
+ *
+ *   body
+ *   └ div.rm-autocomplete__results.bp3-elevation-3      <- PORTALED to <body>, not inline
+ *     └ div.rm-autocomplete__results-main
+ *       ├ div.rm-autocomplete__results-scroll
+ *       │ └ div.dont-unfocus-block › div.rm-autocomplete-result
+ *       └ div.rm-autocomplete-footer
+ *         ├ div.rm-autocomplete-footer__title
+ *         └ div.rm-autocomplete-footer__actions
+ *           └ span.rm-autocomplete-footer__action[--preview]
+ *             ├ span.rm-autocomplete-footer__action__desc
+ *             └ span.rm-autocomplete-footer__action__hotkey › __hotkey__icon
+ *
+ * THERE IS NO SEARCH INPUT. Querying the mounted menu for input/textarea/[contenteditable]
+ * returns []. The white field above the menu is the edited block's own textarea, which
+ * lives in `div.rm-autocomplete__wrapper > textarea.rm-block__input` (parent
+ * .rm-block-main) and is transparent, so in light mode it simply shows the page canvas.
+ *
+ * DO NOT STYLE .rm-autocomplete__wrapper. The name is a trap: measured live, that wrapper
+ * is present for ANY block in edit mode — click a block with no menu open and the count is
+ * wrapper:1 / results:0. Painting it would put a surface and a border around every block
+ * the user clicks into, which is both a large unwanted visual change and a rule reaching
+ * far outside the popup. Only .rm-autocomplete__results (portaled to <body>) and its
+ * descendants are menu-scoped.
+ *
+ * The blend the user saw — white field sitting on a white menu on a white page — is fixed
+ * by giving the menu a real border below, not by repainting the block.
+ *
+ * Roam's own dark branch covers ONLY .bp3-dark (probed: __results, -footer,
+ * -footer__action__hotkey__icon, __preview, -footer__action--active,
+ * -footer__action--preview:hover). Under the other four signals the whole menu renders
+ * light on a dark page — the same hole the tables had.
+ *
+ * HOT PATH. Popup blocked time is ~3,300 recalcs x cost-per-recalc and selector shape
+ * dominates rule count, so: class-only selectors, at most two compound selectors, no
+ * attribute matching, no :has(), no descendant wildcards, and no !important (every
+ * target is reachable at equal-or-higher specificity from this later sheet). Every value
+ * is a section-0 token, so ONE declaration list serves both modes; the `.bp3-dark`
+ * variant in each selector list exists only to outrank Roam's 0-2-0 dark rules, and
+ * carries the identical declarations. The rules the base layer already ships for the
+ * selected row (the `div[style*="background-color: rgb(213, 218, 223)"]` inline-style
+ * hack) are deliberately left alone — they already resolve per mode and rewriting them
+ * would mean matching their !important.
+ *
+ * Geometry never changes while typing: the wrapper, the active footer chip and the hotkey
+ * icon get inset box-shadows rather than borders, so opening the menu cannot shift the
+ * block or reflow the footer. */
+.rm-autocomplete__results,
+.bp3-dark .rm-autocomplete__results {
+  background-color: var(--svy-overlay);
+  border: 1px solid var(--svy-border);
+  /* Roam's dark rule pushes #F5F8FA here, past the APCA dark-text ceiling; the token
+   * holds the #E1E8ED band on dark and near-black ink on light. */
+  color: var(--svy-text);
+}
+
+.rm-autocomplete__preview,
+.bp3-dark .rm-autocomplete__preview {
+  background-color: var(--svy-overlay);
+  border-left-color: var(--svy-border);
+  border-right-color: var(--svy-border);
+}
+
+.rm-autocomplete-footer,
+.bp3-dark .rm-autocomplete-footer {
+  background-color: var(--svy-surface);
+  border-top-color: var(--svy-border);
+  color: var(--svy-text-muted);
+}
+
+/* Dark fills clip below the APCA Lc 15 invisibility point, so a dark chip cannot carry
+ * meaning by fill alone (U6). Both chips below get a ring in addition to the fill. */
+.rm-autocomplete-footer__action--active,
+.bp3-dark .rm-autocomplete-footer__action--active {
+  background-color: var(--svy-selected);
+  box-shadow: inset 0 0 0 1px var(--svy-border-subtle);
+  color: var(--svy-text);
+}
+
+.rm-autocomplete-footer__action__hotkey__icon,
+.bp3-dark .rm-autocomplete-footer__action__hotkey__icon {
+  background-color: var(--svy-hover);
+  box-shadow: inset 0 0 0 1px var(--svy-border-subtle);
+  color: var(--svy-text-muted);
+}
+
+.rm-autocomplete__preview-placeholder {
+  color: var(--svy-text-faint);
 }

@@ -55,8 +55,61 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `prefers-reduced-motion: reduce` now disables the focus wash outright instead of only
   removing its transition, matching the design-token motion policy.
 
+- **Native table cells had no theme at all.** Probed live: Roam paints
+  `.rm-table table { background: white }` / `th { background: #F5F8FA }` in light, and its
+  dark fill is keyed on `.bp3-dark` **only** — so under `body.bt-theme-dark`,
+  `.rm-dark-theme`, `body.roam-body.dark`, or Roam's auto mode the table rendered white on
+  a dark page. `10-fixes-dark.css` now sets cell and header surfaces under all five
+  signals. In light the cells take `--svy-surface` (`#F5F8FA`) with an `--svy-raised`
+  (`#FFFFFF`) header, so a table reads as a panel instead of bare white cells on the white
+  page canvas. `.roam-table` (legacy DOM) gets the same treatment. Font size is never
+  reduced on dark (U6/Piepenbrock).
+- **`[[` / `((` autocomplete menu matches the theme in both modes.** Roam's dark branch for
+  the menu covers `.bp3-dark` only, so under the other four dark signals the whole popup
+  rendered light on a dark page; and in light mode the footer was a neutral `#EBECEB` gray
+  that clashed with the theme's blue-gray palette while the borderless white menu blended
+  into the white page. `.rm-autocomplete__results`, `__preview`, `-footer`,
+  `-footer__action--active`, `-footer__action__hotkey__icon` and `__preview-placeholder`
+  are now token-driven, so one declaration list serves both modes; the menu gained a real
+  `--svy-border` outline. The menu's text color now holds the `#E1E8ED` band on dark
+  instead of Roam's `#F5F8FA`, which is past the APCA dark-text ceiling. Dark chip states
+  carry an inset ring as well as a fill, because dark fills clip below the Lc 15
+  invisibility point. Selectors are class-only and at most two compound selectors deep,
+  and no rule uses `!important` — the popup is the measured hot path.
+- **Roam Grid follows the theme with no changes to Roam Grid.** `~/roam-grid` reads
+  `--bc-main`, `--bc-menu`, `--bc-hover`, `--cl-gray-550`, `--cl-blue`, `--cl-text-color`
+  and `--ff-main` with hardcoded fallbacks; the theme previously defined none of them.
+  With the token API published, the grid body, toolbar, header, grid lines, muted text and
+  accent all resolve from the palette in both modes — and because the grid's light branch
+  still reads these tokens while having no `prefers-color-scheme` fallback of its own, it
+  now follows the theme into dark in Roam's auto mode too. One compensating rule was
+  needed: the grid reads `--bc-main` for both `--rg-bg` and (in its light branch)
+  `--rg-border-strong`, so defining the token collapsed its outer border into its body
+  fill; `:root .rg-root { --rg-border-strong: var(--svy-border); }` restores it, and
+  resolves to the same `#738091` the grid hardcodes on dark, so it is a no-op there.
+
 ### Changed
 
+- **The focus wash is off by default** (`bp-beam-wash` → off, `bp-beam-wash-intensity` →
+  `off`): the caret alone marks the focused block. Existing graphs are migrated once,
+  guarded by a `bp-beam-wash-migrated-2026-08-07` marker so a user who turns the wash back
+  on is never overridden again; the marker is written after the flip so an interrupted run
+  retries. The stored intensity is deliberately preserved, so re-enabling the switch
+  restores the intensity the user had chosen. `40-beam.css`'s JS-absent fallbacks moved
+  from Beam v1's values to `transparent` / `0ms` — a fallback frozen at v1 would repaint
+  the wash exactly in the cases the settings panel cannot reach (failed bundle load, stale
+  cached build). Caret colors and the cursor palettes are unchanged.
+- **Public token API published** (`src/css/10-fixes-dark.css`, section 0): the canonical
+  `--svy-*` palette plus the legacy `--bc-*` / `--cl-*` / `--ff-main` / `--tag*` aliases,
+  under `:root` and all five dark signals. Values come verbatim from
+  `~/research/2026-08-07-svy-theme-design-tokens.json`; the light and dark palettes are
+  independently calibrated and no dark value is derived by inverting its light twin. The
+  legacy names are mapped by the role their consumer's fallback implies rather than by
+  what the name says — `--bc-menu` is read as a border tone, not a background, and mapping
+  it by name would have erased Roam Grid's inner grid lines. The full alias block is
+  repeated in each of the three mode blocks because custom-property substitution resolves
+  at the element carrying the referencing declaration, and two of the five dark signals
+  land on `<body>` rather than `<html>`.
 - Renamed the repository and extension from `roam-blueprint` to **Svy Theme**
   (`Svyk/svy-theme`, install URL `https://svyk.github.io/svy-theme`). Package name,
   description, and the settings panel `tabTitle` ("Svy Theme") were updated to match.

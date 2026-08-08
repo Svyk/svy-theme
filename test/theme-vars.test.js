@@ -424,24 +424,35 @@ test("the light caret default moved off Beam v1's value and the old one is still
   assert.equal(BEAM_DEFAULTS.caretDark, "#48d0c0", "the dark caret default is unchanged");
 });
 
-test("computeThemeVars publishes the researched caret pair and the v1 wash bases", () => {
+test("computeThemeVars publishes the researched caret pair, and the default paints no wash", () => {
   const { base } = computeThemeVars(BEAM_DEFAULTS);
   assert.equal(base["--svy-beam-caret-light"], "#00695e");
-  assert.equal(base["--svy-beam-wash-light"], "rgba(0, 122, 112, 0.045)");
   assert.equal(base["--svy-beam-caret-dark"], "#48d0c0");
-  assert.equal(base["--svy-beam-wash-dark"], "rgba(72, 208, 192, 0.055)");
   assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
   assert.equal(base["--svy-beam-caret-dark-p3"], "oklch(0.78 0.15 184)");
-  assert.equal(base["--svy-beam-wash-light-p3"], "oklch(0.47 0.11 182 / 0.045)");
-  assert.equal(base["--svy-beam-wash-dark-p3"], "oklch(0.78 0.15 184 / 0.055)");
   assert.equal(base["--svy-beam-caret-shape"], "block");
   assert.equal(base["--svy-beam-caret-animation"], "manual");
-  assert.equal(base["--svy-beam-wash-duration"], "70ms");
   assert.equal(base["--svy-beam-wash-radius"], "4px");
+
+  // The 2026-08-07 default: caret only, no focus wash.
+  assert.equal(BEAM_DEFAULTS.wash, false);
+  assert.equal(BEAM_DEFAULTS.washIntensity, "off");
+  assert.equal(base["--svy-beam-wash-light"], "transparent");
+  assert.equal(base["--svy-beam-wash-dark"], "transparent");
+  assert.equal(base["--svy-beam-wash-duration"], "0ms");
+});
+
+test("the hand-tuned v1 wash bases still apply when the wash is switched back on", () => {
+  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, wash: true, washIntensity: "subtle" });
+  assert.equal(base["--svy-beam-wash-light"], "rgba(0, 122, 112, 0.045)");
+  assert.equal(base["--svy-beam-wash-dark"], "rgba(72, 208, 192, 0.055)");
+  assert.equal(base["--svy-beam-wash-light-p3"], "oklch(0.47 0.11 182 / 0.045)");
+  assert.equal(base["--svy-beam-wash-dark-p3"], "oklch(0.78 0.15 184 / 0.055)");
+  assert.equal(base["--svy-beam-wash-duration"], "70ms");
 });
 
 test("computeThemeVars derives the wash and the P3 pair from a customized caret", () => {
-  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, caretDark: "#FF8800", washIntensity: "medium" });
+  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, wash: true, caretDark: "#FF8800", washIntensity: "medium" });
   assert.equal(base["--svy-beam-caret-dark"], "#ff8800");
   assert.equal(base["--svy-beam-wash-dark"], "rgba(255, 136, 0, 0.11)");
   // A custom caret has no gamut-expanded equivalent, so the P3 block publishes the
@@ -454,9 +465,13 @@ test("computeThemeVars derives the wash and the P3 pair from a customized caret"
 });
 
 test("computeThemeVars disables the wash from either the switch or the off intensity", () => {
+  // Both arms start from an explicitly-ON config. Deriving them from BEAM_DEFAULTS would
+  // make this a test that cannot fail now that the default is already off.
+  const on = { ...BEAM_DEFAULTS, wash: true, washIntensity: "subtle" };
+  assert.notEqual(computeThemeVars(on).base["--svy-beam-wash-light"], "transparent");
   for (const config of [
-    { ...BEAM_DEFAULTS, wash: false },
-    { ...BEAM_DEFAULTS, washIntensity: "off" },
+    { ...on, wash: false },
+    { ...on, washIntensity: "off" },
   ]) {
     const { base } = computeThemeVars(config);
     assert.equal(base["--svy-beam-wash-light"], "transparent");
@@ -587,13 +602,18 @@ test("refresh republishes the sheet from the current settings", () => {
   const api = fakeExtensionApi();
 
   const handle = installThemeVars({ extensionAPI: api, lifecycle, doc });
+  assert.match(handle.element.textContent, /--svy-beam-wash-dark: transparent;/, "default is wash-off");
+
   api.values.set(BEAM_SETTING_IDS.caretDark, "#ff8800");
-  api.values.set(BEAM_SETTING_IDS.washIntensity, "off");
+  // Turning the wash ON is the state change worth proving: asserting "off" against a
+  // default that is already off would pass no matter what refresh() did.
+  api.values.set(BEAM_SETTING_IDS.wash, true);
+  api.values.set(BEAM_SETTING_IDS.washIntensity, "medium");
   handle.refresh();
 
   assert.equal(doc.appended.length, 1, "refresh must reuse the injected sheet, not add another");
   assert.match(handle.element.textContent, /--svy-beam-caret-dark: #ff8800;/);
-  assert.match(handle.element.textContent, /--svy-beam-wash-dark: transparent;/);
+  assert.match(handle.element.textContent, /--svy-beam-wash-dark: rgba\(255, 136, 0, 0\.11\);/);
   // The dark cursor block follows the same refresh, not just the :root block.
   const rules = parseStylesheet(handle.element.textContent);
   assert.ok(rules[1].declarations["--svy-beam-cursor-default"].value.includes("%23ff8800"));
