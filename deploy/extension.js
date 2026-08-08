@@ -439,6 +439,57 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
   return { tabTitle: "Svy Theme", settings };
 }
 
+// src/dark-signal-bridge.js
+var SETTLE_DELAY_MS = 1e3;
+function hasClass(element, name) {
+  return Boolean(element?.classList?.contains(name));
+}
+function detectDarkSignals(doc) {
+  const body = doc?.body;
+  const root = doc?.documentElement;
+  return Boolean(
+    hasClass(body, "bt-theme-dark") || hasClass(body, "roam-body") && hasClass(body, "dark") || hasClass(body, "rm-dark-theme") || hasClass(root, "rm-dark-theme")
+  );
+}
+function bridgeAction({ signalsPresent, appearance, bridgeStamped, rootHasDark }) {
+  if (normalizeMode(appearance) !== "auto") return "none";
+  if (signalsPresent) return rootHasDark ? "none" : "stamp";
+  return bridgeStamped ? "unstamp" : "none";
+}
+function installDarkSignalBridge({
+  extensionAPI,
+  lifecycle,
+  doc = globalThis.document,
+  ObserverImpl = globalThis.MutationObserver,
+  settleDelayMs = SETTLE_DELAY_MS
+}) {
+  if (!doc?.documentElement?.classList || !doc?.body || typeof ObserverImpl !== "function") return;
+  let bridgeStamped = false;
+  const sync = () => {
+    const root = doc.documentElement;
+    const action = bridgeAction({
+      signalsPresent: detectDarkSignals(doc),
+      appearance: extensionAPI.settings.get(SETTING_IDS.appearance),
+      bridgeStamped,
+      rootHasDark: hasClass(root, "bp3-dark")
+    });
+    if (action === "stamp") {
+      root.classList.add("bp3-dark");
+      bridgeStamped = true;
+    } else if (action === "unstamp") {
+      root.classList.remove("bp3-dark");
+      bridgeStamped = false;
+    } else if (action === "none" && !hasClass(root, "bp3-dark")) {
+      bridgeStamped = false;
+    }
+  };
+  const options = { attributes: true, attributeFilter: ["class"], subtree: false };
+  lifecycle.observer(new ObserverImpl(sync), doc.body, options);
+  lifecycle.observer(new ObserverImpl(sync), doc.documentElement, options);
+  sync();
+  lifecycle.timeout(sync, settleDelayMs);
+}
+
 // src/dm-toggle.js
 var ICON_BY_MODE = Object.freeze({ auto: "clean", dark: "moon", light: "flash" });
 var ALL_ICON_CLASSES = Object.freeze(Object.values(ICON_BY_MODE).map((icon) => `bp3-icon-${icon}`));
@@ -557,6 +608,7 @@ async function onload({ extensionAPI, extension }) {
       })
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
+    installDarkSignalBridge({ extensionAPI, lifecycle });
     console.info(`[svy-theme] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);

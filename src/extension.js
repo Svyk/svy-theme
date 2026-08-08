@@ -1,4 +1,5 @@
 import { createLifecycle } from "./lifecycle.js";
+import { installDarkSignalBridge } from "./dark-signal-bridge.js";
 import { applyAppearance, installDarkModeToggle } from "./dm-toggle.js";
 import { createSettingsPanel, initializeBeamSettings, initializeSettings } from "./settings.js";
 import { installThemeVars } from "./theme-vars.js";
@@ -23,6 +24,7 @@ export async function onload({ extensionAPI, extension }) {
       }),
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
+    installDarkSignalBridge({ extensionAPI, lifecycle });
     console.info(`[svy-theme] Loaded v${extension?.version || "development"}`);
   } catch (error) {
     if (typeof globalThis.window !== "undefined") globalThis.window.__BP_LAST_ERROR = String(error?.stack || error);
