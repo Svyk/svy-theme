@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { access, cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, resolve } from "node:path";
@@ -98,7 +99,17 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   const placeholderBytes = bodies
     .slice(1)
     .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
-  assert.equal(baseBytes, 455049, "the upstream-derived base layer must stay a byte-move");
+  // Until the cascade collapse the base layer was pinned at its upstream byte count
+  // (455049) to prove it was a pure byte-move. That invariant is deliberately retired:
+  // tools/cascade_collapse.py rewrites the layer, folding upstream's four-copy
+  // light/dark cascade into 588 tokens under the theme's five dark signals. The pin is
+  // now a content hash, so the layer still cannot drift by hand — regenerate with
+  // `python3 tools/cascade_collapse.py` and update this digest in the same commit.
+  assert.equal(
+    createHash("sha256").update(bodies[0], "utf8").digest("hex"),
+    "0fc85c183ee5de8b37deb2f4f9c3ae7e972e93ab923a1b1c0a93508a5b7d2158",
+    "the base layer must match tools/cascade_collapse.py output byte-for-byte",
+  );
   assert.ok(
     Buffer.byteLength(css, "utf8") - (baseBytes + bannerBytes) <= placeholderBytes + 1,
     "extension.css must be the base plus banners plus the fix layers only",

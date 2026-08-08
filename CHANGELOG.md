@@ -90,6 +90,36 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Changed
 
+- **Cascade collapse in `src/css/00-upstream-base.css`** (`tools/cascade_collapse.py`,
+  report at `docs/absorption/cascade-collapse-report.json`). Upstream shipped every themed
+  selector four times — base, `.bp3-light` restatement, `.bp3-dark`, and an unguarded
+  `@media (prefers-color-scheme: dark)` copy. 614 such runs existed; 520 now collapse to a
+  single rule whose mode-varying declarations read `var(--svy-b<group>-<prop>, <light
+  literal>)`, backed by 588 tokens defined at the top of the layer under `:root`, all four
+  class dark signals, and a guarded OS-dark arm. 94 runs are kept verbatim and listed with
+  a reason: 81 whose light/dark values differ structurally rather than only in colour
+  (box-shadow layer counts, gradient angles), and 13 where collapsing would drop the
+  dark-mode specificity below a later rule in `10-fixes-dark.css` or `30-absorbed.css`.
+  The layer goes 2,867 → 1,310 rules and 455,049 → 322,227 bytes with no visual change in
+  light, `.bp3-light`, `.bp3-dark`, or OS-dark mode; the generator proves that per family
+  per mode before it writes.
+- **Dark mode now works under every signal.** Because upstream's dark styling lived only
+  under `.bp3-dark`, the theme rendered light under `body.bt-theme-dark`, `.rm-dark-theme`
+  and `body.roam-body.dark`. The collapsed families redefine their tokens under all four,
+  so those modes darken correctly for the first time.
+- **OS-dark no longer overrides a light Roam.** Every `prefers-color-scheme: dark` rule in
+  every layer now yields to an explicit `.bp3-light` stamp — the collapsed token block via
+  `:root:not(.bp3-light)`, the kept copies via a zero-specificity
+  `:where(:root:not(.bp3-light))` prefix that leaves their specificity and source order
+  exactly as upstream shipped them. `applyAppearance` in auto mode decides whether Roam is
+  actually light: a known dark marker settles it, otherwise it stamps `.bp3-light` and
+  measures the rendered background by walking ancestors from Roam's containers to the node
+  that actually paints (Roam paints only `<body>`), withdrawing the stamp if the page still
+  reads dark. Measuring after the stamp is deliberate — an unstamped measurement on an
+  OS-dark machine reads the colour this very stylesheet just painted.
+- `test/build.test.js` retires the 455,049-byte pin on the base layer ("must stay a
+  byte-move") for a SHA-256 content pin, since the layer is now generated rather than
+  vendored verbatim.
 - **The focus wash is off by default** (`bp-beam-wash` → off, `bp-beam-wash-intensity` →
   `off`): the caret alone marks the focused block. Existing graphs are migrated once,
   guarded by a `bp-beam-wash-migrated-2026-08-07` marker so a user who turns the wash back

@@ -453,7 +453,62 @@ function nextMode(mode) {
   const index = APPEARANCE_MODES.indexOf(normalizeMode(mode));
   return APPEARANCE_MODES[(index + 1) % APPEARANCE_MODES.length];
 }
-function applyAppearance(mode, doc = globalThis.document) {
+var LIGHT_LUMINANCE_FLOOR = 0.5;
+function hostHasDarkMarker(doc) {
+  const root = doc?.documentElement;
+  const body = doc?.body;
+  if (root?.classList?.contains("bp3-dark")) return true;
+  if (body?.classList?.contains("bp3-dark")) return true;
+  if (body?.classList?.contains("bt-theme-dark")) return true;
+  if (body?.classList?.contains("roam-body") && body.classList.contains("dark")) return true;
+  if (root?.dataset?.theme === "dark" || body?.dataset?.theme === "dark") return true;
+  return !!doc?.querySelector?.(".rm-dark-theme");
+}
+function parseColor(value) {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  if (!text || text === "transparent") return null;
+  if (text.startsWith("#")) {
+    const hex = text.length === 4 ? text.slice(1).split("").map((digit) => digit + digit).join("") : text.slice(1);
+    if (hex.length !== 6 && hex.length !== 8) return null;
+    const number = Number.parseInt(hex.slice(0, 6), 16);
+    if (Number.isNaN(number)) return null;
+    const alpha2 = hex.length === 8 ? Number.parseInt(hex.slice(6), 16) / 255 : 1;
+    return { r: number >> 16 & 255, g: number >> 8 & 255, b: number & 255, a: alpha2 };
+  }
+  const match = text.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.%]+))?\s*\)$/i);
+  if (!match) return null;
+  const rawAlpha = match[4];
+  const alpha = rawAlpha === void 0 ? 1 : rawAlpha.endsWith("%") ? Number(rawAlpha.slice(0, -1)) / 100 : Number(rawAlpha);
+  return { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]), a: alpha };
+}
+function relativeLuminance({ r, g, b }) {
+  const toLinear = (channel) => {
+    const c = channel / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+function sampleHostLuminance(doc, view = globalThis.window) {
+  if (typeof view?.getComputedStyle !== "function") return null;
+  const candidates = [".roam-main", ".roam-article", "#app"].map((selector) => doc?.querySelector?.(selector)).filter(Boolean);
+  if (doc?.body) candidates.push(doc.body);
+  for (const candidate of candidates) {
+    let node = candidate;
+    while (node) {
+      const color = parseColor(view.getComputedStyle(node)?.backgroundColor);
+      if (color && color.a > 0) return relativeLuminance(color);
+      node = node.parentElement;
+    }
+  }
+  return null;
+}
+function resolveAutoLightStamp({ hasDarkMarker = false, sampledLuminance = null } = {}) {
+  if (hasDarkMarker) return false;
+  if (typeof sampledLuminance !== "number" || Number.isNaN(sampledLuminance)) return false;
+  return sampledLuminance >= LIGHT_LUMINANCE_FLOOR;
+}
+function applyAppearance(mode, doc = globalThis.document, { view = globalThis.window } = {}) {
   if (!doc) return;
   const normalized = normalizeMode(mode);
   const button = doc.getElementsByClassName?.(ICON_CLASS)?.[0];
@@ -462,16 +517,22 @@ function applyAppearance(mode, doc = globalThis.document) {
     button.classList.add(`bp3-icon-${ICON_BY_MODE[normalized]}`);
   }
   const root = doc.documentElement;
-  if (root?.classList) {
-    if (normalized === "dark") {
-      root.classList.remove("bp3-light");
-      root.classList.add("bp3-dark");
-    } else if (normalized === "light") {
-      root.classList.remove("bp3-dark");
-      root.classList.add("bp3-light");
-    } else {
-      root.classList.remove("bp3-light");
-    }
+  if (!root?.classList) return;
+  if (normalized === "dark") {
+    root.classList.remove("bp3-light");
+    root.classList.add("bp3-dark");
+    return;
+  }
+  if (normalized === "light") {
+    root.classList.remove("bp3-dark");
+    root.classList.add("bp3-light");
+    return;
+  }
+  root.classList.remove("bp3-light");
+  if (hostHasDarkMarker(doc)) return;
+  root.classList.add("bp3-light");
+  if (!resolveAutoLightStamp({ sampledLuminance: sampleHostLuminance(doc, view) })) {
+    root.classList.remove("bp3-light");
   }
 }
 function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
@@ -528,6 +589,7 @@ async function installDarkModeToggle({
     if (attempt()) {
       settled = true;
       observer.disconnect();
+      applyAppearance(currentMode(), doc);
     }
   });
   lifecycle.observer(observer, doc.body, { childList: true, subtree: true });

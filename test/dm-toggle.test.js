@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createLifecycle } from "../src/lifecycle.js";
-import { applyAppearance, installDarkModeToggle } from "../src/dm-toggle.js";
+import {
+  applyAppearance,
+  hostHasDarkMarker,
+  installDarkModeToggle,
+  resolveAutoLightStamp,
+  sampleHostLuminance,
+} from "../src/dm-toggle.js";
 import { SETTING_IDS } from "../src/settings.js";
 
 function fakeExtensionApi(initial = {}) {
@@ -44,6 +50,8 @@ function createFakeDocument({ includeTopbar = true } = {}) {
     Object.defineProperty(el, "lastElementChild", {
       get: () => el.children[el.children.length - 1] || null,
     });
+    Object.defineProperty(el, "parentElement", { get: () => el.parentNode });
+    el.dataset = {};
     el.appendChild = (child) => { child.parentNode = el; el.children.push(child); return child; };
     el.insertAdjacentElement = (position, node) => {
       const parent = el.parentNode;
@@ -106,6 +114,12 @@ function createFakeDocument({ includeTopbar = true } = {}) {
     // descendants "removed" individually. Walk up to documentElement to match that.
     getElementsByClassName: (name) => allElements.filter((el) => !el.removed && isConnected(el) && el._classes.has(name)),
     getElementById: (id) => idIndex.get(id) || null,
+    // Enough of querySelector for the theme resolver: `.class` and `#id`, document order.
+    querySelector: (selector) => {
+      if (selector.startsWith("#")) return idIndex.get(selector.slice(1)) || null;
+      const name = selector.slice(1);
+      return allElements.find((el) => !el.removed && isConnected(el) && el._classes.has(name)) || null;
+    },
     // Test-only hook: simulate Roam's topbar mounting after this extension already loaded
     // (e.g. a URL-installed developer extension racing Roam's own UI mount).
     mountTopbarLate: attachTopbar,
@@ -295,6 +309,155 @@ test("a click handler failure sets window.__BP_LAST_ERROR before rethrowing", as
 
     await assert.rejects(wrapper.dispatch("click"), /settings\.set boom/);
     assert.match(globalThis.window.__BP_LAST_ERROR, /settings\.set boom/);
+  } finally {
+    globalThis.window = originalWindow;
+    await lifecycle.dispose();
+  }
+});
+
+// --- auto-mode theme resolution -------------------------------------------------------
+//
+// After the cascade collapse (tools/cascade_collapse.py) the guarded
+// `@media (prefers-color-scheme: dark)` arm drives the WHOLE palette when nothing is
+// stamped. An OS-dark machine running a light Roam would therefore be painted dark, so
+// auto mode has to decide for itself whether Roam is light and stamp .bp3-light when it
+// is. These tests cover that decision.
+
+// A fake window whose getComputedStyle reports a per-node background and records the
+// documentElement class list at the moment of each call — that log is how we prove the
+// sample is taken with the provisional stamp in place.
+function createFakeView(doc, paint) {
+  const sampledWith = [];
+  return {
+    sampledWith,
+    getComputedStyle: (node) => {
+      sampledWith.push(doc.documentElement.className);
+      return { backgroundColor: paint.get(node) ?? "rgba(0, 0, 0, 0)" };
+    },
+  };
+}
+
+test("resolveAutoLightStamp only stamps light on positive evidence", () => {
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: false, sampledLuminance: 1 }), true);
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: false, sampledLuminance: 0.5 }), true);
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: false, sampledLuminance: 0.02 }), false);
+
+  // A known dark marker outranks any measurement: the host really is dark, and the kept
+  // (non-collapsed) families still need the OS arm to reach dark.
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: true, sampledLuminance: 1 }), false);
+
+  // No measurement is not evidence of light.
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: false, sampledLuminance: null }), false);
+  assert.equal(resolveAutoLightStamp({ hasDarkMarker: false, sampledLuminance: NaN }), false);
+  assert.equal(resolveAutoLightStamp(), false);
+});
+
+test("hostHasDarkMarker recognizes each of the four dark signals", () => {
+  for (const stamp of [
+    (doc) => doc.documentElement.classList.add("bp3-dark"),
+    (doc) => doc.body.classList.add("bp3-dark"),
+    (doc) => doc.body.classList.add("bt-theme-dark"),
+    (doc) => doc.body.classList.add("roam-body", "dark"),
+    (doc) => { doc.documentElement.dataset.theme = "dark"; },
+    (doc) => {
+      const inner = doc.createElement("div");
+      inner.className = "rm-dark-theme";
+      doc.body.appendChild(inner);
+    },
+  ]) {
+    const doc = createFakeDocument();
+    assert.equal(hostHasDarkMarker(doc), false);
+    stamp(doc);
+    assert.equal(hostHasDarkMarker(doc), true);
+  }
+
+  // body.dark alone is not Roam's signal — it must be body.roam-body.dark.
+  const doc = createFakeDocument();
+  doc.body.classList.add("dark");
+  assert.equal(hostHasDarkMarker(doc), false);
+});
+
+test("sampleHostLuminance walks past transparent ancestors to the node that paints", () => {
+  const doc = createFakeDocument();
+  const main = doc.createElement("div");
+  main.className = "roam-main";
+  doc.body.appendChild(main);
+
+  // Roam paints only <body>; .roam-main and everything between are transparent. Sampling
+  // the selector alone would return null and fall through to the OS hint.
+  const paint = new Map([[doc.body, "rgb(255, 255, 255)"]]);
+  const view = createFakeView(doc, paint);
+  assert.ok(sampleHostLuminance(doc, view) > 0.9);
+
+  paint.set(doc.body, "rgb(32, 43, 51)");
+  assert.ok(sampleHostLuminance(doc, createFakeView(doc, paint)) < 0.1);
+
+  // A fully transparent chain yields no reading at all.
+  assert.equal(sampleHostLuminance(doc, createFakeView(doc, new Map())), null);
+  assert.equal(sampleHostLuminance(doc, {}), null);
+});
+
+test("auto mode stamps .bp3-light when Roam renders light on an OS-dark machine", () => {
+  const doc = createFakeDocument();
+  const view = createFakeView(doc, new Map([[doc.body, "#ffffff"]]));
+
+  applyAppearance("auto", doc, { view });
+
+  assert.ok(doc.documentElement.classList.contains("bp3-light"));
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"));
+  // The measurement must be taken WITH the provisional stamp applied. Without it the
+  // sheet's own OS-dark arm has already painted the page, so the sample reads the colour
+  // we just painted and auto mode can never resolve light.
+  assert.ok(view.sampledWith.length > 0);
+  assert.ok(view.sampledWith.every((classes) => classes.includes("bp3-light")));
+});
+
+test("auto mode leaves the OS arm alone when the host announces dark", () => {
+  const doc = createFakeDocument();
+  doc.body.classList.add("bt-theme-dark");
+  const view = createFakeView(doc, new Map([[doc.body, "#ffffff"]]));
+
+  applyAppearance("auto", doc, { view });
+
+  assert.ok(!doc.documentElement.classList.contains("bp3-light"));
+  assert.equal(view.sampledWith.length, 0, "a known marker settles it without measuring");
+});
+
+test("auto mode withdraws the stamp when the page still measures dark", () => {
+  const doc = createFakeDocument();
+  // No marker, but something with more weight than our base rules paints a dark surface.
+  const view = createFakeView(doc, new Map([[doc.body, "rgb(32, 43, 51)"]]));
+
+  applyAppearance("auto", doc, { view });
+
+  assert.ok(!doc.documentElement.classList.contains("bp3-light"));
+});
+
+test("auto mode clears a stale .bp3-light left by the light mode it replaced", () => {
+  const doc = createFakeDocument();
+  applyAppearance("light", doc);
+  assert.ok(doc.documentElement.classList.contains("bp3-light"));
+
+  // Host went dark while the toggle sat on light; switching to auto must release it.
+  doc.documentElement.classList.add("bp3-dark");
+  applyAppearance("auto", doc, { view: createFakeView(doc, new Map()) });
+  assert.ok(!doc.documentElement.classList.contains("bp3-light"));
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"), "auto must not touch Roam's own class");
+});
+
+test("a late topbar mount re-resolves auto mode once there is something to sample", async () => {
+  const doc = createFakeDocument({ includeTopbar: false });
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+
+  const originalWindow = globalThis.window;
+  globalThis.window = createFakeView(doc, new Map([[doc.body, "#ffffff"]]));
+  try {
+    await installDarkModeToggle({ extensionAPI, lifecycle, doc, ObserverImpl });
+    doc.mountTopbarLate();
+    ObserverImpl.instances[0].trigger();
+    assert.ok(doc.documentElement.classList.contains("bp3-light"));
   } finally {
     globalThis.window = originalWindow;
     await lifecycle.dispose();
