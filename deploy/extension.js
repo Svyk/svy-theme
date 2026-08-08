@@ -290,6 +290,278 @@ function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }
   return { refresh, element: style };
 }
 
+// src/caret-overlay.js
+var BLOCK_CARET_CLASS = "svy-block-caret";
+var MARKER_CHAR = "​";
+var BLINK_PERIOD_MS = 530;
+var MIRROR_PROPERTIES = Object.freeze([
+  "boxSizing",
+  "width",
+  "paddingTop",
+  "paddingRight",
+  "paddingBottom",
+  "paddingLeft",
+  "borderTopWidth",
+  "borderRightWidth",
+  "borderBottomWidth",
+  "borderLeftWidth",
+  "fontFamily",
+  "fontSize",
+  "fontWeight",
+  "fontStyle",
+  "fontVariant",
+  "letterSpacing",
+  "textTransform",
+  "textIndent",
+  "lineHeight",
+  "tabSize",
+  "direction"
+]);
+function isTextTarget(element) {
+  if (!element || !element.tagName) return false;
+  if (element.tagName === "TEXTAREA") return true;
+  if (element.tagName !== "INPUT") return false;
+  const type = (element.getAttribute?.("type") || "text").toLowerCase();
+  return ["text", "search", "url", "tel", "email", "number"].includes(type);
+}
+function supportsNativeCaretShape(css = globalThis.CSS) {
+  return Boolean(css?.supports?.("caret-shape", "block"));
+}
+function needsOverlay({ pack, caretShape, nativeSupported }) {
+  return Boolean(pack) && caretShape === "block" && !nativeSupported;
+}
+function measureCaretRect(element, doc, win) {
+  const computed = win.getComputedStyle(element);
+  const mirror = doc.createElement("div");
+  const style = mirror.style;
+  style.position = "absolute";
+  style.top = "0";
+  style.left = "-99999px";
+  style.visibility = "hidden";
+  style.height = "auto";
+  style.whiteSpace = "pre-wrap";
+  style.overflowWrap = "break-word";
+  for (const name of MIRROR_PROPERTIES) style[name] = computed[name];
+  const value = element.value ?? "";
+  const start = Math.min(element.selectionStart ?? value.length, value.length);
+  const underCaret = value[start] && value[start] !== "\n" ? value[start] : "0";
+  const hasGlyph = underCaret !== "0" || value[start] === "0";
+  mirror.textContent = value.slice(0, start);
+  const marker = doc.createElement("span");
+  const lineHeightPx = Number.parseFloat(computed.lineHeight) || Number.parseFloat(computed.fontSize) * 1.2 || 19;
+  marker.style.display = "inline-block";
+  marker.style.width = "0";
+  marker.style.height = `${lineHeightPx}px`;
+  marker.style.verticalAlign = "top";
+  marker.textContent = MARKER_CHAR;
+  mirror.appendChild(marker);
+  const glyph = doc.createElement("span");
+  glyph.textContent = underCaret;
+  mirror.appendChild(glyph);
+  (doc.body || doc.documentElement).appendChild(mirror);
+  const fallbackHeight = lineHeightPx;
+  const measured = {
+    top: marker.offsetTop,
+    left: marker.offsetLeft,
+    height: marker.offsetHeight || fallbackHeight,
+    width: glyph.offsetWidth || Number.parseFloat(computed.fontSize) * 0.6 || 8,
+    glyph: hasGlyph ? underCaret : ""
+  };
+  mirror.remove();
+  const box = element.getBoundingClientRect();
+  const borderLeft = Number.parseFloat(computed.borderLeftWidth) || 0;
+  const borderTop = Number.parseFloat(computed.borderTopWidth) || 0;
+  const x = box.left + borderLeft + measured.left - (element.scrollLeft || 0);
+  const y = box.top + borderTop + measured.top - (element.scrollTop || 0);
+  const padLeft = Number.parseFloat(computed.paddingLeft) || 0;
+  const padTop = Number.parseFloat(computed.paddingTop) || 0;
+  const padRight = Number.parseFloat(computed.paddingRight) || 0;
+  const padBottom = Number.parseFloat(computed.paddingBottom) || 0;
+  const content = {
+    left: box.left + borderLeft + padLeft,
+    top: box.top + borderTop + padTop,
+    right: box.right - borderLeft - padRight,
+    bottom: box.bottom - borderTop - padBottom
+  };
+  const visible = x + measured.width > content.left && x < content.right && y + measured.height > content.top && y < content.bottom;
+  return { x, y, width: measured.width, height: measured.height, glyph: measured.glyph, visible };
+}
+function surfaceColorBehind(element, win) {
+  let node = element;
+  while (node && node.nodeType === 1) {
+    const color = win.getComputedStyle(node).backgroundColor;
+    if (color && color !== "transparent" && color !== "rgba(0, 0, 0, 0)") return color;
+    node = node.parentElement;
+  }
+  return win.getComputedStyle(win.document?.body || element).backgroundColor || "#ffffff";
+}
+function installCaretOverlay({
+  extensionAPI,
+  lifecycle,
+  doc = globalThis.document,
+  win = globalThis.window,
+  nativeSupported = supportsNativeCaretShape()
+} = {}) {
+  const inert = { refresh() {
+  }, get active() {
+    return false;
+  } };
+  if (!doc?.createElement || !doc?.documentElement?.classList || !win?.getComputedStyle) return inert;
+  if (nativeSupported) return inert;
+  const root = doc.documentElement;
+  let enabled = false;
+  let target = null;
+  let overlay = null;
+  let glyphNode = null;
+  let blinkOn = false;
+  let blinkVisible = true;
+  let blinkTimer = null;
+  const readSettings = () => {
+    const get = (key) => extensionAPI?.settings?.get?.(key);
+    return {
+      pack: normalizeSwitch(get(BEAM_SETTING_IDS.pack), BEAM_DEFAULTS.pack),
+      caretShape: normalizeChoice(get(BEAM_SETTING_IDS.caretShape), CARET_SHAPES, BEAM_DEFAULTS.caretShape),
+      caretBlink: normalizeSwitch(get(BEAM_SETTING_IDS.caretBlink), BEAM_DEFAULTS.caretBlink)
+    };
+  };
+  const hide = () => {
+    target = null;
+    root.classList.remove(BLOCK_CARET_CLASS);
+    if (overlay) overlay.style.display = "none";
+  };
+  const render = () => {
+    if (!enabled || !target || !overlay) return;
+    if (!target.isConnected) {
+      hide();
+      return;
+    }
+    let rect;
+    try {
+      rect = measureCaretRect(target, doc, win);
+    } catch {
+      hide();
+      return;
+    }
+    if (!rect.visible) {
+      overlay.style.display = "none";
+      return;
+    }
+    const caretColor = win.getComputedStyle(root).getPropertyValue("--svy-beam-caret").trim() || "#00695e";
+    overlay.style.display = "block";
+    overlay.style.transform = `translate(${Math.round(rect.x)}px, ${Math.round(rect.y)}px)`;
+    overlay.style.width = `${Math.max(1, Math.round(rect.width))}px`;
+    overlay.style.height = `${Math.round(rect.height)}px`;
+    overlay.style.backgroundColor = caretColor;
+    overlay.style.opacity = blinkOn && !blinkVisible ? "0" : "1";
+    if (glyphNode.textContent !== rect.glyph) {
+      glyphNode.textContent = rect.glyph;
+      if (rect.glyph) {
+        const font = win.getComputedStyle(target);
+        glyphNode.style.fontFamily = font.fontFamily;
+        glyphNode.style.fontSize = font.fontSize;
+        glyphNode.style.fontWeight = font.fontWeight;
+        glyphNode.style.fontStyle = font.fontStyle;
+        glyphNode.style.color = surfaceColorBehind(target, win);
+      }
+    }
+    glyphNode.style.lineHeight = `${Math.round(rect.height)}px`;
+  };
+  const show = (element) => {
+    if (!enabled || !isTextTarget(element)) return;
+    if (!overlay) {
+      overlay = doc.createElement("div");
+      overlay.setAttribute("aria-hidden", "true");
+      const style = overlay.style;
+      style.position = "fixed";
+      style.top = "0";
+      style.left = "0";
+      style.zIndex = "900";
+      style.pointerEvents = "none";
+      style.borderRadius = "1px";
+      style.display = "none";
+      glyphNode = doc.createElement("span");
+      glyphNode.style.display = "block";
+      glyphNode.style.textAlign = "center";
+      overlay.appendChild(glyphNode);
+      lifecycle.node(overlay, doc.body || doc.documentElement);
+    }
+    target = element;
+    root.classList.add(BLOCK_CARET_CLASS);
+    render();
+  };
+  const onFocusIn = (event) => {
+    if (enabled && isTextTarget(event.target)) show(event.target);
+  };
+  const onFocusOut = (event) => {
+    if (event.target !== target) return;
+    globalThis.setTimeout(() => {
+      if (lifecycle.disposed || !enabled) return;
+      const active = doc.activeElement;
+      if (isTextTarget(active)) show(active);
+      else hide();
+    }, 0);
+  };
+  const ensureAttached = () => {
+    if (!enabled) return;
+    const active = doc.activeElement;
+    if (isTextTarget(active) && active !== target) show(active);
+  };
+  const onEdit = (event) => {
+    ensureAttached();
+    if (event.target === target) render();
+  };
+  const onSelectionChange = () => {
+    ensureAttached();
+    if (target && doc.activeElement === target) render();
+  };
+  const onScroll = () => {
+    if (target) render();
+  };
+  const syncBlink = () => {
+    const wanted = enabled && blinkOn;
+    if (wanted && !blinkTimer) {
+      blinkTimer = globalThis.setInterval(() => {
+        if (target) {
+          blinkVisible = !blinkVisible;
+          render();
+        }
+      }, BLINK_PERIOD_MS);
+    } else if (!wanted && blinkTimer) {
+      globalThis.clearInterval(blinkTimer);
+      blinkTimer = null;
+    }
+  };
+  const apply = () => {
+    const settings = readSettings();
+    enabled = needsOverlay({ ...settings, nativeSupported });
+    blinkOn = settings.caretBlink;
+    if (!enabled) {
+      hide();
+      syncBlink();
+      return;
+    }
+    syncBlink();
+    if (isTextTarget(doc.activeElement)) show(doc.activeElement);
+  };
+  lifecycle.event(doc, "focusin", onFocusIn);
+  lifecycle.event(doc, "focusout", onFocusOut);
+  lifecycle.event(doc, "input", onEdit, true);
+  lifecycle.event(doc, "selectionchange", onSelectionChange);
+  lifecycle.event(win, "scroll", onScroll, true);
+  lifecycle.event(win, "resize", onScroll);
+  lifecycle.add(() => {
+    if (blinkTimer) globalThis.clearInterval(blinkTimer);
+    root.classList.remove(BLOCK_CARET_CLASS);
+  });
+  apply();
+  return {
+    refresh: apply,
+    get active() {
+      return Boolean(enabled && target);
+    }
+  };
+}
+
 // src/settings.js
 var SETTING_IDS = Object.freeze({
   appearance: "bp-appearance"
@@ -600,11 +872,15 @@ async function onload({ extensionAPI, extension }) {
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
+    const caretOverlay = installCaretOverlay({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
       createSettingsPanel({
         onAppearanceChange: (mode) => applyAppearance(mode),
-        onThemeVarsChange: () => themeVars.refresh()
+        onThemeVarsChange: () => {
+          themeVars.refresh();
+          caretOverlay.refresh();
+        }
       })
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });
