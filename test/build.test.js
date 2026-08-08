@@ -98,7 +98,9 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   const placeholderBytes = bodies
     .slice(1)
     .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
-  assert.equal(baseBytes, 455049, "the upstream-derived base layer must stay a byte-move");
+  // The base is upstream's sheet plus the tools/guard_media.py selector guard — no other
+  // edit is expected, so the exact guarded byte count is pinned here.
+  assert.equal(baseBytes, 480093, "the base layer must be upstream plus the media guard only");
   assert.ok(
     Buffer.byteLength(css, "utf8") - (baseBytes + bannerBytes) <= placeholderBytes + 1,
     "extension.css must be the base plus banners plus the fix layers only",
