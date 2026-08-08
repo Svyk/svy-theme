@@ -1,7 +1,10 @@
 import {
   BEAM_DEFAULTS,
   BEAM_SETTING_IDS,
+  CARET_BEHAVIORS,
+  CARET_GLOWS,
   CARET_SHAPES,
+  CARET_V3_MIGRATION_SETTING_ID,
   CURSOR_STYLES,
   LEGACY_CARET_LIGHT,
   WASH_INTENSITIES,
@@ -90,6 +93,18 @@ export async function initializeBeamSettings(extensionAPI) {
     }
     await extensionAPI.settings.set(WASH_MIGRATION_SETTING_ID, true);
   }
+
+  // v3 replaces the visually heavy full-cell default with the rounded Svy beam. Only
+  // the exact old default moves; bar and every later explicit choice are preserved. The
+  // marker lets a user switch back to block after the upgrade without being changed on
+  // every load.
+  if (!normalizeSwitch(extensionAPI.settings.get(CARET_V3_MIGRATION_SETTING_ID), false)) {
+    const storedShape = extensionAPI.settings.get(BEAM_SETTING_IDS.caretShape);
+    if (typeof storedShape === "string" && storedShape.trim().toLowerCase() === "block") {
+      await extensionAPI.settings.set(BEAM_SETTING_IDS.caretShape, BEAM_DEFAULTS.caretShape);
+    }
+    await extensionAPI.settings.set(CARET_V3_MIGRATION_SETTING_ID, true);
+  }
 }
 
 // Roam exposes its own React on window, so a reactComponent row costs zero bundled
@@ -114,15 +129,18 @@ export function createBeamPreviewComponent(React = globalThis.window?.React) {
         },
       },
       h("span", {
+        className: "svy-beam-preview-caret",
         style: {
           display: "inline-block",
-          width: "8px",
-          height: "18px",
-          borderRadius: "1px",
+          width: "var(--svy-beam-caret-preview-width, 3px)",
+          height: "var(--svy-beam-caret-preview-height, 16.4px)",
+          borderRadius: "var(--svy-beam-caret-radius, 3px)",
           background: "var(--svy-beam-caret, #00695e)",
+          boxShadow: "0 0 8px color-mix(in srgb, var(--svy-beam-caret, #00695e) 32%, transparent)",
+          opacity: "var(--svy-beam-caret-opacity, 1)",
         },
       }),
-      h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "caret and focus wash, live"),
+      h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "Svy Beam · color and size update live"),
     );
   };
 }
@@ -165,13 +183,49 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
     {
       id: BEAM_SETTING_IDS.caretShape,
       name: "Caret shape",
-      description: "block fills the character cell (CSS UI 4); bar is the classic thin caret. Browsers without caret-shape support always draw a bar.",
+      description: "beam (default) is a short rounded insertion mark; block fills the glyph cell; outline frames it; underline sits below it; bar is classic; native restores the platform caret.",
       action: { type: "select", items: [...CARET_SHAPES], onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretWidth,
+      name: "Caret width scale (%)",
+      description: "Fine control from 50–200. Scales the chosen shape: 100 is a 3px beam or one glyph-cell block.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretWidth), onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretHeight,
+      name: "Caret height (%)",
+      description: "Height relative to the current line, from 30–120. The quieter default is 82.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretHeight), onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretRadius,
+      name: "Caret corner radius (px)",
+      description: "Corner softness from 0–12px. Try 0 for terminal-sharp, 3 for Svy, or 8 for a pill.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretRadius), onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretOpacity,
+      name: "Caret opacity (%)",
+      description: "Visibility from 45–100. Keep 100 for maximum contrast; lower values feel softer on large block shapes.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretOpacity), onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretGlow,
+      name: "Caret glow",
+      description: "soft adds a restrained edge light; none is perfectly flat; halo is the playful high-energy option.",
+      action: { type: "select", items: [...CARET_GLOWS], onChange: changed },
+    },
+    {
+      id: BEAM_SETTING_IDS.caretBehavior,
+      name: "Caret behavior",
+      description: "responsive gives a quick typing ping; steady never moves; glide eases between positions; breathe idles gently; comet adds a tiny trail. Reduce Motion makes every option steady.",
+      action: { type: "select", items: [...CARET_BEHAVIORS], onChange: changed },
     },
     {
       id: BEAM_SETTING_IDS.caretBlink,
       name: "Caret blink",
-      description: "Off (default) holds the caret steady. On restores the browser's blinking caret.",
+      description: "Optional classic blink. Off keeps the selected behavior; on blinks the custom caret at the platform-like cadence.",
       action: { type: "switch", onChange: changed },
     },
     {

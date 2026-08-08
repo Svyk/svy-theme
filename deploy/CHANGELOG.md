@@ -6,6 +6,14 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **Svy Beam v3** (`src/caret-overlay.js`, `src/css/40-beam.css`): replaces the heavy
+  full-cell default with a 3px rounded beam at 82% line height. Adds beam, block, outline,
+  underline, classic bar, and native styles; 50–200% width scale; 30–120% height; 0–12px
+  radius; 45–100% opacity; none/soft/halo glow; and responsive, steady, glide, breathe,
+  and comet behaviors. The renderer uses one fixed pointer-inert node, responds only to
+  editing/selection/viewport events, keeps all motion composited, and becomes steady when
+  `prefers-reduced-motion: reduce` is active. The exact old `block` default migrates once
+  to `beam`, guarded by `bp-beam-caret-v3-migrated-2026-08-08`; later user choices persist.
 - **GitHub Pages home page** (`site/index.html`): the extension URL now opens a real,
   responsive landing page instead of GitHub's 404. It uses the canonical Svy light and
   dark palettes, follows the system theme with an explicit mode toggle, previews the

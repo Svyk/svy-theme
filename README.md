@@ -68,21 +68,26 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
 | Svy Beam | `bp-pack-beam` | switch | on |
 | Caret color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
 | Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
-| Caret shape | `bp-beam-caret-shape` | select `block` / `bar` | `block` |
+| Caret shape | `bp-beam-caret-shape` | select `beam` / `block` / `outline` / `underline` / `bar` / `native` | `beam` |
+| Caret width scale (%) | `bp-beam-caret-width` | input, clamped 50–200 | `100` |
+| Caret height (%) | `bp-beam-caret-height` | input, clamped 30–120 | `82` |
+| Caret corner radius (px) | `bp-beam-caret-radius` | input, clamped 0–12 | `3` |
+| Caret opacity (%) | `bp-beam-caret-opacity` | input, clamped 45–100 | `100` |
+| Caret glow | `bp-beam-caret-glow` | select `soft` / `none` / `halo` | `soft` |
+| Caret behavior | `bp-beam-caret-behavior` | select `responsive` / `steady` / `glide` / `breathe` / `comet` | `responsive` |
 | Caret blink | `bp-beam-caret-blink` | switch | off |
 | Focus wash | `bp-beam-wash` | switch | off |
 | Wash intensity | `bp-beam-wash-intensity` | select `subtle` / `medium` / `off` | `off` |
 | Cursor style | `bp-beam-cursor` | select `svy` / `native` | `svy` |
 | Preview | `bp-beam-preview` | `reactComponent` | — |
 
-Roam's settings panel supports only `input`, `select`, `switch`, `button`, and
-`reactComponent` rows — there is no color picker, slider, or number field, so colors are
-typed as hex. A value that is not `#rgb` or `#rrggbb` (any case, `#` optional) is
-rejected at read time and the default is used, so a half-typed color never reaches the
-stylesheet. The preview row renders through Roam's own `window.React`, adding no bundled
-dependency; it is stateless and repaints from the same custom properties the stylesheet
-reads, so there is nothing for it to subscribe to or leak. It is omitted entirely if
-`window.React` is unavailable.
+Roam's settings panel supports only generic `input`, `select`, `switch`, `button`, and
+`reactComponent` rows — there is no native color picker or slider. Colors are typed as
+hex; invalid values fall back without reaching CSS. Numeric inputs accept decimals,
+retain one decimal place, and clamp to the documented safe range, so a synced typo cannot
+make the caret vanish or fill the screen. The preview row renders through Roam's own
+`window.React`, adding no dependency; it is stateless and repaints from the same custom
+properties the stylesheet reads. It is omitted if `window.React` is unavailable.
 
 ### How settings reach the CSS
 
@@ -93,10 +98,11 @@ would put every value at the inline specificity level where nothing in a stylesh
 including the user's own `roam/css`, could override it. The element is registered on the
 lifecycle, so unload removes it in one `node.remove()`.
 
-`src/css/40-beam.css` reads every value through `var(--svy-beam-…, <v1 value>)`. The
-fallbacks are the shipped Beam v1 values, so the layer renders exactly as before if the
-JavaScript never runs. A test asserts both directions of that contract: nothing the
-stylesheet reads is unpublished, and nothing published is unread.
+`src/css/40-beam.css` reads every value through `var(--svy-beam-…, <safe value>)`. With
+JavaScript unavailable, the researched caret colors and a native bar remain; the extended
+shape/size/behavior system simply steps aside. A test asserts both directions of the
+variable contract: nothing the stylesheet reads is unpublished, and nothing published
+is unread.
 
 ### Feature-pack gating
 

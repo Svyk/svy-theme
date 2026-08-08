@@ -1,4 +1,4 @@
-/* U5 — Svy Beam v2: caret, focus wash, custom cursors.
+/* U5 — Svy Beam v3: configurable caret, focus wash, custom cursors.
  *
  * Every value in this layer flows through a --svy-beam-* custom property whose
  * fallback is the CURRENT default, so the layer renders like the shipped defaults when
@@ -68,19 +68,14 @@
   .rm-title-textarea
 ) {
   caret-color: var(--svy-beam-caret) !important;
-  /* Chromium builds that implement CSS UI 4 render the insertion point as a
-   * filled block. Unsupported builds safely keep the native bar caret. */
-  caret-shape: var(--svy-beam-caret-shape, block) !important;
+  /* Progressive fallback when the v3 overlay is unavailable. */
+  caret-shape: var(--svy-beam-caret-shape, bar) !important;
   caret-animation: var(--svy-beam-caret-animation, manual) !important;
   cursor: var(--svy-beam-cursor-text, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23182026' stroke='%2348aff0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2300695e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f5f8fa'/%3E%3C/svg%3E") 16 16, text) !important;
 }
 
-/* caret-shape only shipped in Chrome 144; the Roam desktop app's Chromium is older, so
- * the declaration above drops there and the native thin bar returns (2026-08-07 report).
- * src/caret-overlay.js paints the block itself on those builds and stamps
- * .svy-block-caret on <html> exactly while it is painting — this rule hides the native
- * caret for just that window so the two never draw on top of each other. Browsers with
- * native caret-shape never get the class and keep their own block. */
+/* src/caret-overlay.js stamps this compatibility class whenever one of Svy's custom
+ * caret styles is painting. The explicit native style never stamps it. */
 :root:not(.svy-off-beam).svy-block-caret body :is(
   input,
   textarea,
@@ -91,6 +86,57 @@
   .rm-title-textarea
 ) {
   caret-color: transparent !important;
+}
+
+/* One fixed overlay node paints the custom insertion point. Shape geometry and the
+ * current color are supplied by caret-overlay.js; CSS owns only composited decoration
+ * and motion, keeping the typing path free from layout-producing animation. */
+:root:not(.svy-off-beam) .svy-caret-overlay-ui {
+  --svy-caret-overlay-color: var(--svy-beam-caret, #00695e);
+  contain: layout style;
+  transform-origin: center;
+  will-change: transform, filter, opacity;
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="soft"] {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--svy-caret-overlay-color) 18%, transparent),
+    0 0 8px color-mix(in srgb, var(--svy-caret-overlay-color) 30%, transparent);
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="halo"] {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--svy-caret-overlay-color) 20%, transparent),
+    0 0 14px 3px color-mix(in srgb, var(--svy-caret-overlay-color) 42%, transparent);
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="none"] { box-shadow: none; }
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="glide"] {
+  transition: transform 68ms cubic-bezier(0.2, 0.75, 0.3, 1);
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="comet"] {
+  box-shadow:
+    -5px 0 9px -2px color-mix(in srgb, var(--svy-caret-overlay-color) 44%, transparent),
+    0 0 5px color-mix(in srgb, var(--svy-caret-overlay-color) 38%, transparent);
+  transition: transform 105ms cubic-bezier(0.16, 0.8, 0.25, 1);
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="breathe"] {
+  animation: svy-caret-breathe 1.8s ease-in-out infinite alternate;
+}
+
+:root:not(.svy-off-beam) .svy-caret-overlay-ui.svy-caret-ping {
+  animation: svy-caret-ping 150ms ease-out;
+}
+
+/* The settings preview consumes the same generated size tokens as the live renderer. */
+:root:not(.svy-off-beam) .svy-beam-preview-caret {
+  width: var(--svy-beam-caret-preview-width, 3px);
+  height: var(--svy-beam-caret-preview-height, 16.4px);
+  border-radius: var(--svy-beam-caret-radius, 3px);
+  opacity: var(--svy-beam-caret-opacity, 1);
 }
 
 /* JS-absent fallback for the dark cursor set. theme-vars.js publishes the same three
@@ -158,11 +204,33 @@
 /* Reduced motion DISABLES the wash outright rather than shortening it (design-tokens
  * motion policy). Must stay last: it overrides the background-color set above. */
 @media (prefers-reduced-motion: reduce) {
+  :root:not(.svy-off-beam) .svy-caret-overlay-ui,
+  :root:not(.svy-off-beam) .svy-caret-overlay-ui.svy-caret-ping {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
+
   :root:not(.svy-off-beam) .roam-block-container > .rm-block-main {
     transition: none;
   }
 
   :root:not(.svy-off-beam) .roam-block-container:focus-within > .rm-block-main {
     background-color: transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  :root:not(.svy-off-beam) .svy-caret-overlay-ui {
+    --svy-caret-overlay-color: Highlight !important;
+    background-color: Highlight !important;
+    border-color: Highlight !important;
+    box-shadow: none !important;
+    filter: none !important;
+    forced-color-adjust: none;
+  }
+
+  :root:not(.svy-off-beam) .svy-caret-overlay-ui[data-shape="outline"] {
+    background-color: transparent !important;
   }
 }

@@ -93,21 +93,42 @@ var BEAM_SETTING_IDS = Object.freeze({
   caretLight: "bp-beam-caret-light",
   caretDark: "bp-beam-caret-dark",
   caretShape: "bp-beam-caret-shape",
+  caretWidth: "bp-beam-caret-width",
+  caretHeight: "bp-beam-caret-height",
+  caretRadius: "bp-beam-caret-radius",
+  caretOpacity: "bp-beam-caret-opacity",
+  caretGlow: "bp-beam-caret-glow",
+  caretBehavior: "bp-beam-caret-behavior",
   caretBlink: "bp-beam-caret-blink",
   wash: "bp-beam-wash",
   washIntensity: "bp-beam-wash-intensity",
   cursor: "bp-beam-cursor"
 });
-var CARET_SHAPES = Object.freeze(["block", "bar"]);
+var CARET_SHAPES = Object.freeze(["beam", "block", "outline", "underline", "bar", "native"]);
+var CARET_GLOWS = Object.freeze(["soft", "none", "halo"]);
+var CARET_BEHAVIORS = Object.freeze(["responsive", "steady", "glide", "breathe", "comet"]);
 var WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 var CURSOR_STYLES = Object.freeze(["svy", "native"]);
+var CARET_CONTROL_LIMITS = Object.freeze({
+  caretWidth: Object.freeze({ min: 50, max: 200 }),
+  caretHeight: Object.freeze({ min: 30, max: 120 }),
+  caretRadius: Object.freeze({ min: 0, max: 12 }),
+  caretOpacity: Object.freeze({ min: 45, max: 100 })
+});
 var LEGACY_CARET_LIGHT = "#008478";
 var WASH_MIGRATION_SETTING_ID = "bp-beam-wash-migrated-2026-08-07";
+var CARET_V3_MIGRATION_SETTING_ID = "bp-beam-caret-v3-migrated-2026-08-08";
 var BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
-  caretShape: "block",
+  caretShape: "beam",
+  caretWidth: 100,
+  caretHeight: 82,
+  caretRadius: 3,
+  caretOpacity: 100,
+  caretGlow: "soft",
+  caretBehavior: "responsive",
   caretBlink: false,
   wash: false,
   washIntensity: "off",
@@ -140,12 +161,26 @@ function normalizeSwitch(value, fallback) {
   if (value === "false") return false;
   return fallback;
 }
+function normalizeNumber(value, { min, max }, fallback) {
+  if (typeof value !== "string" && typeof value !== "number" || String(value).trim() === "") {
+    return fallback;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.round(Math.min(max, Math.max(min, parsed)) * 10) / 10;
+}
 function normalizeBeamConfig(raw = {}) {
   return {
     pack: normalizeSwitch(raw.pack, BEAM_DEFAULTS.pack),
     caretLight: normalizeHex(raw.caretLight, BEAM_DEFAULTS.caretLight),
     caretDark: normalizeHex(raw.caretDark, BEAM_DEFAULTS.caretDark),
     caretShape: normalizeChoice(raw.caretShape, CARET_SHAPES, BEAM_DEFAULTS.caretShape),
+    caretWidth: normalizeNumber(raw.caretWidth, CARET_CONTROL_LIMITS.caretWidth, BEAM_DEFAULTS.caretWidth),
+    caretHeight: normalizeNumber(raw.caretHeight, CARET_CONTROL_LIMITS.caretHeight, BEAM_DEFAULTS.caretHeight),
+    caretRadius: normalizeNumber(raw.caretRadius, CARET_CONTROL_LIMITS.caretRadius, BEAM_DEFAULTS.caretRadius),
+    caretOpacity: normalizeNumber(raw.caretOpacity, CARET_CONTROL_LIMITS.caretOpacity, BEAM_DEFAULTS.caretOpacity),
+    caretGlow: normalizeChoice(raw.caretGlow, CARET_GLOWS, BEAM_DEFAULTS.caretGlow),
+    caretBehavior: normalizeChoice(raw.caretBehavior, CARET_BEHAVIORS, BEAM_DEFAULTS.caretBehavior),
     caretBlink: normalizeSwitch(raw.caretBlink, BEAM_DEFAULTS.caretBlink),
     wash: normalizeSwitch(raw.wash, BEAM_DEFAULTS.wash),
     washIntensity: normalizeChoice(raw.washIntensity, WASH_INTENSITIES, BEAM_DEFAULTS.washIntensity),
@@ -159,6 +194,12 @@ function readBeamSettings(extensionAPI) {
     caretLight: get(BEAM_SETTING_IDS.caretLight),
     caretDark: get(BEAM_SETTING_IDS.caretDark),
     caretShape: get(BEAM_SETTING_IDS.caretShape),
+    caretWidth: get(BEAM_SETTING_IDS.caretWidth),
+    caretHeight: get(BEAM_SETTING_IDS.caretHeight),
+    caretRadius: get(BEAM_SETTING_IDS.caretRadius),
+    caretOpacity: get(BEAM_SETTING_IDS.caretOpacity),
+    caretGlow: get(BEAM_SETTING_IDS.caretGlow),
+    caretBehavior: get(BEAM_SETTING_IDS.caretBehavior),
     caretBlink: get(BEAM_SETTING_IDS.caretBlink),
     wash: get(BEAM_SETTING_IDS.wash),
     washIntensity: get(BEAM_SETTING_IDS.washIntensity),
@@ -231,8 +272,20 @@ function computeThemeVars(config) {
       base[`--svy-beam-wash-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]} / ${alpha})` : `rgba(${rgb}, ${alpha})`;
     }
   }
-  base["--svy-beam-caret-shape"] = normalized.caretShape;
+  const nativeShape = {
+    beam: "bar",
+    block: "block",
+    outline: "block",
+    underline: "underscore",
+    bar: "bar",
+    native: "auto"
+  }[normalized.caretShape];
+  base["--svy-beam-caret-shape"] = nativeShape;
   base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
+  base["--svy-beam-caret-preview-width"] = `${3 * (normalized.caretWidth / 100)}px`;
+  base["--svy-beam-caret-preview-height"] = `${20 * (normalized.caretHeight / 100)}px`;
+  base["--svy-beam-caret-radius"] = `${normalized.caretRadius}px`;
+  base["--svy-beam-caret-opacity"] = `${normalized.caretOpacity / 100}`;
   base["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
   base["--svy-beam-wash-radius"] = WASH_RADIUS;
   const light = cursorVarsForMode(normalized, "light");
@@ -292,6 +345,8 @@ function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }
 
 // src/caret-overlay.js
 var BLOCK_CARET_CLASS = "svy-block-caret";
+var CARET_OVERLAY_CLASS = "svy-caret-overlay-ui";
+var CARET_PING_CLASS = "svy-caret-ping";
 var MARKER_CHAR = "​";
 var BLINK_PERIOD_MS = 530;
 var MIRROR_PROPERTIES = Object.freeze([
@@ -327,8 +382,8 @@ function isTextTarget(element) {
 function supportsNativeCaretShape(css = globalThis.CSS) {
   return Boolean(css?.supports?.("caret-shape", "block"));
 }
-function needsOverlay({ pack, caretShape, nativeSupported }) {
-  return Boolean(pack) && caretShape === "block" && !nativeSupported;
+function needsOverlay({ pack, caretShape }) {
+  return Boolean(pack) && caretShape !== "native";
 }
 function measureCaretRect(element, doc, win) {
   const computed = win.getComputedStyle(element);
@@ -359,11 +414,10 @@ function measureCaretRect(element, doc, win) {
   glyph.textContent = underCaret;
   mirror.appendChild(glyph);
   (doc.body || doc.documentElement).appendChild(mirror);
-  const fallbackHeight = lineHeightPx;
   const measured = {
     top: marker.offsetTop,
     left: marker.offsetLeft,
-    height: marker.offsetHeight || fallbackHeight,
+    height: marker.offsetHeight || lineHeightPx,
     width: glyph.offsetWidth || Number.parseFloat(computed.fontSize) * 0.6 || 8,
     glyph: hasGlyph ? underCaret : ""
   };
@@ -386,6 +440,37 @@ function measureCaretRect(element, doc, win) {
   const visible = x + measured.width > content.left && x < content.right && y + measured.height > content.top && y < content.bottom;
   return { x, y, width: measured.width, height: measured.height, glyph: measured.glyph, visible };
 }
+var halfPixel = (value) => Math.round(value * 2) / 2;
+function computeCaretBox(rect, config) {
+  const normalized = normalizeBeamConfig(config);
+  const widthScale = normalized.caretWidth / 100;
+  const heightScale = normalized.caretHeight / 100;
+  const shape = normalized.caretShape;
+  const cellWidth = Math.max(1, rect.width);
+  const lineHeight = Math.max(1, rect.height);
+  let width = cellWidth * widthScale;
+  let height = Math.max(2, lineHeight * heightScale);
+  let x = rect.x;
+  let y = rect.y + (lineHeight - height) / 2;
+  if (shape === "beam") {
+    width = 3 * widthScale;
+    x = rect.x - width / 2;
+  } else if (shape === "bar") {
+    width = 2 * widthScale;
+    x = rect.x - width / 2;
+  } else if (shape === "underline") {
+    height = Math.max(2, Math.min(6, lineHeight * 0.16 * (normalized.caretHeight / 82)));
+    y = rect.y + lineHeight - height;
+  }
+  width = Math.max(1, width);
+  return {
+    x: halfPixel(x),
+    y: halfPixel(y),
+    width: halfPixel(width),
+    height: halfPixel(height),
+    lineOffset: halfPixel(y - rect.y)
+  };
+}
 function surfaceColorBehind(element, win) {
   let node = element;
   while (node && node.nodeType === 1) {
@@ -400,15 +485,20 @@ function installCaretOverlay({
   lifecycle,
   doc = globalThis.document,
   win = globalThis.window,
+  // Retained so older callers/tests need no signature change. Custom v3 styles render
+  // identically regardless of native caret-shape support.
   nativeSupported = supportsNativeCaretShape()
 } = {}) {
+  void nativeSupported;
   const inert = { refresh() {
   }, get active() {
     return false;
   } };
   if (!doc?.createElement || !doc?.documentElement?.classList || !win?.getComputedStyle) return inert;
-  if (nativeSupported) return inert;
   const root = doc.documentElement;
+  const motionQuery = win.matchMedia?.("(prefers-reduced-motion: reduce)") || null;
+  const motionReduced = () => Boolean(motionQuery?.matches);
+  let config = BEAM_DEFAULTS;
   let enabled = false;
   let target = null;
   let overlay = null;
@@ -416,23 +506,47 @@ function installCaretOverlay({
   let blinkOn = false;
   let blinkVisible = true;
   let blinkTimer = null;
+  let pingTimer = null;
   const readSettings = () => {
     const get = (key) => extensionAPI?.settings?.get?.(key);
-    return {
-      pack: normalizeSwitch(get(BEAM_SETTING_IDS.pack), BEAM_DEFAULTS.pack),
-      caretShape: normalizeChoice(get(BEAM_SETTING_IDS.caretShape), CARET_SHAPES, BEAM_DEFAULTS.caretShape),
-      caretBlink: normalizeSwitch(get(BEAM_SETTING_IDS.caretBlink), BEAM_DEFAULTS.caretBlink)
-    };
+    return normalizeBeamConfig(
+      Object.fromEntries(Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [key, get(id)]))
+    );
   };
   const hide = () => {
     target = null;
     root.classList.remove(BLOCK_CARET_CLASS);
     if (overlay) overlay.style.display = "none";
   };
+  const ensureOverlay = () => {
+    if (overlay) return;
+    overlay = doc.createElement("div");
+    overlay.setAttribute("aria-hidden", "true");
+    overlay.classList.add(CARET_OVERLAY_CLASS);
+    const style = overlay.style;
+    style.position = "fixed";
+    style.top = "0";
+    style.left = "0";
+    style.zIndex = "900";
+    style.pointerEvents = "none";
+    style.boxSizing = "border-box";
+    style.overflow = "hidden";
+    style.display = "none";
+    glyphNode = doc.createElement("span");
+    glyphNode.style.display = "none";
+    glyphNode.style.textAlign = "center";
+    glyphNode.style.whiteSpace = "pre";
+    overlay.appendChild(glyphNode);
+    lifecycle.node(overlay, doc.body || doc.documentElement);
+  };
   const render = () => {
     if (!enabled || !target || !overlay) return;
     if (!target.isConnected) {
       hide();
+      return;
+    }
+    if (target.selectionEnd != null && target.selectionStart !== target.selectionEnd) {
+      overlay.style.display = "none";
       return;
     }
     let rect;
@@ -446,48 +560,61 @@ function installCaretOverlay({
       overlay.style.display = "none";
       return;
     }
-    const caretColor = win.getComputedStyle(root).getPropertyValue("--svy-beam-caret").trim() || "#00695e";
+    const targetStyle = win.getComputedStyle(target);
+    const rootStyle = win.getComputedStyle(root);
+    const caretColor = targetStyle.getPropertyValue?.("--svy-beam-caret")?.trim() || rootStyle.getPropertyValue?.("--svy-beam-caret")?.trim() || BEAM_DEFAULTS.caretLight;
+    const box = computeCaretBox(rect, config);
+    const reduced = motionReduced();
+    const behavior = reduced || blinkOn ? "steady" : config.caretBehavior;
+    const radius = Math.min(config.caretRadius, box.width / 2, box.height / 2);
+    overlay.setAttribute("data-shape", config.caretShape);
+    overlay.setAttribute("data-glow", config.caretGlow);
+    overlay.setAttribute("data-behavior", behavior);
     overlay.style.display = "block";
-    overlay.style.transform = `translate(${Math.round(rect.x)}px, ${Math.round(rect.y)}px)`;
-    overlay.style.width = `${Math.max(1, Math.round(rect.width))}px`;
-    overlay.style.height = `${Math.round(rect.height)}px`;
-    overlay.style.backgroundColor = caretColor;
-    overlay.style.opacity = blinkOn && !blinkVisible ? "0" : "1";
-    if (glyphNode.textContent !== rect.glyph) {
+    overlay.style.transform = `translate(${box.x}px, ${box.y}px)`;
+    overlay.style.width = `${box.width}px`;
+    overlay.style.height = `${box.height}px`;
+    overlay.style.borderRadius = `${radius}px`;
+    overlay.style.opacity = blinkOn && !blinkVisible ? "0" : `${config.caretOpacity / 100}`;
+    overlay.style.backgroundColor = config.caretShape === "outline" ? "transparent" : caretColor;
+    overlay.style.border = config.caretShape === "outline" ? `1.5px solid ${caretColor}` : "0";
+    overlay.style.setProperty?.("--svy-caret-overlay-color", caretColor);
+    const paintsGlyph = config.caretShape === "block";
+    glyphNode.style.display = paintsGlyph && rect.glyph ? "block" : "none";
+    if (paintsGlyph && rect.glyph) {
       glyphNode.textContent = rect.glyph;
-      if (rect.glyph) {
-        const font = win.getComputedStyle(target);
-        glyphNode.style.fontFamily = font.fontFamily;
-        glyphNode.style.fontSize = font.fontSize;
-        glyphNode.style.fontWeight = font.fontWeight;
-        glyphNode.style.fontStyle = font.fontStyle;
-        glyphNode.style.color = surfaceColorBehind(target, win);
-      }
+      glyphNode.style.fontFamily = targetStyle.fontFamily;
+      glyphNode.style.fontSize = targetStyle.fontSize;
+      glyphNode.style.fontWeight = targetStyle.fontWeight;
+      glyphNode.style.fontStyle = targetStyle.fontStyle;
+      glyphNode.style.color = surfaceColorBehind(target, win);
+      glyphNode.style.lineHeight = `${rect.height}px`;
+      glyphNode.style.transform = `translateY(${-box.lineOffset}px)`;
     }
-    glyphNode.style.lineHeight = `${Math.round(rect.height)}px`;
   };
   const show = (element) => {
     if (!enabled || !isTextTarget(element)) return;
-    if (!overlay) {
-      overlay = doc.createElement("div");
-      overlay.setAttribute("aria-hidden", "true");
-      const style = overlay.style;
-      style.position = "fixed";
-      style.top = "0";
-      style.left = "0";
-      style.zIndex = "900";
-      style.pointerEvents = "none";
-      style.borderRadius = "1px";
-      style.display = "none";
-      glyphNode = doc.createElement("span");
-      glyphNode.style.display = "block";
-      glyphNode.style.textAlign = "center";
-      overlay.appendChild(glyphNode);
-      lifecycle.node(overlay, doc.body || doc.documentElement);
-    }
+    ensureOverlay();
     target = element;
     root.classList.add(BLOCK_CARET_CLASS);
     render();
+  };
+  const ping = () => {
+    if (!overlay || motionReduced()) return;
+    if (config.caretBehavior !== "responsive" && config.caretBehavior !== "comet") return;
+    overlay.classList.remove(CARET_PING_CLASS);
+    void overlay.offsetWidth;
+    overlay.classList.add(CARET_PING_CLASS);
+    if (pingTimer) globalThis.clearTimeout(pingTimer);
+    pingTimer = globalThis.setTimeout(() => {
+      overlay?.classList.remove(CARET_PING_CLASS);
+      pingTimer = null;
+    }, 180);
+  };
+  const ensureAttached = () => {
+    if (!enabled) return;
+    const active = doc.activeElement;
+    if (isTextTarget(active) && active !== target) show(active);
   };
   const onFocusIn = (event) => {
     if (enabled && isTextTarget(event.target)) show(event.target);
@@ -501,14 +628,13 @@ function installCaretOverlay({
       else hide();
     }, 0);
   };
-  const ensureAttached = () => {
-    if (!enabled) return;
-    const active = doc.activeElement;
-    if (isTextTarget(active) && active !== target) show(active);
-  };
   const onEdit = (event) => {
     ensureAttached();
-    if (event.target === target) render();
+    if (event.target === target) {
+      blinkVisible = true;
+      render();
+      ping();
+    }
   };
   const onSelectionChange = () => {
     ensureAttached();
@@ -518,7 +644,7 @@ function installCaretOverlay({
     if (target) render();
   };
   const syncBlink = () => {
-    const wanted = enabled && blinkOn;
+    const wanted = enabled && blinkOn && !motionReduced();
     if (wanted && !blinkTimer) {
       blinkTimer = globalThis.setInterval(() => {
         if (target) {
@@ -530,27 +656,32 @@ function installCaretOverlay({
       globalThis.clearInterval(blinkTimer);
       blinkTimer = null;
     }
+    if (!wanted) blinkVisible = true;
   };
   const apply = () => {
-    const settings = readSettings();
-    enabled = needsOverlay({ ...settings, nativeSupported });
-    blinkOn = settings.caretBlink;
+    config = readSettings();
+    enabled = needsOverlay(config);
+    blinkOn = config.caretBlink;
+    syncBlink();
     if (!enabled) {
       hide();
-      syncBlink();
       return;
     }
-    syncBlink();
     if (isTextTarget(doc.activeElement)) show(doc.activeElement);
+    else if (target) render();
   };
   lifecycle.event(doc, "focusin", onFocusIn);
   lifecycle.event(doc, "focusout", onFocusOut);
   lifecycle.event(doc, "input", onEdit, true);
   lifecycle.event(doc, "selectionchange", onSelectionChange);
+  lifecycle.event(doc, "keyup", onSelectionChange, true);
+  lifecycle.event(doc, "mouseup", onSelectionChange, true);
   lifecycle.event(win, "scroll", onScroll, true);
   lifecycle.event(win, "resize", onScroll);
+  if (motionQuery?.addEventListener) lifecycle.event(motionQuery, "change", apply);
   lifecycle.add(() => {
     if (blinkTimer) globalThis.clearInterval(blinkTimer);
+    if (pingTimer) globalThis.clearTimeout(pingTimer);
     root.classList.remove(BLOCK_CARET_CLASS);
   });
   apply();
@@ -602,6 +733,13 @@ async function initializeBeamSettings(extensionAPI) {
     }
     await extensionAPI.settings.set(WASH_MIGRATION_SETTING_ID, true);
   }
+  if (!normalizeSwitch(extensionAPI.settings.get(CARET_V3_MIGRATION_SETTING_ID), false)) {
+    const storedShape = extensionAPI.settings.get(BEAM_SETTING_IDS.caretShape);
+    if (typeof storedShape === "string" && storedShape.trim().toLowerCase() === "block") {
+      await extensionAPI.settings.set(BEAM_SETTING_IDS.caretShape, BEAM_DEFAULTS.caretShape);
+    }
+    await extensionAPI.settings.set(CARET_V3_MIGRATION_SETTING_ID, true);
+  }
 }
 function createBeamPreviewComponent(React = globalThis.window?.React) {
   if (typeof React?.createElement !== "function") return null;
@@ -621,15 +759,18 @@ function createBeamPreviewComponent(React = globalThis.window?.React) {
         }
       },
       h("span", {
+        className: "svy-beam-preview-caret",
         style: {
           display: "inline-block",
-          width: "8px",
-          height: "18px",
-          borderRadius: "1px",
-          background: "var(--svy-beam-caret, #00695e)"
+          width: "var(--svy-beam-caret-preview-width, 3px)",
+          height: "var(--svy-beam-caret-preview-height, 16.4px)",
+          borderRadius: "var(--svy-beam-caret-radius, 3px)",
+          background: "var(--svy-beam-caret, #00695e)",
+          boxShadow: "0 0 8px color-mix(in srgb, var(--svy-beam-caret, #00695e) 32%, transparent)",
+          opacity: "var(--svy-beam-caret-opacity, 1)"
         }
       }),
-      h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "caret and focus wash, live")
+      h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "Svy Beam · color and size update live")
     );
   };
 }
@@ -672,13 +813,49 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: BEAM_SETTING_IDS.caretShape,
       name: "Caret shape",
-      description: "block fills the character cell (CSS UI 4); bar is the classic thin caret. Browsers without caret-shape support always draw a bar.",
+      description: "beam (default) is a short rounded insertion mark; block fills the glyph cell; outline frames it; underline sits below it; bar is classic; native restores the platform caret.",
       action: { type: "select", items: [...CARET_SHAPES], onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretWidth,
+      name: "Caret width scale (%)",
+      description: "Fine control from 50–200. Scales the chosen shape: 100 is a 3px beam or one glyph-cell block.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretWidth), onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretHeight,
+      name: "Caret height (%)",
+      description: "Height relative to the current line, from 30–120. The quieter default is 82.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretHeight), onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretRadius,
+      name: "Caret corner radius (px)",
+      description: "Corner softness from 0–12px. Try 0 for terminal-sharp, 3 for Svy, or 8 for a pill.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretRadius), onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretOpacity,
+      name: "Caret opacity (%)",
+      description: "Visibility from 45–100. Keep 100 for maximum contrast; lower values feel softer on large block shapes.",
+      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretOpacity), onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretGlow,
+      name: "Caret glow",
+      description: "soft adds a restrained edge light; none is perfectly flat; halo is the playful high-energy option.",
+      action: { type: "select", items: [...CARET_GLOWS], onChange: changed }
+    },
+    {
+      id: BEAM_SETTING_IDS.caretBehavior,
+      name: "Caret behavior",
+      description: "responsive gives a quick typing ping; steady never moves; glide eases between positions; breathe idles gently; comet adds a tiny trail. Reduce Motion makes every option steady.",
+      action: { type: "select", items: [...CARET_BEHAVIORS], onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.caretBlink,
       name: "Caret blink",
-      description: "Off (default) holds the caret steady. On restores the browser's blinking caret.",
+      description: "Optional classic blink. Off keeps the selected behavior; on blinks the custom caret at the platform-like cadence.",
       action: { type: "switch", onChange: changed }
     },
     {

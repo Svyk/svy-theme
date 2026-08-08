@@ -1,0 +1,14 @@
+/* Keyframes live outside 40-beam.css because that file is also parsed by the project's
+ * small deterministic cascade checker. They are inert unless a gated v3 overlay rule in
+ * 40-beam.css names them. */
+
+@keyframes svy-caret-ping {
+  0% { filter: brightness(1); }
+  38% { filter: brightness(1.45) saturate(1.15); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes svy-caret-breathe {
+  from { filter: brightness(0.88) saturate(0.92); }
+  to { filter: brightness(1.12) saturate(1.08); }
+}

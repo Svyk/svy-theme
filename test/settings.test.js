@@ -13,6 +13,10 @@ import {
 import {
   BEAM_DEFAULTS,
   BEAM_SETTING_IDS,
+  CARET_BEHAVIORS,
+  CARET_GLOWS,
+  CARET_SHAPES,
+  CARET_V3_MIGRATION_SETTING_ID,
   LEGACY_CARET_LIGHT,
   WASH_MIGRATION_SETTING_ID,
 } from "../src/theme-vars.js";
@@ -92,12 +96,19 @@ test("initializeBeamSettings seeds every beam default once, then is a no-op", as
     ["setting:set", "bp-pack-beam", true],
     ["setting:set", "bp-beam-caret-light", "#00695e"],
     ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
-    ["setting:set", "bp-beam-caret-shape", "block"],
+    ["setting:set", "bp-beam-caret-shape", "beam"],
+    ["setting:set", "bp-beam-caret-width", 100],
+    ["setting:set", "bp-beam-caret-height", 82],
+    ["setting:set", "bp-beam-caret-radius", 3],
+    ["setting:set", "bp-beam-caret-opacity", 100],
+    ["setting:set", "bp-beam-caret-glow", "soft"],
+    ["setting:set", "bp-beam-caret-behavior", "responsive"],
     ["setting:set", "bp-beam-caret-blink", false],
     ["setting:set", "bp-beam-wash", false],
     ["setting:set", "bp-beam-wash-intensity", "off"],
     ["setting:set", "bp-beam-cursor", "svy"],
     ["setting:set", "bp-beam-wash-migrated-2026-08-07", true],
+    ["setting:set", "bp-beam-caret-v3-migrated-2026-08-08", true],
   ]);
 
   api.calls.length = 0;
@@ -114,11 +125,13 @@ test("a fresh seed never triggers the light-caret migration", async () => {
   assert.deepEqual(writes, [["setting:set", BEAM_SETTING_IDS.caretLight, "#00695e"]]);
 });
 
-test("the wash migration id is not a seedable beam setting", async () => {
+test("migration markers are not seedable beam settings", async () => {
   // BEAM_SETTING_IDS drives a seed loop that writes BEAM_DEFAULTS[key]. If the marker were
   // a member it would be persisted as `undefined` on every fresh graph.
   assert.ok(!Object.values(BEAM_SETTING_IDS).includes(WASH_MIGRATION_SETTING_ID));
   assert.equal(WASH_MIGRATION_SETTING_ID, "bp-beam-wash-migrated-2026-08-07");
+  assert.ok(!Object.values(BEAM_SETTING_IDS).includes(CARET_V3_MIGRATION_SETTING_ID));
+  assert.equal(CARET_V3_MIGRATION_SETTING_ID, "bp-beam-caret-v3-migrated-2026-08-08");
 
   const api = fakeExtensionApi();
   await initializeBeamSettings(api);
@@ -132,6 +145,7 @@ test("a graph carrying the old wash-on default is flipped off exactly once", asy
   );
   stored[BEAM_SETTING_IDS.wash] = true;
   stored[BEAM_SETTING_IDS.washIntensity] = "subtle";
+  stored[CARET_V3_MIGRATION_SETTING_ID] = true;
   const api = fakeExtensionApi(stored);
 
   await initializeBeamSettings(api);
@@ -156,6 +170,7 @@ test("re-enabling the wash after the migration is never overridden", async () =>
   stored[BEAM_SETTING_IDS.wash] = true;
   stored[BEAM_SETTING_IDS.washIntensity] = "medium";
   stored[WASH_MIGRATION_SETTING_ID] = true;
+  stored[CARET_V3_MIGRATION_SETTING_ID] = true;
   const api = fakeExtensionApi(stored);
 
   await initializeBeamSettings(api);
@@ -171,6 +186,7 @@ test("an interrupted wash migration retries instead of recording a flip it never
     Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [id, BEAM_DEFAULTS[key]]),
   );
   stored[BEAM_SETTING_IDS.wash] = true;
+  stored[CARET_V3_MIGRATION_SETTING_ID] = true;
   const api = fakeExtensionApi(stored);
   let failed = false;
   const realSet = api.settings.set;
@@ -190,6 +206,42 @@ test("an interrupted wash migration retries instead of recording a flip it never
   api.calls.length = 0;
   await initializeBeamSettings(api);
   assert.deepEqual(api.calls, [["setting:set", WASH_MIGRATION_SETTING_ID, true]]);
+});
+
+test("the v3 migration replaces the old block default once and preserves later choices", async () => {
+  const stored = Object.fromEntries(
+    Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [id, BEAM_DEFAULTS[key]]),
+  );
+  stored[BEAM_SETTING_IDS.caretShape] = "block";
+  stored[WASH_MIGRATION_SETTING_ID] = true;
+  const api = fakeExtensionApi(stored);
+
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, [
+    ["setting:set", BEAM_SETTING_IDS.caretShape, "beam"],
+    ["setting:set", CARET_V3_MIGRATION_SETTING_ID, true],
+  ]);
+
+  api.calls.length = 0;
+  await api.settings.set(BEAM_SETTING_IDS.caretShape, "block");
+  api.calls.length = 0;
+  await initializeBeamSettings(api);
+  assert.deepEqual(api.calls, []);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.caretShape), "block");
+});
+
+test("the v3 migration preserves a pre-existing bar choice", async () => {
+  const api = fakeExtensionApi({
+    [BEAM_SETTING_IDS.caretShape]: "bar",
+    [WASH_MIGRATION_SETTING_ID]: true,
+  });
+  await initializeBeamSettings(api);
+  assert.equal(api.settings.get(BEAM_SETTING_IDS.caretShape), "bar");
+  assert.deepEqual(
+    api.calls.filter(([, id]) => id === BEAM_SETTING_IDS.caretShape),
+    [],
+  );
+  assert.equal(api.settings.get(CARET_V3_MIGRATION_SETTING_ID), true);
 });
 
 test("initializeBeamSettings migrates the stored Beam v1 light caret once, then is a no-op", async () => {
@@ -290,6 +342,12 @@ test("createSettingsPanel exposes every beam knob with the right control type", 
     [BEAM_SETTING_IDS.caretLight, "input"],
     [BEAM_SETTING_IDS.caretDark, "input"],
     [BEAM_SETTING_IDS.caretShape, "select"],
+    [BEAM_SETTING_IDS.caretWidth, "input"],
+    [BEAM_SETTING_IDS.caretHeight, "input"],
+    [BEAM_SETTING_IDS.caretRadius, "input"],
+    [BEAM_SETTING_IDS.caretOpacity, "input"],
+    [BEAM_SETTING_IDS.caretGlow, "select"],
+    [BEAM_SETTING_IDS.caretBehavior, "select"],
     [BEAM_SETTING_IDS.caretBlink, "switch"],
     [BEAM_SETTING_IDS.wash, "switch"],
     [BEAM_SETTING_IDS.washIntensity, "select"],
@@ -298,10 +356,13 @@ test("createSettingsPanel exposes every beam knob with the right control type", 
   for (const [id, type] of expected) {
     assert.equal(byId.get(id)?.action?.type, type, `${id} must render as a ${type} row`);
   }
-  assert.deepEqual(byId.get(BEAM_SETTING_IDS.caretShape).action.items, ["block", "bar"]);
+  assert.deepEqual(byId.get(BEAM_SETTING_IDS.caretShape).action.items, [...CARET_SHAPES]);
+  assert.deepEqual(byId.get(BEAM_SETTING_IDS.caretGlow).action.items, [...CARET_GLOWS]);
+  assert.deepEqual(byId.get(BEAM_SETTING_IDS.caretBehavior).action.items, [...CARET_BEHAVIORS]);
   assert.deepEqual(byId.get(BEAM_SETTING_IDS.washIntensity).action.items, ["subtle", "medium", "off"]);
   assert.deepEqual(byId.get(BEAM_SETTING_IDS.cursor).action.items, ["svy", "native"]);
   assert.equal(byId.get(BEAM_SETTING_IDS.caretLight).action.placeholder, BEAM_DEFAULTS.caretLight);
+  assert.equal(byId.get(BEAM_SETTING_IDS.caretHeight).action.placeholder, "82");
 });
 
 test("beam rows notify the theme-vars writer, and bp-appearance keeps its own handler", () => {
@@ -317,7 +378,7 @@ test("beam rows notify the theme-vars writer, and bp-appearance keeps its own ha
   assert.deepEqual(refreshes, []);
 
   for (const row of panel.settings.slice(1)) row.action.onChange?.({ target: { value: "x" } });
-  assert.equal(refreshes.length, 8);
+  assert.equal(refreshes.length, Object.keys(BEAM_SETTING_IDS).length);
   assert.deepEqual(appearance, ["dark"]);
 });
 

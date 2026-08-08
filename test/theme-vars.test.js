@@ -18,6 +18,7 @@ import {
   normalizeBeamConfig,
   normalizeChoice,
   normalizeHex,
+  normalizeNumber,
   normalizeSwitch,
   readBeamSettings,
   renderThemeVarsCss,
@@ -394,6 +395,15 @@ test("normalizeChoice and normalizeSwitch tolerate synced string forms", () => {
   assert.equal(normalizeSwitch(0, true), true);
 });
 
+test("normalizeNumber accepts numeric inputs, retains one decimal, and clamps safely", () => {
+  const limits = { min: 50, max: 200 };
+  assert.equal(normalizeNumber("112.25", limits, 100), 112.3);
+  assert.equal(normalizeNumber(250, limits, 100), 200);
+  assert.equal(normalizeNumber("12", limits, 100), 50);
+  assert.equal(normalizeNumber("", limits, 100), 100);
+  assert.equal(normalizeNumber("wide", limits, 100), 100);
+});
+
 test("normalizeBeamConfig rejects one bad field without dropping its valid neighbours", () => {
   const config = normalizeBeamConfig({
     pack: false,
@@ -406,13 +416,12 @@ test("normalizeBeamConfig rejects one bad field without dropping its valid neigh
     cursor: "native",
   });
   assert.deepEqual(config, {
+    ...BEAM_DEFAULTS,
     pack: false,
-    caretLight: BEAM_DEFAULTS.caretLight,
     caretDark: "#aabbcc",
     caretShape: "bar",
     caretBlink: true,
     wash: false,
-    washIntensity: BEAM_DEFAULTS.washIntensity,
     cursor: "native",
   });
 });
@@ -430,8 +439,13 @@ test("computeThemeVars publishes the researched caret pair, and the default pain
   assert.equal(base["--svy-beam-caret-dark"], "#48d0c0");
   assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
   assert.equal(base["--svy-beam-caret-dark-p3"], "oklch(0.78 0.15 184)");
-  assert.equal(base["--svy-beam-caret-shape"], "block");
+  assert.equal(BEAM_DEFAULTS.caretShape, "beam");
+  assert.equal(base["--svy-beam-caret-shape"], "bar");
   assert.equal(base["--svy-beam-caret-animation"], "manual");
+  assert.equal(base["--svy-beam-caret-preview-width"], "3px");
+  assert.equal(base["--svy-beam-caret-preview-height"], "16.4px");
+  assert.equal(base["--svy-beam-caret-radius"], "3px");
+  assert.equal(base["--svy-beam-caret-opacity"], "1");
   assert.equal(base["--svy-beam-wash-radius"], "4px");
 
   // The 2026-08-07 default: caret only, no focus wash.
@@ -557,7 +571,7 @@ test("renderThemeVarsCss emits the :root block, the dark signal block, and the O
 
   assert.deepEqual(rules[0].selectors, [":root"]);
   assert.deepEqual(Object.keys(rules[0].declarations), Object.keys(base));
-  assert.equal(Object.keys(base).length, 15);
+  assert.equal(Object.keys(base).length, 19);
 
   assert.deepEqual(rules[1].selectors, [...DARK_SELECTORS]);
   assert.deepEqual(rules[1].media, []);

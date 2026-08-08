@@ -21,7 +21,8 @@ const expectedCssLayers = [
   "10-fixes-dark.css",
   "20-plugins.css",
   "30-absorbed.css",
-  "40-beam.css",
+    "40-beam.css",
+    "41-beam-motion.css",
 ];
 
 const run = promisify(execFile);

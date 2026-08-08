@@ -108,7 +108,7 @@
 
     a:hover { color: var(--accent); }
 
-    button, input { font: inherit; }
+    button, input, select { font: inherit; }
 
     button, a { -webkit-tap-highlight-color: transparent; }
 
@@ -398,6 +398,100 @@
 
     .color-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 
+    .beam-lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+      gap: clamp(26px, 5vw, 58px);
+      margin-bottom: 28px;
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--raised);
+      box-shadow: var(--shadow);
+    }
+
+    .beam-stage {
+      display: grid;
+      min-height: 260px;
+      place-items: center;
+      padding: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .beam-line {
+      color: var(--text-strong);
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 620;
+      letter-spacing: -0.025em;
+      line-height: 30px;
+      white-space: nowrap;
+    }
+
+    .beam-cell {
+      position: relative;
+      display: inline-block;
+      width: 14px;
+      height: 30px;
+      vertical-align: -8px;
+    }
+
+    .beam-cell-glyph { position: relative; z-index: 0; }
+
+    .beam-demo-caret {
+      position: absolute;
+      z-index: 1;
+      box-sizing: border-box;
+      pointer-events: none;
+      will-change: transform, filter, opacity;
+    }
+
+    .beam-demo-caret[data-behavior="glide"] { animation: demo-glide 1.6s ease-in-out infinite alternate; }
+    .beam-demo-caret[data-behavior="breathe"] { animation: demo-breathe 1.8s ease-in-out infinite alternate; }
+    .beam-demo-caret[data-behavior="comet"] { animation: demo-comet 1.4s ease-in-out infinite alternate; }
+    .beam-demo-caret.demo-ping { animation: demo-ping 160ms ease-out; }
+
+    @keyframes demo-ping {
+      0% { filter: brightness(1); }
+      42% { filter: brightness(1.5) saturate(1.18); }
+      100% { filter: brightness(1); }
+    }
+
+    @keyframes demo-glide { to { transform: translateX(7px); } }
+    @keyframes demo-breathe { from { filter: brightness(0.86); } to { filter: brightness(1.16); } }
+    @keyframes demo-comet { to { transform: translateX(9px); filter: brightness(1.25); } }
+
+    .beam-controls { display: grid; align-content: center; gap: 15px; }
+
+    .beam-control { display: grid; gap: 6px; }
+
+    .beam-control-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .beam-control output { color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .beam-control select {
+      width: 100%;
+      min-height: 38px;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .beam-control input[type="range"] { width: 100%; accent-color: var(--caret); }
+
+    .beam-note { margin: 4px 0 0; color: var(--faint); font-size: 12px; }
+
     .color-card {
       min-height: 240px;
       padding: 28px;
@@ -481,6 +575,7 @@
       .hero-actions { justify-content: center; }
       .roam-window { max-width: 620px; margin-inline: auto; transform: none; }
       .install-card { grid-template-columns: 1fr; align-items: start; }
+      .beam-lab { grid-template-columns: 1fr; }
       .asset-links { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
     }
 
@@ -491,6 +586,8 @@
       .window-body { grid-template-columns: 1fr; }
       .sidebar { display: none; }
       .color-grid { grid-template-columns: 1fr; }
+      .beam-stage { min-height: 190px; padding-inline: 12px; }
+      .beam-line { font-size: 18px; }
       .color-card { min-height: 220px; }
       .url-row { flex-direction: column; }
       .url-row .button { width: 100%; }
@@ -500,7 +597,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      *, *::before, *::after { transition-duration: 0.01ms !important; }
+      *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
     }
 
     @media (forced-colors: active) {
@@ -578,6 +675,40 @@
         <h2 id="caret-heading">One identity hue, tuned for each surface.</h2>
         <p>The caret remains recognizably teal in both modes, but its lightness changes to preserve visibility instead of forcing one hex value everywhere.</p>
       </div>
+      <div class="beam-lab" aria-label="Interactive Svy Beam cursor lab">
+        <div class="beam-stage" aria-live="polite">
+          <div class="beam-line">Make the next thought <span class="beam-cell"><span class="beam-cell-glyph">v</span><span class="beam-demo-caret" id="beam-demo" aria-hidden="true"></span></span>isible.</div>
+        </div>
+        <div class="beam-controls">
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Shape</span></span>
+            <select id="beam-shape">
+              <option value="beam">beam</option><option value="block">block</option><option value="outline">outline</option><option value="underline">underline</option><option value="bar">bar</option><option value="native">native</option>
+            </select>
+          </label>
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Width scale</span><output id="beam-width-out">100%</output></span>
+            <input id="beam-width" type="range" min="50" max="200" value="100">
+          </label>
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Height</span><output id="beam-height-out">82%</output></span>
+            <input id="beam-height" type="range" min="30" max="120" value="82">
+          </label>
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Corner radius</span><output id="beam-radius-out">3px</output></span>
+            <input id="beam-radius" type="range" min="0" max="12" value="3">
+          </label>
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Glow</span></span>
+            <select id="beam-glow"><option value="soft">soft</option><option value="none">none</option><option value="halo">halo</option></select>
+          </label>
+          <label class="beam-control">
+            <span class="beam-control-label"><span>Behavior</span></span>
+            <select id="beam-behavior"><option value="responsive">responsive</option><option value="steady">steady</option><option value="glide">glide</option><option value="breathe">breathe</option><option value="comet">comet</option></select>
+          </label>
+          <p class="beam-note">The Roam settings add opacity and classic blink too. All motion becomes steady when Reduce Motion is enabled.</p>
+        </div>
+      </div>
       <div class="color-grid">
         <article class="color-card light">
           <div class="color-label"><span>Light mode</span><span>6.19:1</span></div>
@@ -639,9 +770,64 @@
     themeToggle.addEventListener("click", () => {
       root.dataset.theme = currentTheme() === "dark" ? "light" : "dark";
       updateThemeLabel();
+      updateBeamDemo();
     });
-    darkQuery.addEventListener?.("change", updateThemeLabel);
+    darkQuery.addEventListener?.("change", () => { updateThemeLabel(); updateBeamDemo(); });
     updateThemeLabel();
+
+    const beamDemo = document.querySelector("#beam-demo");
+    const beamInputs = {
+      shape: document.querySelector("#beam-shape"),
+      width: document.querySelector("#beam-width"),
+      height: document.querySelector("#beam-height"),
+      radius: document.querySelector("#beam-radius"),
+      glow: document.querySelector("#beam-glow"),
+      behavior: document.querySelector("#beam-behavior"),
+    };
+    let beamPingTimer;
+
+    function updateBeamDemo(ping = false) {
+      const shape = beamInputs.shape.value;
+      const widthScale = Number(beamInputs.width.value) / 100;
+      const heightScale = Number(beamInputs.height.value) / 100;
+      const lineHeight = 30;
+      let width = 14 * widthScale;
+      let height = lineHeight * heightScale;
+      let left = 0;
+      let top = (lineHeight - height) / 2;
+
+      if (shape === "beam") { width = 3 * widthScale; left = -width / 2; }
+      if (shape === "bar") { width = 2 * widthScale; left = -width / 2; }
+      if (shape === "native") { width = 2; height = lineHeight; left = -1; top = 0; }
+      if (shape === "underline") { height = Math.max(2, Math.min(6, lineHeight * 0.16 * (Number(beamInputs.height.value) / 82))); top = lineHeight - height; }
+
+      const glow = shape === "native" ? "none" : beamInputs.glow.value;
+      const color = getComputedStyle(root).getPropertyValue("--caret").trim();
+      beamDemo.dataset.shape = shape;
+      beamDemo.dataset.behavior = shape === "native" ? "steady" : beamInputs.behavior.value;
+      beamDemo.style.width = `${width}px`;
+      beamDemo.style.height = `${height}px`;
+      beamDemo.style.left = `${left}px`;
+      beamDemo.style.top = `${top}px`;
+      beamDemo.style.borderRadius = `${Math.min(Number(beamInputs.radius.value), width / 2, height / 2)}px`;
+      beamDemo.style.background = shape === "outline" ? "transparent" : color;
+      beamDemo.style.border = shape === "outline" ? `1.5px solid ${color}` : "0";
+      beamDemo.style.boxShadow = glow === "halo" ? `0 0 15px 4px ${color}66` : glow === "soft" ? `0 0 8px ${color}55` : "none";
+      document.querySelector("#beam-width-out").value = `${beamInputs.width.value}%`;
+      document.querySelector("#beam-height-out").value = `${beamInputs.height.value}%`;
+      document.querySelector("#beam-radius-out").value = `${beamInputs.radius.value}px`;
+
+      if (ping && beamInputs.behavior.value === "responsive") {
+        beamDemo.classList.remove("demo-ping");
+        void beamDemo.offsetWidth;
+        beamDemo.classList.add("demo-ping");
+        window.clearTimeout(beamPingTimer);
+        beamPingTimer = window.setTimeout(() => beamDemo.classList.remove("demo-ping"), 190);
+      }
+    }
+
+    for (const input of Object.values(beamInputs)) input.addEventListener("input", () => updateBeamDemo(true));
+    updateBeamDemo();
 
     const copyButton = document.querySelector("#copy-url");
     const extensionUrl = document.querySelector("#extension-url");

@@ -4,6 +4,8 @@ import test from "node:test";
 
 import {
   BLOCK_CARET_CLASS,
+  CARET_OVERLAY_CLASS,
+  computeCaretBox,
   installCaretOverlay,
   isTextTarget,
   measureCaretRect,
@@ -69,12 +71,13 @@ function makeElement(tag, ownerDocument) {
   return element;
 }
 
-function createFakeWindow() {
+function createFakeWindow({ reducedMotion = false } = {}) {
   const listeners = [];
   return {
     listeners,
     addEventListener: (type, listener, options) => listeners.push({ type, listener, options }),
     removeEventListener() {},
+    matchMedia: () => ({ matches: reducedMotion }),
     getComputedStyle: () =>
       new Proxy(
         { getPropertyValue: (name) => (name === "--svy-beam-caret" ? " #48d0c0" : "") },
@@ -116,11 +119,12 @@ function makeTextarea(doc, value = "hello", selectionStart = value.length) {
   return element;
 }
 
-test("needsOverlay: only pack on + block shape + no native support", () => {
+test("needsOverlay: every custom style paints while native and pack-off do not", () => {
   assert.equal(needsOverlay({ pack: true, caretShape: "block", nativeSupported: false }), true);
   assert.equal(needsOverlay({ pack: false, caretShape: "block", nativeSupported: false }), false);
-  assert.equal(needsOverlay({ pack: true, caretShape: "bar", nativeSupported: false }), false);
-  assert.equal(needsOverlay({ pack: true, caretShape: "block", nativeSupported: true }), false);
+  assert.equal(needsOverlay({ pack: true, caretShape: "bar", nativeSupported: false }), true);
+  assert.equal(needsOverlay({ pack: true, caretShape: "beam", nativeSupported: true }), true);
+  assert.equal(needsOverlay({ pack: true, caretShape: "native", nativeSupported: false }), false);
 });
 
 test("supportsNativeCaretShape probes CSS.supports and tolerates its absence", () => {
@@ -164,6 +168,23 @@ test("measureCaretRect reports an empty glyph at end of value", () => {
   assert.ok(rect.width > 0, "end-of-line still measures a cell width");
 });
 
+test("computeCaretBox makes the default a centered 3px by 82% rounded-beam footprint", () => {
+  assert.deepEqual(
+    computeCaretBox({ x: 100, y: 50, width: 8, height: 20 }, BEAM_DEFAULTS),
+    { x: 98.5, y: 52, width: 3, height: 16.5, lineOffset: 2 },
+  );
+});
+
+test("computeCaretBox scales cell styles and anchors underlines to the baseline", () => {
+  const rect = { x: 100, y: 50, width: 8, height: 20 };
+  const block = computeCaretBox(rect, { ...BEAM_DEFAULTS, caretShape: "block", caretWidth: 150, caretHeight: 50 });
+  assert.deepEqual(block, { x: 100, y: 55, width: 12, height: 10, lineOffset: 5 });
+  const underline = computeCaretBox(rect, { ...BEAM_DEFAULTS, caretShape: "underline", caretWidth: 75 });
+  assert.equal(underline.x, 100);
+  assert.equal(underline.width, 6);
+  assert.equal(underline.y + underline.height, 70);
+});
+
 test("overlay stamps the suppression class on focus and clears it on blur", async () => {
   const win = createFakeWindow();
   const doc = createFakeDocument(win);
@@ -180,7 +201,10 @@ test("overlay stamps the suppression class on focus and clears it on blur", asyn
   doc.fire("focusin", { target: textarea });
   assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), true);
   assert.equal(overlay.active, true);
-  assert.ok(doc.created.some((element) => element.style.position === "fixed"), "overlay element created");
+  assert.ok(
+    doc.created.some((element) => element.style.position === "fixed" && element.classList.contains(CARET_OVERLAY_CLASS)),
+    "overlay element created",
+  );
 
   doc.fire("focusout", { target: textarea });
   // The blur path defers one task to outlive Roam's focus juggling.
@@ -209,7 +233,7 @@ test("overlay follows an already-focused target on refresh", () => {
   assert.equal(overlay.active, true);
 });
 
-test("an explicit bar shape keeps the overlay off", () => {
+test("an explicit bar remains customizable and uses the overlay", () => {
   const win = createFakeWindow();
   const doc = createFakeDocument(win);
   installCaretOverlay({
@@ -220,7 +244,7 @@ test("an explicit bar shape keeps the overlay off", () => {
     nativeSupported: false,
   });
   doc.fire("focusin", { target: makeTextarea(doc) });
-  assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), false);
+  assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), true);
 });
 
 test("pack off keeps the overlay off", () => {
@@ -237,7 +261,7 @@ test("pack off keeps the overlay off", () => {
   assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), false);
 });
 
-test("native caret-shape support makes the installer inert", () => {
+test("native caret-shape support does not disable Svy's extended renderer", () => {
   const win = createFakeWindow();
   const doc = createFakeDocument(win);
   const overlay = installCaretOverlay({
@@ -250,7 +274,36 @@ test("native caret-shape support makes the installer inert", () => {
   assert.equal(overlay.active, false);
   assert.doesNotThrow(() => overlay.refresh());
   doc.fire("focusin", { target: makeTextarea(doc) });
+  assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), true);
+});
+
+test("the explicit native shape makes the installer inert", () => {
+  const win = createFakeWindow();
+  const doc = createFakeDocument(win);
+  const overlay = installCaretOverlay({
+    extensionAPI: fakeExtensionApi({ [BEAM_SETTING_IDS.caretShape]: "native" }),
+    lifecycle: createLifecycle(),
+    doc,
+    win,
+    nativeSupported: false,
+  });
+  doc.fire("focusin", { target: makeTextarea(doc) });
+  assert.equal(overlay.active, false);
   assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), false);
+});
+
+test("Reduce Motion forces animated behavior presets to steady", () => {
+  const win = createFakeWindow({ reducedMotion: true });
+  const doc = createFakeDocument(win);
+  installCaretOverlay({
+    extensionAPI: fakeExtensionApi({ [BEAM_SETTING_IDS.caretBehavior]: "comet" }),
+    lifecycle: createLifecycle(),
+    doc,
+    win,
+  });
+  doc.fire("focusin", { target: makeTextarea(doc) });
+  const overlay = doc.created.find((element) => element.classList.contains(CARET_OVERLAY_CLASS));
+  assert.equal(overlay.getAttribute("data-behavior"), "steady");
 });
 
 test("install is a no-op without a DOM", () => {
@@ -265,17 +318,17 @@ test("install is a no-op without a DOM", () => {
   assert.doesNotThrow(() => overlay.refresh());
 });
 
-test("regression: 40-beam.css delivers caret-shape: block on the text-target scope by default", async () => {
+test("regression: 40-beam.css carries a native bar fallback and custom-caret suppression", async () => {
   const layer = await readFile(BEAM_LAYER_URL, "utf8");
-  assert.match(layer, /caret-shape: var\(--svy-beam-caret-shape, block\) !important;/);
+  assert.match(layer, /caret-shape: var\(--svy-beam-caret-shape, bar\) !important;/);
   assert.match(layer, /caret-animation: var\(--svy-beam-caret-animation, manual\) !important;/);
   // The overlay's native-caret suppression must exist and stay behind the pack gate.
   assert.match(layer, /:not\(\.svy-off-beam\)\.svy-block-caret[\s\S]*?caret-color: transparent !important;/);
 
-  // The published default is block; an explicit bar setting must still publish bar.
-  assert.equal(computeThemeVars(BEAM_DEFAULTS).base["--svy-beam-caret-shape"], "block");
+  // The Svy beam progressively falls back to a native bar; CSS UI shapes map directly.
+  assert.equal(computeThemeVars(BEAM_DEFAULTS).base["--svy-beam-caret-shape"], "bar");
   assert.equal(
-    computeThemeVars({ ...BEAM_DEFAULTS, caretShape: "bar" }).base["--svy-beam-caret-shape"],
-    "bar",
+    computeThemeVars({ ...BEAM_DEFAULTS, caretShape: "block" }).base["--svy-beam-caret-shape"],
+    "block",
   );
 });

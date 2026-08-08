@@ -23,15 +23,30 @@ export const BEAM_SETTING_IDS = Object.freeze({
   caretLight: "bp-beam-caret-light",
   caretDark: "bp-beam-caret-dark",
   caretShape: "bp-beam-caret-shape",
+  caretWidth: "bp-beam-caret-width",
+  caretHeight: "bp-beam-caret-height",
+  caretRadius: "bp-beam-caret-radius",
+  caretOpacity: "bp-beam-caret-opacity",
+  caretGlow: "bp-beam-caret-glow",
+  caretBehavior: "bp-beam-caret-behavior",
   caretBlink: "bp-beam-caret-blink",
   wash: "bp-beam-wash",
   washIntensity: "bp-beam-wash-intensity",
   cursor: "bp-beam-cursor",
 });
 
-export const CARET_SHAPES = Object.freeze(["block", "bar"]);
+export const CARET_SHAPES = Object.freeze(["beam", "block", "outline", "underline", "bar", "native"]);
+export const CARET_GLOWS = Object.freeze(["soft", "none", "halo"]);
+export const CARET_BEHAVIORS = Object.freeze(["responsive", "steady", "glide", "breathe", "comet"]);
 export const WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 export const CURSOR_STYLES = Object.freeze(["svy", "native"]);
+
+export const CARET_CONTROL_LIMITS = Object.freeze({
+  caretWidth: Object.freeze({ min: 50, max: 200 }),
+  caretHeight: Object.freeze({ min: 30, max: 120 }),
+  caretRadius: Object.freeze({ min: 0, max: 12 }),
+  caretOpacity: Object.freeze({ min: 45, max: 100 }),
+});
 
 // Beam v1's light caret. Kept as a named constant because initializeBeamSettings has to
 // recognize it to run the one-time migration to the value below; nothing else reads it.
@@ -43,6 +58,10 @@ export const LEGACY_CARET_LIGHT = "#008478";
 // BEAM_DEFAULTS[key], and this marker has no BEAM_DEFAULTS entry, so including it would
 // persist `undefined`. It is also not a settings row — it is bookkeeping, not a knob.
 export const WASH_MIGRATION_SETTING_ID = "bp-beam-wash-migrated-2026-08-07";
+
+// The full-cell block was the pre-v3 default. This marker lets one upgrade move that
+// exact old experience to the quieter rounded beam while leaving later choices alone.
+export const CARET_V3_MIGRATION_SETTING_ID = "bp-beam-caret-v3-migrated-2026-08-08";
 
 // Dark caret is #48D0C0 (APCA Lc -62.9 on #202B33) per the U6 design-token research;
 // it replaces Beam v1's #66E3D0. The light caret moved off Beam v1's #008478 (Lc 66.8)
@@ -58,7 +77,13 @@ export const BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
-  caretShape: "block",
+  caretShape: "beam",
+  caretWidth: 100,
+  caretHeight: 82,
+  caretRadius: 3,
+  caretOpacity: 100,
+  caretGlow: "soft",
+  caretBehavior: "responsive",
   caretBlink: false,
   wash: false,
   washIntensity: "off",
@@ -115,12 +140,31 @@ export function normalizeSwitch(value, fallback) {
   return fallback;
 }
 
+// Numeric settings arrive as strings from Roam's generic input rows. Clamp them here so
+// a synced typo cannot create an invisible caret or a screen-sized overlay. One decimal
+// place is retained for people who want genuinely fine control without publishing noisy
+// floating-point values.
+export function normalizeNumber(value, { min, max }, fallback) {
+  if ((typeof value !== "string" && typeof value !== "number") || String(value).trim() === "") {
+    return fallback;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.round(Math.min(max, Math.max(min, parsed)) * 10) / 10;
+}
+
 export function normalizeBeamConfig(raw = {}) {
   return {
     pack: normalizeSwitch(raw.pack, BEAM_DEFAULTS.pack),
     caretLight: normalizeHex(raw.caretLight, BEAM_DEFAULTS.caretLight),
     caretDark: normalizeHex(raw.caretDark, BEAM_DEFAULTS.caretDark),
     caretShape: normalizeChoice(raw.caretShape, CARET_SHAPES, BEAM_DEFAULTS.caretShape),
+    caretWidth: normalizeNumber(raw.caretWidth, CARET_CONTROL_LIMITS.caretWidth, BEAM_DEFAULTS.caretWidth),
+    caretHeight: normalizeNumber(raw.caretHeight, CARET_CONTROL_LIMITS.caretHeight, BEAM_DEFAULTS.caretHeight),
+    caretRadius: normalizeNumber(raw.caretRadius, CARET_CONTROL_LIMITS.caretRadius, BEAM_DEFAULTS.caretRadius),
+    caretOpacity: normalizeNumber(raw.caretOpacity, CARET_CONTROL_LIMITS.caretOpacity, BEAM_DEFAULTS.caretOpacity),
+    caretGlow: normalizeChoice(raw.caretGlow, CARET_GLOWS, BEAM_DEFAULTS.caretGlow),
+    caretBehavior: normalizeChoice(raw.caretBehavior, CARET_BEHAVIORS, BEAM_DEFAULTS.caretBehavior),
     caretBlink: normalizeSwitch(raw.caretBlink, BEAM_DEFAULTS.caretBlink),
     wash: normalizeSwitch(raw.wash, BEAM_DEFAULTS.wash),
     washIntensity: normalizeChoice(raw.washIntensity, WASH_INTENSITIES, BEAM_DEFAULTS.washIntensity),
@@ -135,6 +179,12 @@ export function readBeamSettings(extensionAPI) {
     caretLight: get(BEAM_SETTING_IDS.caretLight),
     caretDark: get(BEAM_SETTING_IDS.caretDark),
     caretShape: get(BEAM_SETTING_IDS.caretShape),
+    caretWidth: get(BEAM_SETTING_IDS.caretWidth),
+    caretHeight: get(BEAM_SETTING_IDS.caretHeight),
+    caretRadius: get(BEAM_SETTING_IDS.caretRadius),
+    caretOpacity: get(BEAM_SETTING_IDS.caretOpacity),
+    caretGlow: get(BEAM_SETTING_IDS.caretGlow),
+    caretBehavior: get(BEAM_SETTING_IDS.caretBehavior),
     caretBlink: get(BEAM_SETTING_IDS.caretBlink),
     wash: get(BEAM_SETTING_IDS.wash),
     washIntensity: get(BEAM_SETTING_IDS.washIntensity),
@@ -245,9 +295,23 @@ export function computeThemeVars(config) {
     }
   }
 
-  base["--svy-beam-caret-shape"] = normalized.caretShape;
+  // The overlay implements Svy's extended styles. These mappings are the progressive
+  // fallback when JavaScript is unavailable and for the explicit native option.
+  const nativeShape = {
+    beam: "bar",
+    block: "block",
+    outline: "block",
+    underline: "underscore",
+    bar: "bar",
+    native: "auto",
+  }[normalized.caretShape];
+  base["--svy-beam-caret-shape"] = nativeShape;
   // caret-animation: manual means the author owns the animation, i.e. no blink.
   base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
+  base["--svy-beam-caret-preview-width"] = `${3 * (normalized.caretWidth / 100)}px`;
+  base["--svy-beam-caret-preview-height"] = `${20 * (normalized.caretHeight / 100)}px`;
+  base["--svy-beam-caret-radius"] = `${normalized.caretRadius}px`;
+  base["--svy-beam-caret-opacity"] = `${normalized.caretOpacity / 100}`;
   base["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
   base["--svy-beam-wash-radius"] = WASH_RADIUS;
 
