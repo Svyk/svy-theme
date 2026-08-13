@@ -40,6 +40,16 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Auto appearance actually follows the system.** `applyAppearance("auto")` used to
+  clear only `.bp3-light`, so a settings jump from Dark to Auto left `.bp3-dark` stamped
+  and the page dark forever; Auto now clears both forced stamps, and
+  `data-bp-appearance` on `<html>` records the setting separately from the resolved
+  theme class. The dark-signal bridge now treats the OS `prefers-color-scheme: dark`
+  media query as a dark signal in Auto — stamping its own removable `.bp3-dark` and
+  re-syncing when the media query changes — so Roam core and extensions keyed only on
+  `.bp3-dark` follow the OS. The topbar toggle shows the current mode (`Auto` / `Dark` /
+  `Light`) next to the icon, with a matching `title` / `aria-label`, and the settings
+  description documents the cycle.
 - **README settings drift.** The settings table now matches the shipped runtime defaults:
   light caret `#00695E`, focus wash off, and wash intensity off.
 - **Theme-adaptive cursors.** Beam v1 painted one cursor set on both surfaces, with

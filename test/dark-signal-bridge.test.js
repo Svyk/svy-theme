@@ -66,6 +66,22 @@ function createFakeObserverImpl() {
 
 const AUTO = { [SETTING_IDS.appearance]: "auto" };
 
+// Fake MediaQueryList: defaults to light so pre-existing tests never flip dark.
+// `fire(next)` flips `matches` and delivers the change event like a real OS toggle.
+function createFakeMediaQueryList(initialMatches = false) {
+  const listeners = new Set();
+  return {
+    matches: initialMatches,
+    addEventListener: (type, listener) => { if (type === "change") listeners.add(listener); },
+    removeEventListener: (type, listener) => { listeners.delete(listener); },
+    get listenerCount() { return listeners.size; },
+    fire(nextMatches) {
+      this.matches = nextMatches;
+      for (const listener of [...listeners]) listener({ matches: nextMatches });
+    },
+  };
+}
+
 test("detectDarkSignals reads each supported marker", () => {
   const doc = createFakeDocument();
   assert.equal(detectDarkSignals(doc), false);
@@ -162,7 +178,10 @@ test("does not claim ownership of a .bp3-dark stamp it did not place", () => {
 
   // Someone else (Roam, another extension) stamped .bp3-dark before we loaded.
   doc.documentElement.classList.add("bp3-dark");
-  installDarkSignalBridge({ extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0 });
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => createFakeMediaQueryList(false), // light OS: no stamp signal
+  });
 
   const bodyObserver = ObserverImpl.instances.find((instance) => instance.observedTarget === doc.body);
   // A marker appears and leaves again: the pre-existing stamp must survive both passes.
@@ -203,6 +222,114 @@ test("dispose disconnects both observers and clears the settle timer", async () 
 
   await lifecycle.dispose();
   assert.ok(ObserverImpl.instances.every((instance) => instance.disconnected));
+});
+
+test("bridgeAction: the OS dark preference is a stamp signal in auto", () => {
+  const base = { signalsPresent: false, appearance: "auto", bridgeStamped: false, rootHasDark: false };
+  assert.equal(bridgeAction({ ...base, systemPrefersDark: true }), "stamp");
+  assert.equal(bridgeAction({ ...base, systemPrefersDark: true, rootHasDark: true }), "none");
+  assert.equal(bridgeAction({ ...base, systemPrefersDark: false, bridgeStamped: true }), "unstamp");
+});
+
+test("bridgeAction: explicit dark/light still wins over the OS preference", () => {
+  for (const appearance of ["dark", "light"]) {
+    assert.equal(
+      bridgeAction({ signalsPresent: false, systemPrefersDark: true, appearance, bridgeStamped: false, rootHasDark: false }),
+      "none",
+    );
+  }
+});
+
+test("install stamps .bp3-dark in auto when the OS prefers dark, no markers needed", () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(true);
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => mql,
+  });
+
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"),
+    "OS dark must stamp .bp3-dark in auto even with no class markers");
+  return lifecycle.dispose();
+});
+
+test("install does not stamp when the OS prefers light", () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(false);
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => mql,
+  });
+
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"));
+  return lifecycle.dispose();
+});
+
+test("an OS preference change stamps and un-stamps through the media query listener", async () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(false);
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => mql,
+  });
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"));
+  assert.equal(mql.listenerCount, 1, "expected a change listener on the media query");
+
+  mql.fire(true);
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+
+  mql.fire(false);
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"),
+    "the bridge's own stamp must be removed when the OS goes light");
+
+  await lifecycle.dispose();
+  assert.equal(mql.listenerCount, 0, "dispose must unsubscribe the media query listener");
+});
+
+test("a light OS never removes a .bp3-dark the bridge did not place", () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(false);
+
+  // Roam's own stamp predates us; a light OS must leave it alone.
+  doc.documentElement.classList.add("bp3-dark");
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => mql,
+  });
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+
+  mql.fire(true);
+  mql.fire(false);
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"),
+    "bridge must not remove a .bp3-dark it never stamped, even across OS flips");
+
+  return lifecycle.dispose();
+});
+
+test("install accepts an injected win carrying matchMedia", () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(true);
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    win: { matchMedia: () => mql },
+  });
+
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+  return lifecycle.dispose();
 });
 
 test("install is a no-op outside a browser-like environment", () => {

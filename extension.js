@@ -783,7 +783,7 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: SETTING_IDS.appearance,
       name: "Appearance",
-      description: "Light/dark mode for the Blueprint theme. Auto defers to Roam's own theme setting; the topbar toggle cycles the same three values.",
+      description: "Auto follows your system (and Roam) and updates when it changes. Dark and Light stay put. The topbar control is labeled Auto, Dark, or Light — click it to cycle Auto → Dark → Light.",
       action: {
         type: "select",
         items: [...APPEARANCE_MODES],
@@ -900,9 +900,12 @@ function detectDarkSignals(doc) {
     hasClass(body, "bt-theme-dark") || hasClass(body, "roam-body") && hasClass(body, "dark") || hasClass(body, "rm-dark-theme") || hasClass(root, "rm-dark-theme")
   );
 }
-function bridgeAction({ signalsPresent, appearance, bridgeStamped, rootHasDark }) {
+function detectSystemPrefersDark(mediaQuery) {
+  return Boolean(mediaQuery?.matches);
+}
+function bridgeAction({ signalsPresent, appearance, bridgeStamped, rootHasDark, systemPrefersDark = false }) {
   if (normalizeMode(appearance) !== "auto") return "none";
-  if (signalsPresent) return rootHasDark ? "none" : "stamp";
+  if (signalsPresent || systemPrefersDark) return rootHasDark ? "none" : "stamp";
   return bridgeStamped ? "unstamp" : "none";
 }
 function installDarkSignalBridge({
@@ -910,14 +913,19 @@ function installDarkSignalBridge({
   lifecycle,
   doc = globalThis.document,
   ObserverImpl = globalThis.MutationObserver,
-  settleDelayMs = SETTLE_DELAY_MS
+  settleDelayMs = SETTLE_DELAY_MS,
+  win = globalThis.window,
+  matchMedia
 }) {
   if (!doc?.documentElement?.classList || !doc?.body || typeof ObserverImpl !== "function") return;
+  const mm = matchMedia ?? win?.matchMedia?.bind(win);
+  const mql = typeof mm === "function" ? mm("(prefers-color-scheme: dark)") : null;
   let bridgeStamped = false;
   const sync = () => {
     const root = doc.documentElement;
     const action = bridgeAction({
       signalsPresent: detectDarkSignals(doc),
+      systemPrefersDark: detectSystemPrefersDark(mql),
       appearance: extensionAPI.settings.get(SETTING_IDS.appearance),
       bridgeStamped,
       rootHasDark: hasClass(root, "bp3-dark")
@@ -935,6 +943,16 @@ function installDarkSignalBridge({
   const options = { attributes: true, attributeFilter: ["class"], subtree: false };
   lifecycle.observer(new ObserverImpl(sync), doc.body, options);
   lifecycle.observer(new ObserverImpl(sync), doc.documentElement, options);
+  if (mql) {
+    const onMediaChange = () => sync();
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", onMediaChange);
+      lifecycle.add(() => mql.removeEventListener("change", onMediaChange));
+    } else if (typeof mql.addListener === "function") {
+      mql.addListener(onMediaChange);
+      lifecycle.add(() => mql.removeListener(onMediaChange));
+    }
+  }
   sync();
   lifecycle.timeout(sync, settleDelayMs);
 }
@@ -944,6 +962,14 @@ var ICON_BY_MODE = Object.freeze({ auto: "clean", dark: "moon", light: "flash" }
 var ALL_ICON_CLASSES = Object.freeze(Object.values(ICON_BY_MODE).map((icon) => `bp3-icon-${icon}`));
 var TOGGLE_CLASS = "blueprint-dm-toggle";
 var ICON_CLASS = "blueprint-toggle-icon";
+var WRAP_CLASS = "blueprint-dm-toggle-wrap";
+var LABEL_CLASS = "blueprint-dm-toggle-label";
+var LABEL_BY_MODE = Object.freeze({ auto: "Auto", dark: "Dark", light: "Light" });
+var TOOLTIP_BY_MODE = Object.freeze({
+  auto: "Appearance: Auto (follows system)",
+  dark: "Appearance: Dark",
+  light: "Appearance: Light"
+});
 var CONTAINER_ID = "blueprintToggleDarkMode-flex-space";
 var INSTALL_RETRY_BOUND_MS = 3e4;
 function recordError(err) {
@@ -961,7 +987,15 @@ function applyAppearance(mode, doc = globalThis.document) {
     for (const iconClass of ALL_ICON_CLASSES) button.classList.remove(iconClass);
     button.classList.add(`bp3-icon-${ICON_BY_MODE[normalized]}`);
   }
+  const label = doc.getElementsByClassName?.(LABEL_CLASS)?.[0];
+  if (label) label.textContent = LABEL_BY_MODE[normalized];
+  const wrap = doc.getElementsByClassName?.(WRAP_CLASS)?.[0];
+  if (wrap?.setAttribute) {
+    wrap.setAttribute("title", TOOLTIP_BY_MODE[normalized]);
+    wrap.setAttribute("aria-label", TOOLTIP_BY_MODE[normalized]);
+  }
   const root = doc.documentElement;
+  if (root?.dataset) root.dataset.bpAppearance = normalized;
   if (root?.classList) {
     if (normalized === "dark") {
       root.classList.remove("bp3-light");
@@ -971,6 +1005,7 @@ function applyAppearance(mode, doc = globalThis.document) {
       root.classList.add("bp3-light");
     } else {
       root.classList.remove("bp3-light");
+      root.classList.remove("bp3-dark");
     }
   }
 }
@@ -980,10 +1015,18 @@ function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
   const anchor = topbar?.lastElementChild;
   if (!anchor?.insertAdjacentElement) return false;
   const wrapper = doc.createElement("span");
-  wrapper.className = "bp3-popover-wrapper";
+  const mode = currentMode();
+  wrapper.className = `bp3-popover-wrapper ${WRAP_CLASS}`;
+  wrapper.setAttribute("title", TOOLTIP_BY_MODE[mode]);
+  wrapper.setAttribute("aria-label", TOOLTIP_BY_MODE[mode]);
   const icon = doc.createElement("span");
-  icon.className = `bp3-button bp3-minimal bp3-small bp3-icon-${ICON_BY_MODE[currentMode()]} ${TOGGLE_CLASS} ${ICON_CLASS}`;
+  icon.className = `bp3-button bp3-minimal bp3-small bp3-icon-${ICON_BY_MODE[mode]} ${TOGGLE_CLASS} ${ICON_CLASS}`;
   wrapper.appendChild(icon);
+  const label = doc.createElement("span");
+  label.className = LABEL_CLASS;
+  label.setAttribute("aria-hidden", "true");
+  label.textContent = LABEL_BY_MODE[mode];
+  wrapper.appendChild(label);
   const spacerBefore = doc.createElement("div");
   spacerBefore.className = `rm-topbar__spacer-sm ${TOGGLE_CLASS}`;
   spacerBefore.id = CONTAINER_ID;
@@ -998,9 +1041,9 @@ function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
   lifecycle.add(() => spacerAfter.remove());
   const handleClick = async () => {
     try {
-      const mode = nextMode(currentMode());
-      if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode);
-      applyAppearance(mode, doc);
+      const mode2 = nextMode(currentMode());
+      if (extensionAPI.settings.canSet !== false) await extensionAPI.settings.set(SETTING_IDS.appearance, mode2);
+      applyAppearance(mode2, doc);
     } catch (err) {
       recordError(err);
       throw err;

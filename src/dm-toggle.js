@@ -8,6 +8,14 @@ const ICON_BY_MODE = Object.freeze({ auto: "clean", dark: "moon", light: "flash"
 const ALL_ICON_CLASSES = Object.freeze(Object.values(ICON_BY_MODE).map((icon) => `bp3-icon-${icon}`));
 const TOGGLE_CLASS = "blueprint-dm-toggle";
 const ICON_CLASS = "blueprint-toggle-icon";
+const WRAP_CLASS = "blueprint-dm-toggle-wrap";
+const LABEL_CLASS = "blueprint-dm-toggle-label";
+const LABEL_BY_MODE = Object.freeze({ auto: "Auto", dark: "Dark", light: "Light" });
+const TOOLTIP_BY_MODE = Object.freeze({
+  auto: "Appearance: Auto (follows system)",
+  dark: "Appearance: Dark",
+  light: "Appearance: Light",
+});
 const CONTAINER_ID = "blueprintToggleDarkMode-flex-space";
 
 // Bound on how long we'll wait for .rm-topbar to mount before giving up. A URL-installed
@@ -39,7 +47,21 @@ export function applyAppearance(mode, doc = globalThis.document) {
     button.classList.add(`bp3-icon-${ICON_BY_MODE[normalized]}`);
   }
 
+  // The label and the wrapper's tooltip mirror the setting. Both are skipped when the
+  // toggle isn't mounted yet (applyAppearance runs before mount on install); mount
+  // initializes them from currentMode().
+  const label = doc.getElementsByClassName?.(LABEL_CLASS)?.[0];
+  if (label) label.textContent = LABEL_BY_MODE[normalized];
+
+  const wrap = doc.getElementsByClassName?.(WRAP_CLASS)?.[0];
+  if (wrap?.setAttribute) {
+    wrap.setAttribute("title", TOOLTIP_BY_MODE[normalized]);
+    wrap.setAttribute("aria-label", TOOLTIP_BY_MODE[normalized]);
+  }
+
   const root = doc.documentElement;
+  // The setting is inspectable separately from the resolved theme class.
+  if (root?.dataset) root.dataset.bpAppearance = normalized;
   if (root?.classList) {
     if (normalized === "dark") {
       root.classList.remove("bp3-light");
@@ -48,8 +70,12 @@ export function applyAppearance(mode, doc = globalThis.document) {
       root.classList.remove("bp3-dark");
       root.classList.add("bp3-light");
     } else {
-      // Auto: yield to Roam's own bp3-dark preference, only clear our light override.
+      // Auto owns no forced stamp: clear both. The dark-signal bridge re-stamps
+      // .bp3-dark when the OS or a third-party marker says dark (its documentElement
+      // observer fires on this very mutation), and Roam's own stamp is untouched
+      // because the bridge only ever removes stamps it placed.
       root.classList.remove("bp3-light");
+      root.classList.remove("bp3-dark");
     }
   }
 }
@@ -64,11 +90,22 @@ function mountToggle({ doc, extensionAPI, lifecycle, currentMode }) {
   if (!anchor?.insertAdjacentElement) return false; // topbar not ready yet
 
   const wrapper = doc.createElement("span");
-  wrapper.className = "bp3-popover-wrapper";
+  const mode = currentMode();
+  wrapper.className = `bp3-popover-wrapper ${WRAP_CLASS}`;
+  wrapper.setAttribute("title", TOOLTIP_BY_MODE[mode]);
+  wrapper.setAttribute("aria-label", TOOLTIP_BY_MODE[mode]);
 
   const icon = doc.createElement("span");
-  icon.className = `bp3-button bp3-minimal bp3-small bp3-icon-${ICON_BY_MODE[currentMode()]} ${TOGGLE_CLASS} ${ICON_CLASS}`;
+  icon.className = `bp3-button bp3-minimal bp3-small bp3-icon-${ICON_BY_MODE[mode]} ${TOGGLE_CLASS} ${ICON_CLASS}`;
   wrapper.appendChild(icon);
+
+  // Visible mode name next to the icon; aria-hidden because the wrapper's aria-label
+  // already announces the setting.
+  const label = doc.createElement("span");
+  label.className = LABEL_CLASS;
+  label.setAttribute("aria-hidden", "true");
+  label.textContent = LABEL_BY_MODE[mode];
+  wrapper.appendChild(label);
 
   const spacerBefore = doc.createElement("div");
   spacerBefore.className = `rm-topbar__spacer-sm ${TOGGLE_CLASS}`;

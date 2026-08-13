@@ -321,6 +321,15 @@ test("initializeBeamSettings never writes when canSet is false", async () => {
   assert.deepEqual(api.calls, []);
 });
 
+test("the appearance row keeps its stored values and describes Auto and the labeled topbar", () => {
+  const panel = createSettingsPanel();
+  const row = panel.settings[0];
+  assert.equal(row.id, SETTING_IDS.appearance);
+  assert.deepEqual(row.action.items, ["auto", "dark", "light"]);
+  assert.match(row.description, /Auto/);
+  assert.match(row.description, /topbar/);
+});
+
 test("createSettingsPanel keeps bp-appearance first and prefixes every row id with bp-", () => {
   const panel = createSettingsPanel();
   assert.equal(panel.tabTitle, "Svy Theme");

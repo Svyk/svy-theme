@@ -16301,6 +16301,23 @@ body.roam-body.dark #inserts_btns span {
   background-color: var(--bc-tooltip__content, #30404d) !important;
   color: var(--co-tooltip__content, rgba(255, 255, 255, 0.87)) !important;
 }
+
+/* Topbar appearance control: icon + visible mode label (src/dm-toggle.js). */
+.blueprint-dm-toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.blueprint-dm-toggle-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  user-select: none;
+  color: inherit;
+}
 /* === 30-absorbed.css === */
 /* ============================================================================
    30-absorbed.css — roam/css absorption layer (U4 staging)

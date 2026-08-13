@@ -34,12 +34,19 @@ export function detectDarkSignals(doc) {
   );
 }
 
+// The OS preference is itself a dark signal: Roam-core and other extensions that key
+// only on .bp3-dark have no media-query fallback of their own, so in Auto with nothing
+// else stamped they would stay light on a dark OS.
+export function detectSystemPrefersDark(mediaQuery) {
+  return Boolean(mediaQuery?.matches);
+}
+
 // Pure bridge decision, exported for tests: "stamp", "unstamp", or "none".
 // Explicit appearance choices ("dark"/"light") short-circuit everything — the bridge
 // exists to translate third-party signals in auto mode, never to override the user.
-export function bridgeAction({ signalsPresent, appearance, bridgeStamped, rootHasDark }) {
+export function bridgeAction({ signalsPresent, appearance, bridgeStamped, rootHasDark, systemPrefersDark = false }) {
   if (normalizeMode(appearance) !== "auto") return "none";
-  if (signalsPresent) return rootHasDark ? "none" : "stamp";
+  if (signalsPresent || systemPrefersDark) return rootHasDark ? "none" : "stamp";
   return bridgeStamped ? "unstamp" : "none";
 }
 
@@ -49,9 +56,16 @@ export function installDarkSignalBridge({
   doc = globalThis.document,
   ObserverImpl = globalThis.MutationObserver,
   settleDelayMs = SETTLE_DELAY_MS,
+  win = globalThis.window,
+  matchMedia,
 }) {
   // No browser DOM (e.g. under node:test) or no observer support — nothing to bridge.
   if (!doc?.documentElement?.classList || !doc?.body || typeof ObserverImpl !== "function") return;
+
+  // Missing matchMedia (node:test toggle path, old hosts) is fine: OS preference just
+  // stops being a signal and the class-marker bridging below is unaffected.
+  const mm = matchMedia ?? win?.matchMedia?.bind(win);
+  const mql = typeof mm === "function" ? mm("(prefers-color-scheme: dark)") : null;
 
   let bridgeStamped = false;
 
@@ -59,6 +73,7 @@ export function installDarkSignalBridge({
     const root = doc.documentElement;
     const action = bridgeAction({
       signalsPresent: detectDarkSignals(doc),
+      systemPrefersDark: detectSystemPrefersDark(mql),
       appearance: extensionAPI.settings.get(SETTING_IDS.appearance),
       bridgeStamped,
       rootHasDark: hasClass(root, "bp3-dark"),
@@ -83,6 +98,18 @@ export function installDarkSignalBridge({
   const options = { attributes: true, attributeFilter: ["class"], subtree: false };
   lifecycle.observer(new ObserverImpl(sync), doc.body, options);
   lifecycle.observer(new ObserverImpl(sync), doc.documentElement, options);
+
+  // Re-sync when the OS preference flips. addListener is the pre-2023 Safari API.
+  if (mql) {
+    const onMediaChange = () => sync();
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", onMediaChange);
+      lifecycle.add(() => mql.removeEventListener("change", onMediaChange));
+    } else if (typeof mql.addListener === "function") {
+      mql.addListener(onMediaChange);
+      lifecycle.add(() => mql.removeListener(onMediaChange));
+    }
+  }
 
   // Initial pass covers markers already stamped before this extension loaded; the settle
   // timer covers markers stamped by extensions loading after us (both fire observer

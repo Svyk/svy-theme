@@ -23,7 +23,20 @@ function createFakeDocument({ includeTopbar = true } = {}) {
   const idIndex = new Map();
 
   function makeElement(tag) {
-    const el = { tagName: tag, parentNode: null, children: [], _classes: new Set(), _listeners: new Map(), removed: false, _id: "" };
+    const el = {
+      tagName: tag,
+      parentNode: null,
+      children: [],
+      _classes: new Set(),
+      _listeners: new Map(),
+      removed: false,
+      _id: "",
+      _attrs: new Map(),
+      textContent: "",
+      dataset: {},
+    };
+    el.setAttribute = (name, value) => { el._attrs.set(name, String(value)); };
+    el.getAttribute = (name) => (el._attrs.has(name) ? el._attrs.get(name) : null);
     el.classList = {
       add: (...names) => names.forEach((n) => el._classes.add(n)),
       remove: (...names) => names.forEach((n) => el._classes.delete(n)),
@@ -175,6 +188,8 @@ test("clicking cycles auto -> dark -> light -> auto and stamps documentElement",
   await wrapper.dispatch("click");
   assert.equal(extensionAPI.settings.get(SETTING_IDS.appearance), "auto");
   assert.ok(!doc.documentElement.classList.contains("bp3-light"));
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"),
+    "auto owns no forced stamp — returning to auto must clear .bp3-dark too");
 
   await lifecycle.dispose();
 });
@@ -215,6 +230,74 @@ test("clicking after unload does not throw (listener was removed with the node)"
 
   await assert.doesNotReject(wrapper.dispatch("click"));
   assert.equal(extensionAPI.settings.get(SETTING_IDS.appearance), "auto");
+});
+
+test("a settings jump dark -> auto clears both forced stamps and updates the label", async () => {
+  const doc = createFakeDocument();
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "dark" });
+  const lifecycle = createLifecycle();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc });
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+
+  // Settings panel jump straight to auto — no Light in between to clear .bp3-dark.
+  await extensionAPI.settings.set(SETTING_IDS.appearance, "auto");
+  applyAppearance("auto", doc);
+
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"));
+  assert.ok(!doc.documentElement.classList.contains("bp3-light"));
+  assert.equal(doc.documentElement.dataset.bpAppearance, "auto");
+  const [label] = doc.getElementsByClassName("blueprint-dm-toggle-label");
+  assert.equal(label.textContent, "Auto");
+
+  await lifecycle.dispose();
+});
+
+test("the mounted control shows the mode name and matching title/aria-label as it cycles", async () => {
+  const doc = createFakeDocument();
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc });
+  const [wrapper] = doc.getElementsByClassName("blueprint-dm-toggle-wrap");
+  assert.ok(wrapper, "expected the wrapper to carry blueprint-dm-toggle-wrap");
+  const [label] = doc.getElementsByClassName("blueprint-dm-toggle-label");
+  assert.ok(label, "expected the visible mode label to be mounted");
+  assert.equal(label.getAttribute("aria-hidden"), "true");
+
+  const expected = [
+    ["Auto", "Appearance: Auto (follows system)"],
+    ["Dark", "Appearance: Dark"],
+    ["Light", "Appearance: Light"],
+    ["Auto", "Appearance: Auto (follows system)"],
+  ];
+  for (const [text, tooltip] of expected) {
+    assert.equal(label.textContent, text);
+    assert.equal(wrapper.getAttribute("title"), tooltip);
+    assert.equal(wrapper.getAttribute("aria-label"), tooltip);
+    assert.equal(doc.documentElement.dataset.bpAppearance, text.toLowerCase());
+    await wrapper.dispatch("click");
+  }
+
+  await lifecycle.dispose();
+});
+
+test(".blueprint-dm-toggle stays on the icon span, not the wrapper", async () => {
+  const doc = createFakeDocument();
+  const extensionAPI = fakeExtensionApi({ [SETTING_IDS.appearance]: "auto" });
+  const lifecycle = createLifecycle();
+
+  await installDarkModeToggle({ extensionAPI, lifecycle, doc });
+
+  const [icon] = doc.getElementsByClassName("blueprint-toggle-icon");
+  assert.ok(icon, "expected the icon span to be mounted");
+  assert.ok(icon._classes.has("blueprint-dm-toggle"),
+    "Better Tasks probes document.querySelector('.blueprint-dm-toggle') — the icon must keep the class");
+  const [wrapper] = doc.getElementsByClassName("blueprint-dm-toggle-wrap");
+  assert.ok(!wrapper._classes.has("blueprint-dm-toggle"),
+    "the wrapper must not take the probed class away from the icon");
+
+  await lifecycle.dispose();
 });
 
 test("applyAppearance is a no-op without a document", () => {

@@ -153,7 +153,7 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
     {
       id: SETTING_IDS.appearance,
       name: "Appearance",
-      description: "Light/dark mode for the Blueprint theme. Auto defers to Roam's own theme setting; the topbar toggle cycles the same three values.",
+      description: "Auto follows your system (and Roam) and updates when it changes. Dark and Light stay put. The topbar control is labeled Auto, Dark, or Light — click it to cycle Auto → Dark → Light.",
       action: {
         type: "select",
         items: [...APPEARANCE_MODES],
