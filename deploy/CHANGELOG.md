@@ -40,6 +40,15 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Auto no longer latches dark in daytime.** Better Tasks stamps `body.bt-theme-dark`
+  as a *follower* of this theme (toggle icon + `.bp3-dark` + body luminance). The
+  dark-signal bridge treated that class as a *source* and re-stamped `.bp3-dark`
+  whenever Auto cleared the forced stamps, so a Dark → Auto jump — or a night of
+  OS-dark that left BT's class behind — kept the page dark after macOS had already
+  switched to light. Auto now follows the OS plus independent host markers
+  (`body.roam-body.dark`, `.rm-dark-theme`) only. Live-probed 2026-08-16: Auto +
+  `prefers-color-scheme: light` + leftover `bt-theme-dark` painted `rgb(32, 43, 51)`
+  until `.bp3-dark` was removed, at which point the page went `rgb(245, 248, 250)`.
 - **Auto appearance actually follows the system.** `applyAppearance("auto")` used to
   clear only `.bp3-light`, so a settings jump from Dark to Auto left `.bp3-dark` stamped
   and the page dark forever; Auto now clears both forced stamps, and

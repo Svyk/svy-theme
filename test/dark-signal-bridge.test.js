@@ -82,12 +82,14 @@ function createFakeMediaQueryList(initialMatches = false) {
   };
 }
 
-test("detectDarkSignals reads each supported marker", () => {
+test("detectDarkSignals reads each independent marker", () => {
   const doc = createFakeDocument();
   assert.equal(detectDarkSignals(doc), false);
 
+  // Follower class from Better Tasks: not a source signal. Using it as one
+  // latches Auto onto dark after any Dark session or OS-dark night.
   doc.body.classList.add("bt-theme-dark");
-  assert.equal(detectDarkSignals(doc), true);
+  assert.equal(detectDarkSignals(doc), false);
   doc.body.classList.remove("bt-theme-dark");
 
   // body.roam-body.dark only counts with both classes.
@@ -127,15 +129,51 @@ test("bridgeAction never fights an explicit appearance choice", () => {
   assert.equal(bridgeAction({ signalsPresent: true, appearance: "junk", bridgeStamped: false, rootHasDark: false }), "stamp");
 });
 
-test("stamps .bp3-dark on install when a marker is already present (auto mode)", () => {
+test("stamps .bp3-dark on install when an independent marker is already present (auto mode)", () => {
   const doc = createFakeDocument();
-  doc.body.classList.add("bt-theme-dark");
+  doc.body.classList.add("rm-dark-theme");
   const lifecycle = createLifecycle();
   const ObserverImpl = createFakeObserverImpl();
 
   installDarkSignalBridge({ extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0 });
 
   assert.ok(doc.documentElement.classList.contains("bp3-dark"));
+  return lifecycle.dispose();
+});
+
+test("Auto + OS light does not stamp from leftover body.bt-theme-dark", () => {
+  const doc = createFakeDocument();
+  doc.body.classList.add("bt-theme-dark");
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => createFakeMediaQueryList(false),
+  });
+
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"),
+    "Better Tasks' follower class must not re-stamp Auto onto dark on an OS-light machine");
+  return lifecycle.dispose();
+});
+
+test("Auto unstamps its own .bp3-dark when the only leftover marker is bt-theme-dark", () => {
+  const doc = createFakeDocument();
+  const lifecycle = createLifecycle();
+  const ObserverImpl = createFakeObserverImpl();
+  const mql = createFakeMediaQueryList(true);
+
+  installDarkSignalBridge({
+    extensionAPI: fakeExtensionApi(AUTO), lifecycle, doc, ObserverImpl, settleDelayMs: 0,
+    matchMedia: () => mql,
+  });
+  assert.ok(doc.documentElement.classList.contains("bp3-dark"), "OS-dark should have stamped");
+
+  // Night → day: OS goes light, BT has not yet dropped its follower class.
+  doc.body.classList.add("bt-theme-dark");
+  mql.fire(false);
+  assert.ok(!doc.documentElement.classList.contains("bp3-dark"),
+    "OS-light must unstamp even while body.bt-theme-dark is still present");
   return lifecycle.dispose();
 });
 
@@ -184,11 +222,11 @@ test("does not claim ownership of a .bp3-dark stamp it did not place", () => {
   });
 
   const bodyObserver = ObserverImpl.instances.find((instance) => instance.observedTarget === doc.body);
-  // A marker appears and leaves again: the pre-existing stamp must survive both passes.
-  doc.body.classList.add("bt-theme-dark");
+  // An independent marker appears and leaves again: the pre-existing stamp must survive both passes.
+  doc.body.classList.add("rm-dark-theme");
   bodyObserver.trigger();
   assert.ok(doc.documentElement.classList.contains("bp3-dark"));
-  doc.body.classList.remove("bt-theme-dark");
+  doc.body.classList.remove("rm-dark-theme");
   bodyObserver.trigger();
   assert.ok(doc.documentElement.classList.contains("bp3-dark"),
     "bridge must not remove a .bp3-dark it never stamped");
@@ -198,7 +236,7 @@ test("does not claim ownership of a .bp3-dark stamp it did not place", () => {
 
 test("does nothing while the user picked an explicit appearance", () => {
   const doc = createFakeDocument();
-  doc.body.classList.add("bt-theme-dark");
+  doc.body.classList.add("rm-dark-theme");
   const lifecycle = createLifecycle();
   const ObserverImpl = createFakeObserverImpl();
 

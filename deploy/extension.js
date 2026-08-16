@@ -897,7 +897,7 @@ function detectDarkSignals(doc) {
   const body = doc?.body;
   const root = doc?.documentElement;
   return Boolean(
-    hasClass(body, "bt-theme-dark") || hasClass(body, "roam-body") && hasClass(body, "dark") || hasClass(body, "rm-dark-theme") || hasClass(root, "rm-dark-theme")
+    hasClass(body, "roam-body") && hasClass(body, "dark") || hasClass(body, "rm-dark-theme") || hasClass(root, "rm-dark-theme")
   );
 }
 function detectSystemPrefersDark(mediaQuery) {

@@ -4,15 +4,22 @@ import { SETTING_IDS, normalizeMode } from "./settings.js";
 //
 // Upstream's dark styling (src/css/00-upstream-base.css) only reacts to two signals:
 // `.bp3-dark` on documentElement and the OS `prefers-color-scheme: dark` media query.
-// Other dark markers used across the Roam ecosystem — Better Tasks' `body.bt-theme-dark`,
-// Roam's own `body.roam-body.dark`, and `.rm-dark-theme` (stamped on html or body by
-// some themes) — mean nothing to it, so on an OS-light machine any of those leaves the
-// base layer rendering light while everything else is dark.
+// Independent host/third-party dark markers — Roam's `body.roam-body.dark` and
+// `.rm-dark-theme` (stamped on html or body by some themes) — mean nothing to it, so
+// on an OS-light machine either of those leaves the base layer rendering light while
+// everything else is dark.
 //
-// This module bridges the gap: while bp-appearance is "auto" and any of those markers
-// is present, it stamps `.bp3-dark` on documentElement, and removes the stamp when the
-// markers disappear — but only ever a stamp IT placed (ownership flag below), so it
-// never fights Roam, the user's explicit light/dark choice, or another extension.
+// This module bridges the gap: while bp-appearance is "auto" and an independent
+// marker is present or the OS prefers dark, it stamps `.bp3-dark` on documentElement,
+// and removes the stamp when those signals disappear — but only ever a stamp IT
+// placed (ownership flag below), so it never fights Roam, the user's explicit
+// light/dark choice, or another extension.
+//
+// `body.bt-theme-dark` is intentionally NOT a source signal. Better Tasks follows
+// this theme (it probes `.blueprint-dm-toggle`, then keys on `.bp3-dark` / sampled
+// body luminance). Treating that follower class as a reason to stamp `.bp3-dark`
+// latches Auto onto dark: Dark or last-night OS-dark → BT keeps `bt-theme-dark` →
+// Auto re-stamps `.bp3-dark` → page stays dark all day even when the OS is light.
 
 // One settle pass after load: the initial sync runs before observers can deliver, and
 // markers stamped by other extensions during their own onload land within this window.
@@ -22,12 +29,12 @@ function hasClass(element, name) {
   return Boolean(element?.classList?.contains(name));
 }
 
-// True when any of the non-Blueprint dark markers is currently stamped.
+// True when an independent (non-follower) dark marker is currently stamped.
+// Better Tasks' `bt-theme-dark` is a follower of this theme — see file header.
 export function detectDarkSignals(doc) {
   const body = doc?.body;
   const root = doc?.documentElement;
   return Boolean(
-    hasClass(body, "bt-theme-dark") ||
     (hasClass(body, "roam-body") && hasClass(body, "dark")) ||
     hasClass(body, "rm-dark-theme") ||
     hasClass(root, "rm-dark-theme"),
