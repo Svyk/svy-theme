@@ -6,6 +6,12 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **Chief of Staff chat panel** (`src/css/20-plugins.css`): remaps
+  `[data-chief-chat-panel]` `--cos-*` tokens onto `--svy-*` (raised surface,
+  accent border on the user bubble, no tinted fills, theme font). `!important`
+  on the vars COS `syncCosTheme()` writes inline so dark mode follows Svy
+  instead of Tailwind slate/blue.
+
 - **Svy Beam v3** (`src/caret-overlay.js`, `src/css/40-beam.css`): replaces the heavy
   full-cell default with a 3px rounded beam at 82% line height. Adds beam, block, outline,
   underline, classic bar, and native styles; 50–200% width scale; 30–120% height; 0–12px

@@ -68,3 +68,36 @@ body.roam-body.dark #inserts_btns span {
   user-select: none;
   color: inherit;
 }
+
+/* 4. Chief of Staff chat panel (J.A.R.V.I.S). COS ships Inter + Tailwind
+   slate/blue and, in dark mode, writes --cos-* on the panel element itself
+   (syncCosTheme). Remap onto Svy tokens. !important on the vars COS sets
+   inline so this sheet wins. Borders carry the signal; fills stay empty.
+   Scope is the panel root only — no global overflow. */
+[data-chief-chat-panel] {
+  --cos-panel-bg: var(--svy-raised, #ffffff) !important;
+  --cos-panel-text: var(--svy-text, #182026) !important;
+  --cos-border: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-border-subtle: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-muted: var(--svy-text-muted, #5c7080) !important;
+  --cos-input-bg: var(--svy-surface, #f5f8fa) !important;
+  --cos-code-bg: var(--svy-surface, #f5f8fa) !important;
+  --cos-code-text: var(--svy-text, #182026) !important;
+  --cos-user-bubble-bg: transparent !important;
+  --cos-user-bubble-border: var(--svy-accent, #137cbd) !important;
+  --cos-assistant-bubble-bg: transparent !important;
+  --cos-assistant-bubble-border: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-shadow: transparent !important;
+  --cos-tool-preview-bg: var(--svy-surface, #f5f8fa) !important;
+  --cos-toast-input-border: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-blockquote-border: var(--svy-accent, #137cbd) !important;
+  --cos-blockquote-text: var(--svy-text-muted, #5c7080) !important;
+  --cos-table-border: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-table-header-bg: transparent !important;
+  --cos-table-stripe: transparent !important;
+  --cos-table-hover: var(--svy-hover, #ebf1f5) !important;
+  --cos-scrollbar: var(--svy-border-subtle, #d3d8de) !important;
+  --cos-scrollbar-hover: var(--svy-border, #a7b6c2) !important;
+  font-family: var(--svy-ff-main, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+  box-shadow: none !important;
+}

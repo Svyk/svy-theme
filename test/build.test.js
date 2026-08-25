@@ -112,6 +112,15 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   assert.equal(deployCss, css);
 });
 
+test("plugin layer remaps Chief of Staff chat panel onto Svy tokens", async () => {
+  const css = await readFile(resolve(rootPath, "src/css/20-plugins.css"), "utf8");
+  assert.match(css, /\[data-chief-chat-panel\]/);
+  assert.match(css, /--cos-panel-bg:\s*var\(--svy-raised/);
+  assert.match(css, /--cos-user-bubble-bg:\s*transparent\s*!important/);
+  assert.match(css, /--cos-user-bubble-border:\s*var\(--svy-accent/);
+  assert.doesNotMatch(css, /overflow:\s*visible/);
+});
+
 test("Pages build ships a themed home page from its checked source", async () => {
   await run(process.execPath, ["build.mjs"], { cwd: rootPath });
   const [source, deployed] = await Promise.all([
