@@ -118,6 +118,8 @@ test("plugin layer remaps Chief of Staff chat panel onto Svy tokens", async () =
   assert.match(css, /--cos-panel-bg:\s*var\(--svy-raised/);
   assert.match(css, /--cos-user-bubble-bg:\s*transparent\s*!important/);
   assert.match(css, /--cos-user-bubble-border:\s*var\(--svy-accent/);
+  assert.match(css, /\[data-chief-chat-panel\] \.chief-tab/);
+  assert.match(css, /\.chief-tab--active/);
   assert.doesNotMatch(css, /overflow:\s*visible/);
 });
 

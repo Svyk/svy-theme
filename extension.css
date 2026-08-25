@@ -16350,6 +16350,102 @@ body.roam-body.dark #inserts_btns span {
   --cos-scrollbar-hover: var(--svy-border, #a7b6c2) !important;
   font-family: var(--svy-ff-main, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
   box-shadow: none !important;
+  color: var(--svy-text, #182026) !important;
+}
+
+/* Tab labels are <button>s. Blueprint/user-agent ink stays black even when
+   the panel is dark and --cos-panel-text is light (title inherits; tabs do not). */
+[data-chief-chat-panel] .chief-tab {
+  color: var(--svy-text-muted, #5c7080) !important;
+}
+[data-chief-chat-panel] .chief-tab:hover,
+[data-chief-chat-panel] .chief-tab--active {
+  color: var(--svy-text, #182026) !important;
+  border-bottom-color: var(--svy-accent, #137cbd) !important;
+}
+[data-chief-chat-panel] .chief-panel-title,
+[data-chief-chat-panel] .chief-panel-btn,
+[data-chief-chat-panel] .chief-panel-btn--close,
+[data-chief-chat-panel] [data-chief-chat-cost] {
+  color: var(--svy-text, #182026) !important;
+}
+[data-chief-chat-panel] [data-chief-chat-cost] {
+  color: var(--svy-text-muted, #5c7080) !important;
+}
+
+:root.bp3-dark [data-chief-chat-panel],
+body.bt-theme-dark [data-chief-chat-panel],
+.rm-dark-theme [data-chief-chat-panel],
+body.roam-body.dark [data-chief-chat-panel] {
+  --cos-panel-bg: var(--svy-raised, #293742) !important;
+  --cos-panel-text: var(--svy-text, #e1e8ed) !important;
+  --cos-muted: var(--svy-text-muted, #b3c1cc) !important;
+  --cos-input-bg: var(--svy-surface, #202b33) !important;
+  --cos-code-bg: var(--svy-surface, #202b33) !important;
+  --cos-code-text: var(--svy-text, #e1e8ed) !important;
+  color: var(--svy-text, #e1e8ed) !important;
+}
+:root.bp3-dark [data-chief-chat-panel] .chief-tab,
+body.bt-theme-dark [data-chief-chat-panel] .chief-tab,
+.rm-dark-theme [data-chief-chat-panel] .chief-tab,
+body.roam-body.dark [data-chief-chat-panel] .chief-tab {
+  color: var(--svy-text-muted, #b3c1cc) !important;
+}
+:root.bp3-dark [data-chief-chat-panel] .chief-tab:hover,
+:root.bp3-dark [data-chief-chat-panel] .chief-tab--active,
+body.bt-theme-dark [data-chief-chat-panel] .chief-tab:hover,
+body.bt-theme-dark [data-chief-chat-panel] .chief-tab--active,
+.rm-dark-theme [data-chief-chat-panel] .chief-tab:hover,
+.rm-dark-theme [data-chief-chat-panel] .chief-tab--active,
+body.roam-body.dark [data-chief-chat-panel] .chief-tab:hover,
+body.roam-body.dark [data-chief-chat-panel] .chief-tab--active {
+  color: var(--svy-text, #e1e8ed) !important;
+  border-bottom-color: var(--svy-accent, #48aff0) !important;
+}
+:root.bp3-dark [data-chief-chat-panel] .chief-panel-title,
+:root.bp3-dark [data-chief-chat-panel] .chief-panel-btn,
+:root.bp3-dark [data-chief-chat-panel] .chief-panel-btn--close,
+body.bt-theme-dark [data-chief-chat-panel] .chief-panel-title,
+body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn,
+body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn--close,
+.rm-dark-theme [data-chief-chat-panel] .chief-panel-title,
+.rm-dark-theme [data-chief-chat-panel] .chief-panel-btn,
+.rm-dark-theme [data-chief-chat-panel] .chief-panel-btn--close,
+body.roam-body.dark [data-chief-chat-panel] .chief-panel-title,
+body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn,
+body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn--close {
+  color: var(--svy-text, #e1e8ed) !important;
+}
+:root.bp3-dark [data-chief-chat-panel] [data-chief-chat-cost],
+body.bt-theme-dark [data-chief-chat-panel] [data-chief-chat-cost],
+.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-cost],
+body.roam-body.dark [data-chief-chat-panel] [data-chief-chat-cost] {
+  color: var(--svy-text-muted, #b3c1cc) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) [data-chief-chat-panel] {
+    --cos-panel-bg: var(--svy-raised, #293742) !important;
+    --cos-panel-text: var(--svy-text, #e1e8ed) !important;
+    --cos-muted: var(--svy-text-muted, #b3c1cc) !important;
+    color: var(--svy-text, #e1e8ed) !important;
+  }
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-tab {
+    color: var(--svy-text-muted, #b3c1cc) !important;
+  }
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-tab:hover,
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-tab--active {
+    color: var(--svy-text, #e1e8ed) !important;
+    border-bottom-color: var(--svy-accent, #48aff0) !important;
+  }
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-title,
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-btn,
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-btn--close {
+    color: var(--svy-text, #e1e8ed) !important;
+  }
+  :root:not(.bp3-light) [data-chief-chat-panel] [data-chief-chat-cost] {
+    color: var(--svy-text-muted, #b3c1cc) !important;
+  }
 }
 /* === 30-absorbed.css === */
 /* ============================================================================
