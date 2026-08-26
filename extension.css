@@ -16353,8 +16353,9 @@ body.roam-body.dark #inserts_btns span {
   color: var(--svy-text, #182026) !important;
 }
 
-/* Tab labels are <button>s. Blueprint/user-agent ink stays black even when
-   the panel is dark and --cos-panel-text is light (title inherits; tabs do not). */
+/* Tab labels and Send are <button>s. Blueprint/user-agent ink stays dark even
+   when the panel is dark and --cos-panel-text is light (title inherits; raw
+   buttons do not). Send has no .chief-tab / .chief-panel-btn class. */
 [data-chief-chat-panel] .chief-tab {
   color: var(--svy-text-muted, #5c7080) !important;
 }
@@ -16366,7 +16367,8 @@ body.roam-body.dark #inserts_btns span {
 [data-chief-chat-panel] .chief-panel-title,
 [data-chief-chat-panel] .chief-panel-btn,
 [data-chief-chat-panel] .chief-panel-btn--close,
-[data-chief-chat-panel] [data-chief-chat-cost] {
+[data-chief-chat-panel] [data-chief-chat-cost],
+[data-chief-chat-panel] [data-chief-chat-send] {
   color: var(--svy-text, #182026) !important;
 }
 [data-chief-chat-panel] [data-chief-chat-cost] {
@@ -16405,15 +16407,19 @@ body.roam-body.dark [data-chief-chat-panel] .chief-tab--active {
 :root.bp3-dark [data-chief-chat-panel] .chief-panel-title,
 :root.bp3-dark [data-chief-chat-panel] .chief-panel-btn,
 :root.bp3-dark [data-chief-chat-panel] .chief-panel-btn--close,
+:root.bp3-dark [data-chief-chat-panel] [data-chief-chat-send],
 body.bt-theme-dark [data-chief-chat-panel] .chief-panel-title,
 body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn,
 body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn--close,
+body.bt-theme-dark [data-chief-chat-panel] [data-chief-chat-send],
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-title,
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-btn,
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-btn--close,
+.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-send],
 body.roam-body.dark [data-chief-chat-panel] .chief-panel-title,
 body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn,
-body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn--close {
+body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn--close,
+body.roam-body.dark [data-chief-chat-panel] [data-chief-chat-send] {
   color: var(--svy-text, #e1e8ed) !important;
 }
 :root.bp3-dark [data-chief-chat-panel] [data-chief-chat-cost],
@@ -16440,7 +16446,8 @@ body.roam-body.dark [data-chief-chat-panel] [data-chief-chat-cost] {
   }
   :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-title,
   :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-btn,
-  :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-btn--close {
+  :root:not(.bp3-light) [data-chief-chat-panel] .chief-panel-btn--close,
+  :root:not(.bp3-light) [data-chief-chat-panel] [data-chief-chat-send] {
     color: var(--svy-text, #e1e8ed) !important;
   }
   :root:not(.bp3-light) [data-chief-chat-panel] [data-chief-chat-cost] {

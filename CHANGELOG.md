@@ -10,9 +10,11 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
   `[data-chief-chat-panel]` `--cos-*` tokens onto `--svy-*` (raised surface,
   accent border on the user bubble, no tinted fills, theme font). `!important`
   on the vars COS `syncCosTheme()` writes inline so dark mode follows Svy
-  instead of Tailwind slate/blue. Chat/Activity tab labels are `<button>`s
-  that kept black ink; they now follow `--svy-text` / `--svy-text-muted` on
-  all five dark signals.
+  instead of Tailwind slate/blue. Chat/Activity tab labels and the composer
+  Send button are `<button>`s that kept Blueprint ink; they now follow
+  `--svy-text` / `--svy-text-muted` on all five dark signals. Send has no
+  `.chief-tab` / `.chief-panel-btn` class, so `.bp3-dark button` had painted
+  it `#202B33` on `#202B33`.
 
 - **Svy Beam v3** (`src/caret-overlay.js`, `src/css/40-beam.css`): replaces the heavy
   full-cell default with a 3px rounded beam at 82% line height. Adds beam, block, outline,
