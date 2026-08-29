@@ -66,6 +66,22 @@ function makeElement(tag, ownerDocument) {
       const siblings = this.parentElement?.children;
       if (siblings) siblings.splice(siblings.indexOf(this), 1);
     },
+    closest(selector) {
+      let node = this;
+      const selectors = selector.split(",").map((part) => part.trim());
+      while (node) {
+        if (node.matches?.(selector)) return node;
+        for (const part of selectors) {
+          if (part.startsWith(".") && node.classList?.contains(part.slice(1))) return node;
+        }
+        node = node.parentElement;
+      }
+      return null;
+    },
+    matches(selector) {
+      const selectors = selector.split(",").map((part) => part.trim());
+      return selectors.some((part) => part.startsWith(".") && this.classList?.contains(part.slice(1)));
+    },
     ownerDocument,
   };
   return element;
@@ -144,6 +160,16 @@ test("isTextTarget covers textareas and text-like inputs only", () => {
   contenteditable.setAttribute("contenteditable", "true");
   assert.equal(isTextTarget(contenteditable), false);
   assert.equal(isTextTarget(null), false);
+});
+
+test("isTextTarget skips textareas inside scaled diagram/grid surfaces", () => {
+  const doc = createFakeDocument(createFakeWindow());
+  const pxdRoot = makeElement("div", doc);
+  pxdRoot.classList.add("pxd-root");
+  const inside = makeElement("textarea", doc);
+  pxdRoot.appendChild(inside);
+  assert.equal(isTextTarget(inside), false);
+  assert.equal(isTextTarget(makeElement("textarea", doc)), true);
 });
 
 test("measureCaretRect converts mirror offsets to viewport coordinates", () => {

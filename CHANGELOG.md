@@ -50,6 +50,13 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Beam v3 caret on CSS-transformed surfaces.** Plexus Diagram (`.pxd-world` /
+  `.pxd-root`) and Roam Grid (`.rg-root` / `.rg-portal`) scale their canvases with
+  `transform: scale()`, so the overlay's mirror measurement mixed unscaled offsets with a
+  scaled `getBoundingClientRect` and the beam jumped while typing in a diagram card.
+  `isTextTarget()` now skips those roots, the paint path hides the overlay there so the
+  native caret shows, and `40-beam.css` restores visible `caret-color` plus the text
+  cursor inside `.pxd-root` / `.rg-root` instead of leaving both carets hidden.
 - **Auto no longer latches dark in daytime.** Better Tasks stamps `body.bt-theme-dark`
   as a *follower* of this theme (toggle icon + `.bp3-dark` + body luminance). The
   dark-signal bridge treated that class as a *source* and re-stamped `.bp3-dark`

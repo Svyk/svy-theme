@@ -717,13 +717,22 @@ test("the baked cursor fallbacks in 40-beam.css are byte-identical to what this 
   const { base, dark } = computeThemeVars(BEAM_DEFAULTS);
 
   // Light art lives as the var() fallback on each cursor rule.
-  const cursorRules = rules.filter((rule) => rule.declarations.cursor);
+  const cursorRules = rules.filter((rule) =>
+    /^var\(--svy-beam-cursor-/.test(rule.declarations.cursor?.value ?? ""),
+  );
   assert.equal(cursorRules.length, 3, "one cursor rule per kind");
   for (const rule of cursorRules) {
     const match = /^var\((--svy-beam-cursor-[a-z]+),\s*([\s\S]*)\)$/.exec(rule.declarations.cursor.value);
     assert.ok(match, `cursor rule must read through a custom property with a fallback: ${rule.selectors}`);
     assert.equal(match[2], base[match[1]], `${match[1]} light fallback has drifted from computeThemeVars`);
   }
+
+  const scaledSurfaceRules = rules.filter((rule) =>
+    rule.selectors.some((selector) => selector.includes(".pxd-root") || selector.includes(".rg-root")),
+  );
+  assert.equal(scaledSurfaceRules.length, 1, "one caret/cursor override for scaled diagram/grid roots");
+  assert.equal(scaledSurfaceRules[0].declarations["caret-color"]?.value, "var(--svy-beam-caret, #00695e)");
+  assert.equal(scaledSurfaceRules[0].declarations.cursor?.value, "text");
 
   // Dark art lives in the zero-specificity :where() blocks.
   const darkBlocks = rules.filter((rule) => rule.declarations["--svy-beam-cursor-default"]);

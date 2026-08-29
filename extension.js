@@ -372,8 +372,13 @@ var MIRROR_PROPERTIES = Object.freeze([
   "tabSize",
   "direction"
 ]);
+var OVERLAY_EXCLUDED_ROOTS = ".pxd-root, .pxd-world, .rg-root, .rg-portal";
+function isOverlayExcludedTarget(element) {
+  return Boolean(element?.closest?.(OVERLAY_EXCLUDED_ROOTS));
+}
 function isTextTarget(element) {
   if (!element || !element.tagName) return false;
+  if (isOverlayExcludedTarget(element)) return false;
   if (element.tagName === "TEXTAREA") return true;
   if (element.tagName !== "INPUT") return false;
   const type = (element.getAttribute?.("type") || "text").toLowerCase();
@@ -541,7 +546,7 @@ function installCaretOverlay({
   };
   const render = () => {
     if (!enabled || !target || !overlay) return;
-    if (!target.isConnected) {
+    if (!target.isConnected || isOverlayExcludedTarget(target)) {
       hide();
       return;
     }
