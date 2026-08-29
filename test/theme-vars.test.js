@@ -730,9 +730,7 @@ test("the baked cursor fallbacks in 40-beam.css are byte-identical to what this 
   const scaledSurfaceRules = rules.filter((rule) =>
     rule.selectors.some((selector) => selector.includes(".pxd-root") || selector.includes(".rg-root")),
   );
-  assert.equal(scaledSurfaceRules.length, 1, "one caret/cursor override for scaled diagram/grid roots");
-  assert.equal(scaledSurfaceRules[0].declarations["caret-color"]?.value, "var(--svy-beam-caret, #00695e)");
-  assert.equal(scaledSurfaceRules[0].declarations.cursor?.value, "text");
+  assert.equal(scaledSurfaceRules.length, 0, "no native-caret fallback for scaled diagram/grid roots");
 
   // Dark art lives in the zero-specificity :where() blocks.
   const darkBlocks = rules.filter((rule) => rule.declarations["--svy-beam-cursor-default"]);

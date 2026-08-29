@@ -17412,17 +17412,6 @@ svg[role="graphics-document document"] .task {
   caret-color: transparent !important;
 }
 
-/* Plexus Diagram and Roam Grid scale their canvases with CSS transform. The overlay
- * measures unscaled mirror offsets against a scaled getBoundingClientRect, so defer to
- * the native caret (and restore the text cursor) inside those roots. */
-:root:not(.svy-off-beam) .pxd-root textarea,
-:root:not(.svy-off-beam) .pxd-root .rm-block__input,
-:root:not(.svy-off-beam) .rg-root textarea,
-:root:not(.svy-off-beam) .rg-root .rm-block__input {
-  caret-color: var(--svy-beam-caret, #00695e) !important;
-  cursor: text !important;
-}
-
 /* One fixed overlay node paints the custom insertion point. Shape geometry and the
  * current color are supplied by caret-overlay.js; CSS owns only composited decoration
  * and motion, keeping the typing path free from layout-producing animation. */

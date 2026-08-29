@@ -46,15 +46,8 @@ const MIRROR_PROPERTIES = Object.freeze([
   "direction",
 ]);
 
-const OVERLAY_EXCLUDED_ROOTS = ".pxd-root, .pxd-world, .rg-root, .rg-portal";
-
-function isOverlayExcludedTarget(element) {
-  return Boolean(element?.closest?.(OVERLAY_EXCLUDED_ROOTS));
-}
-
 export function isTextTarget(element) {
   if (!element || !element.tagName) return false;
-  if (isOverlayExcludedTarget(element)) return false;
   if (element.tagName === "TEXTAREA") return true;
   if (element.tagName !== "INPUT") return false;
   const type = (element.getAttribute?.("type") || "text").toLowerCase();
@@ -117,28 +110,41 @@ export function measureCaretRect(element, doc, win) {
   mirror.remove();
 
   const box = element.getBoundingClientRect();
+  const offsetW = element.offsetWidth || 0;
+  const offsetH = element.offsetHeight || 0;
+  const scaleX = offsetW ? box.width / offsetW : 1;
+  const scaleY = offsetH ? box.height / offsetH : 1;
   const borderLeft = Number.parseFloat(computed.borderLeftWidth) || 0;
   const borderTop = Number.parseFloat(computed.borderTopWidth) || 0;
-  const x = box.left + borderLeft + measured.left - (element.scrollLeft || 0);
-  const y = box.top + borderTop + measured.top - (element.scrollTop || 0);
+  const x = box.left + (borderLeft + measured.left - (element.scrollLeft || 0)) * scaleX;
+  const y = box.top + (borderTop + measured.top - (element.scrollTop || 0)) * scaleY;
 
   const padLeft = Number.parseFloat(computed.paddingLeft) || 0;
   const padTop = Number.parseFloat(computed.paddingTop) || 0;
   const padRight = Number.parseFloat(computed.paddingRight) || 0;
   const padBottom = Number.parseFloat(computed.paddingBottom) || 0;
+  const width = measured.width * scaleX;
+  const height = measured.height * scaleY;
   const content = {
-    left: box.left + borderLeft + padLeft,
-    top: box.top + borderTop + padTop,
-    right: box.right - borderLeft - padRight,
-    bottom: box.bottom - borderTop - padBottom,
+    left: box.left + (borderLeft + padLeft) * scaleX,
+    top: box.top + (borderTop + padTop) * scaleY,
+    right: box.right - (borderLeft + padRight) * scaleX,
+    bottom: box.bottom - (borderTop + padBottom) * scaleY,
   };
   const visible =
-    x + measured.width > content.left &&
+    x + width > content.left &&
     x < content.right &&
-    y + measured.height > content.top &&
+    y + height > content.top &&
     y < content.bottom;
 
-  return { x, y, width: measured.width, height: measured.height, glyph: measured.glyph, visible };
+  return {
+    x,
+    y,
+    width,
+    height,
+    glyph: measured.glyph,
+    visible,
+  };
 }
 
 const halfPixel = (value) => Math.round(value * 2) / 2;
@@ -253,7 +259,7 @@ export function installCaretOverlay({
 
   const render = () => {
     if (!enabled || !target || !overlay) return;
-    if (!target.isConnected || isOverlayExcludedTarget(target)) {
+    if (!target.isConnected) {
       hide();
       return;
     }

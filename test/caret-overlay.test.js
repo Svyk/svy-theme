@@ -162,14 +162,70 @@ test("isTextTarget covers textareas and text-like inputs only", () => {
   assert.equal(isTextTarget(null), false);
 });
 
-test("isTextTarget skips textareas inside scaled diagram/grid surfaces", () => {
+test("isTextTarget includes textareas inside scaled diagram/grid surfaces", () => {
   const doc = createFakeDocument(createFakeWindow());
   const pxdRoot = makeElement("div", doc);
   pxdRoot.classList.add("pxd-root");
   const inside = makeElement("textarea", doc);
   pxdRoot.appendChild(inside);
-  assert.equal(isTextTarget(inside), false);
+  assert.equal(isTextTarget(inside), true);
   assert.equal(isTextTarget(makeElement("textarea", doc)), true);
+});
+
+test("measureCaretRect applies CSS transform scale to viewport coordinates", () => {
+  const win = createFakeWindow();
+  const doc = createFakeDocument(win);
+  const textarea = makeTextarea(doc, "hello", 0);
+  textarea.offsetWidth = 100;
+  textarea.offsetHeight = 20;
+  textarea.getBoundingClientRect = () => ({
+    left: 100,
+    top: 50,
+    width: 200,
+    height: 40,
+    right: 300,
+    bottom: 90,
+  });
+
+  const scaled = measureCaretRect(textarea, doc, win);
+  assert.equal(scaled.x, 100, "caret at local x=0 stays at box.left when scaleX=2");
+  assert.equal(scaled.y, 50);
+
+  textarea.getBoundingClientRect = () => ({
+    left: 100,
+    top: 50,
+    width: 100,
+    height: 20,
+    right: 200,
+    bottom: 70,
+  });
+  const unscaled = measureCaretRect(textarea, doc, win);
+  assert.equal(scaled.width, unscaled.width * 2, "glyph width scales with scaleX");
+
+  const origCreate = doc.createElement.bind(doc);
+  let spanIndex = 0;
+  doc.createElement = (tag) => {
+    const el = origCreate(tag);
+    if (tag === "span") {
+      const i = spanIndex++;
+      if (i === 0) {
+        el.offsetLeft = 25;
+        el.offsetTop = 5;
+      }
+    }
+    return el;
+  };
+  textarea.getBoundingClientRect = () => ({
+    left: 100,
+    top: 50,
+    width: 200,
+    height: 40,
+    right: 300,
+    bottom: 90,
+  });
+  const offset = measureCaretRect(textarea, doc, win);
+  assert.equal(offset.x, 150, "offsetLeft scales into viewport x");
+  assert.equal(offset.y, 60, "offsetTop scales into viewport y");
 });
 
 test("measureCaretRect converts mirror offsets to viewport coordinates", () => {
