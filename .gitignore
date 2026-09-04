@@ -1,4 +1,5 @@
 node_modules/
+.grok/
 .DS_Store
 .idea/
 .vscode/
