@@ -58,6 +58,13 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Folded-bullet halo is visible again** (`src/css/42-fold-cc.css`): the v0.2.2
+  negative-spread outer box-shadow painted behind the fill and upstream's
+  `overflow: hidden` on `.rm-bullet__inner` clipped whatever was left, so folded
+  bullets showed no glow at all. The halo is now a `filter: drop-shadow()` pair —
+  which follows the alpha of the ~5px content-box disc — plus
+  `overflow: visible !important` on the closed inner only, so the glow can escape
+  the clip without touching layout geometry or any other bullet.
 - **Folded-bullet halo no longer enlarges the bullet** (`src/css/42-fold-cc.css`): the
   `0 0 0 1.5px` spread ring drew around the 12.3px border-box, so folded bullets read
   as bigger donuts than their open siblings. The halo is now a negative-spread

@@ -17588,12 +17588,15 @@ svg[role="graphics-document document"] .task {
  * Halo family follows the beam overlay's data-glow="halo" (soft color-mix glow),
  * but it must hug the ~5px painted disc, not the 12.3px border-box: .rm-bullet__inner
  * is 12.3px with a 3.65px transparent border, so a `0 0 0 Npx` spread ring would
- * draw a circle around the border-box and read as a bigger bullet. A negative
- * spread of -3.65px pulls the shadow origin in by exactly the border width, so
- * the blur starts at the fill edge and the glow — not the disc — is the only extra
- * ink. Layout geometry (width/height/margin/padding/border-width) is untouched.
- * Adjacent bullets sit ~10px apart edge-to-edge, so the 5px reach never smears
- * into the next bullet. Static box-shadow only — no rest-state animation, so
+ * draw a circle around the border-box and read as a bigger bullet, while a
+ * negative-spread outer box-shadow paints behind the fill and is clipped away.
+ * `filter: drop-shadow()` follows the alpha of the content-box fill, so the glow
+ * hugs the disc directly. Upstream sets `overflow: hidden` on the inner (with
+ * `background-clip: content-box`), which would clip the glow, so the closed
+ * inner — and only the closed inner — gets `overflow: visible !important`.
+ * Layout geometry (width/height/margin/padding/border-width) is untouched.
+ * Adjacent bullets sit ~10px apart edge-to-edge, so the 4px blur reach never
+ * smears into the next bullet. Static filter only — no rest-state animation, so
  * prefers-reduced-motion needs no override. */
 
 :root {
@@ -17613,9 +17616,10 @@ body.roam-body.dark {
 
 .rm-bullet.rm-bullet--closed .rm-bullet__inner,
 .sidebar-content .rm-bullet.rm-bullet--closed .rm-bullet__inner {
-  box-shadow:
-    0 0 2.5px -3.65px color-mix(in srgb, var(--svy-fold-halo, #00695e) 55%, transparent),
-    0 0 5px -3.65px color-mix(in srgb, var(--svy-fold-halo, #00695e) 30%, transparent);
+  overflow: visible !important;
+  filter:
+    drop-shadow(0 0 1.5px color-mix(in srgb, var(--svy-fold-halo, #00695e) 85%, transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, var(--svy-fold-halo, #00695e) 50%, transparent));
 }
 
 /* Fold caret on hover only. Closed carets are .rm-caret-closed.rm-caret-hidden —

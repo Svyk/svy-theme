@@ -8,15 +8,21 @@ import test from "node:test";
 
 const css = await readFile(new URL("../src/css/42-fold-cc.css", import.meta.url), "utf8");
 
-test("the folded cue is a halo on the closed bullet's inner circle", () => {
-  assert.match(css, /\.rm-bullet--closed \.rm-bullet__inner[^{]*\{[^}]*(box-shadow:|filter:\s*drop-shadow)/s);
+test("the folded cue is a drop-shadow halo on the closed bullet's inner circle", () => {
+  assert.match(css, /\.rm-bullet--closed \.rm-bullet__inner[^{]*\{[^}]*filter:\s*drop-shadow/s);
   assert.match(css, /\.sidebar-content \.rm-bullet\.rm-bullet--closed \.rm-bullet__inner/);
+});
+
+test("the closed inner un-clips the glow with overflow: visible", () => {
+  // Upstream paints .rm-bullet__inner with overflow: hidden + background-clip:
+  // content-box, which clips any glow outside the border-box. Only the closed
+  // inner may be un-clipped — not every bullet.
+  assert.match(css, /\.rm-bullet--closed \.rm-bullet__inner[^{]*\{[^}]*overflow:\s*visible\s*!important/s);
 });
 
 test("the halo hugs the disc — no spread ring that enlarges the bullet", () => {
   // The size bug was a `0 0 0 1.5px` spread ring around the 12.3px border-box.
-  // No `0 0 0 <positive>px` shadow may come back; a negative spread that pulls
-  // the glow inside the transparent border is fine.
+  // No `0 0 0 <positive>px` shadow may come back.
   assert.doesNotMatch(css, /0 0 0 \d*\.?\d+px/);
 });
 
