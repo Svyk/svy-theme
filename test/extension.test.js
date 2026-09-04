@@ -58,7 +58,6 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
   assert.deepEqual(api.calls, [
     ["setting:set", "bp-appearance", "auto"],
     ...EXPECTED_BEAM_SEED,
-    ["setting:set", "bp-fold-cc", true],
     ["panel:create", "Svy Theme"],
   ]);
 });
@@ -90,13 +89,11 @@ test("a second load disposes the previous runtime before registering again", asy
   assert.deepEqual(firstApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
     ...EXPECTED_BEAM_SEED,
-    ["setting:set", "bp-fold-cc", true],
     ["panel:create", "Svy Theme"],
   ]);
   assert.deepEqual(secondApi.calls, [
     ["setting:set", "bp-appearance", "auto"],
     ...EXPECTED_BEAM_SEED,
-    ["setting:set", "bp-fold-cc", true],
     ["panel:create", "Svy Theme"],
   ]);
   await cleanup();

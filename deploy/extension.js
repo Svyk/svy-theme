@@ -1,4 +1,4 @@
-/* Svy Theme v0.2.0 | MIT | generated; edit src/ */
+/* Svy Theme v0.2.1 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -706,125 +706,6 @@ function installCaretOverlay({
   };
 }
 
-// src/fold-cc.js
-var FOLD_CC_SETTING_ID = "bp-fold-cc";
-var FOLD_CC_ATTR = "data-svy-cc";
-var FOLD_CC_DEFAULT = true;
-var CHILD_COUNT_PATTERN = "[:block/children]";
-var CLOSED_BULLET_SELECTOR = ":scope > .rm-block__self .rm-bullet--closed, :scope > .rm-block-main .rm-bullet--closed";
-var CARET_SELECTOR = ":scope > .rm-block__self .rm-caret, :scope > .rm-block-main .rm-caret";
-var BLOCK_CONTAINER_SELECTOR = ".roam-block-container, .rm-block";
-async function initializeFoldCcSettings(extensionAPI) {
-  if (extensionAPI.settings.canSet === false) return;
-  if (extensionAPI.settings.get(FOLD_CC_SETTING_ID) == null) {
-    await extensionAPI.settings.set(FOLD_CC_SETTING_ID, FOLD_CC_DEFAULT);
-  }
-}
-function childCount(uid, dataApi) {
-  if (!uid || typeof dataApi?.pull !== "function") return 0;
-  try {
-    const info = dataApi.pull(CHILD_COUNT_PATTERN, [":block/uid", uid]);
-    return (info?.[":block/children"] || []).length;
-  } catch {
-    return 0;
-  }
-}
-function stampClosedBlock(block2, dataApi) {
-  if (!block2) return;
-  const caret = block2.querySelector?.(CARET_SELECTOR);
-  if (!caret) return;
-  const closedBullet = block2.querySelector?.(CLOSED_BULLET_SELECTOR);
-  if (!closedBullet) {
-    caret.removeAttribute?.(FOLD_CC_ATTR);
-    return;
-  }
-  const n = childCount(block2.getAttribute?.("data-block-uid"), dataApi);
-  if (n > 0) caret.setAttribute(FOLD_CC_ATTR, n > 99 ? "99+" : String(n));
-  else caret.removeAttribute?.(FOLD_CC_ATTR);
-}
-function isBlockContainer(element) {
-  return Boolean(element?.matches?.(BLOCK_CONTAINER_SELECTOR));
-}
-function isBullet(element) {
-  return Boolean(element?.matches?.(".rm-bullet"));
-}
-function isElement(node) {
-  return typeof node?.querySelectorAll === "function" && typeof node?.matches === "function";
-}
-function installFoldCc({
-  extensionAPI,
-  lifecycle,
-  doc = globalThis.document,
-  ObserverImpl = globalThis.MutationObserver,
-  dataApi = globalThis.roamAlphaAPI?.data
-} = {}) {
-  if (!doc?.documentElement || !doc?.body || typeof ObserverImpl !== "function") {
-    return { refresh() {
-    }, get enabled() {
-      return false;
-    } };
-  }
-  const isEnabled = () => normalizeSwitch(extensionAPI?.settings?.get?.(FOLD_CC_SETTING_ID), FOLD_CC_DEFAULT);
-  const stamp = (block2) => {
-    if (isEnabled()) {
-      stampClosedBlock(block2, dataApi);
-      return;
-    }
-    const caret = block2.querySelector?.(CARET_SELECTOR);
-    caret?.removeAttribute?.(FOLD_CC_ATTR);
-  };
-  const scanAll = () => {
-    for (const bullet of doc.querySelectorAll(".rm-bullet--closed")) {
-      const block2 = bullet.closest?.(BLOCK_CONTAINER_SELECTOR);
-      if (block2) stamp(block2);
-    }
-  };
-  const clearAll = () => {
-    for (const element of doc.querySelectorAll(`[${FOLD_CC_ATTR}]`)) {
-      element.removeAttribute?.(FOLD_CC_ATTR);
-    }
-  };
-  const refresh = () => {
-    if (isEnabled()) scanAll();
-    else clearAll();
-  };
-  const onMutations = (mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        for (const node of mutation.addedNodes || []) {
-          if (!isElement(node)) continue;
-          if (isBlockContainer(node)) {
-            stamp(node);
-          } else {
-            for (const bullet of node.querySelectorAll(".rm-bullet--closed")) {
-              const block2 = bullet.closest?.(BLOCK_CONTAINER_SELECTOR);
-              if (block2) stamp(block2);
-            }
-          }
-        }
-      } else if (mutation.type === "attributes" && mutation.attributeName === "class") {
-        const target = mutation.target;
-        if (isBlockContainer(target)) {
-          stamp(target);
-        } else if (isBullet(target)) {
-          const block2 = target.closest?.(BLOCK_CONTAINER_SELECTOR);
-          if (block2) stamp(block2);
-        }
-      }
-    }
-  };
-  lifecycle.observer(
-    new ObserverImpl(onMutations),
-    doc.body || doc.documentElement,
-    { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] }
-  );
-  refresh();
-  lifecycle.add(() => clearAll());
-  return { refresh, get enabled() {
-    return isEnabled();
-  } };
-}
-
 // src/settings.js
 var SETTING_IDS = Object.freeze({
   appearance: "bp-appearance"
@@ -906,7 +787,7 @@ function createBeamPreviewComponent(React = globalThis.window?.React) {
     );
   };
 }
-function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, onFoldCcChange, React } = {}) {
+function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = {}) {
   const changed = () => {
     onThemeVarsChange?.();
   };
@@ -923,12 +804,6 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, onFoldCcCh
           onAppearanceChange?.(event?.target?.value);
         }
       }
-    },
-    {
-      id: FOLD_CC_SETTING_ID,
-      name: "Folded child count",
-      description: "On collapsed bullets, show how many children are hidden in the fold-caret slot. The teal ring stays either way.",
-      action: { type: "switch", onChange: () => onFoldCcChange?.() }
     },
     {
       id: BEAM_SETTING_IDS.pack,
@@ -1229,10 +1104,8 @@ async function onload({ extensionAPI, extension }) {
   try {
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
-    await initializeFoldCcSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
     const caretOverlay = installCaretOverlay({ extensionAPI, lifecycle });
-    const foldCc = installFoldCc({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
       createSettingsPanel({
@@ -1240,8 +1113,7 @@ async function onload({ extensionAPI, extension }) {
         onThemeVarsChange: () => {
           themeVars.refresh();
           caretOverlay.refresh();
-        },
-        onFoldCcChange: () => foldCc.refresh()
+        }
       })
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });

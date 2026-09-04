@@ -1,30 +1,52 @@
-/* Folded-bullet cue. Ring is always on. Count paints only when JS stamped data-svy-cc. */
+/* Folded-bullet cue, CSS-only. Rest state is a caret-colored halo around the folded
+ * bullet — no ring override, no child count, no rest-state caret. The native fold
+ * caret appears on hover of the block's own line.
+ *
+ * Keyed on .rm-bullet--closed .rm-bullet__inner ("has hidden children"), never on
+ * .rm-block--closed alone (a superset: some --closed blocks hide zero children).
+ *
+ * The halo color reads --svy-beam-caret when the beam pack publishes it and falls
+ * back per mode when it does not — the cue stays on with the beam pack off, so this
+ * layer is deliberately NOT scoped under :root:not(.svy-off-beam).
+ *
+ * Halo family follows the beam overlay's data-glow="halo" (color-mix ring + soft
+ * outer glow) scaled down to a 12px disc: a crisp 1.5px ring at 45% plus a 6px
+ * blur at 30%. Adjacent bullets sit ~10px apart edge-to-edge, so the 6px reach
+ * never smears into the next bullet. Static box-shadow only — no rest-state
+ * animation, so prefers-reduced-motion needs no override. */
+
+:root {
+  --svy-fold-halo: var(--svy-beam-caret, #00695e);
+}
+
+:root.bp3-dark, body.bt-theme-dark, .rm-dark-theme,
+body.roam-body.dark {
+  --svy-fold-halo: var(--svy-beam-caret, #48d0c0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.bp3-light) {
+    --svy-fold-halo: var(--svy-beam-caret, #48d0c0);
+  }
+}
 
 .rm-bullet.rm-bullet--closed .rm-bullet__inner,
 .sidebar-content .rm-bullet.rm-bullet--closed .rm-bullet__inner {
-  background-color: transparent !important;
-  border: 1.5px solid var(--svy-beam-caret, #00695e) !important;
-  box-sizing: border-box;
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--svy-fold-halo, #00695e) 45%, transparent),
+    0 0 6px color-mix(in srgb, var(--svy-fold-halo, #00695e) 30%, transparent);
 }
 
-.rm-block--closed > .rm-block__self .rm-caret.rm-caret-closed[data-svy-cc],
-.rm-block--closed > .rm-block-main .rm-caret.rm-caret-closed[data-svy-cc] {
+/* Fold caret on hover only. Closed carets are .rm-caret-closed.rm-caret-hidden —
+ * never .rm-caret-showing — so upstream's
+ * .rm-block__self:hover > .controls > .block-expand > .rm-caret-showing rule never
+ * fires for a folded block. Unhide the closed caret on hover of the block's own
+ * line (both .controls and .rm-block__controls generations of Roam's DOM); every
+ * other caret on the page stays untouched. The mobile (max-width: 600px)
+ * caret-always-visible rules in the base layer are left alone. */
+.rm-block__self:hover > .controls > .block-expand > .rm-caret.rm-caret-closed,
+.rm-block__self:hover .rm-block__controls .rm-caret.rm-caret-closed,
+.rm-block-main:hover > .controls > .block-expand > .rm-caret.rm-caret-closed,
+.rm-block-main:hover .rm-block__controls .rm-caret.rm-caret-closed {
   opacity: 1 !important;
-  color: transparent !important;
-  width: 16px;
-  min-width: 16px;
-  justify-content: center;
-  align-items: center;
-}
-
-.rm-block--closed > .rm-block__self .rm-caret.rm-caret-closed[data-svy-cc]::before,
-.rm-block--closed > .rm-block-main .rm-caret.rm-caret-closed[data-svy-cc]::before {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-  font-size: 10px !important;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
-  line-height: 1;
-  color: var(--svy-beam-caret, #00695e);
-  content: attr(data-svy-cc);
 }

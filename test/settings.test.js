@@ -2,10 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  FOLD_CC_SETTING_ID,
-  initializeFoldCcSettings,
-} from "../src/fold-cc.js";
-import {
   APPEARANCE_MODES,
   SETTING_IDS,
   createBeamPreviewComponent,
@@ -391,51 +387,10 @@ test("beam rows notify the theme-vars writer, and bp-appearance keeps its own ha
   assert.deepEqual(refreshes, []);
 
   for (const row of panel.settings.slice(1)) {
-    // The fold-cc switch has its own callback; it is not a theme-vars row.
-    if (row.id === FOLD_CC_SETTING_ID) continue;
     row.action.onChange?.({ target: { value: "x" } });
   }
   assert.equal(refreshes.length, Object.keys(BEAM_SETTING_IDS).length);
   assert.deepEqual(appearance, ["dark"]);
-});
-
-test("the fold-cc row sits after appearance as a switch and notifies only onFoldCcChange", () => {
-  const refreshes = [];
-  const foldCcRefreshes = [];
-  const panel = createSettingsPanel({
-    onThemeVarsChange: () => refreshes.push(true),
-    onFoldCcChange: () => foldCcRefreshes.push(true),
-  });
-
-  assert.equal(panel.settings[0].id, SETTING_IDS.appearance);
-  const row = panel.settings[1];
-  assert.equal(row.id, FOLD_CC_SETTING_ID);
-  assert.equal(row.action.type, "switch");
-  assert.equal(row.name, "Folded child count");
-
-  row.action.onChange();
-  assert.equal(foldCcRefreshes.length, 1);
-  assert.equal(refreshes.length, 0, "fold-cc must not bump the theme-vars writer");
-});
-
-test("initializeFoldCcSettings seeds true once, then is a no-op", async () => {
-  const api = fakeExtensionApi();
-  await initializeFoldCcSettings(api);
-  assert.deepEqual(api.calls, [["setting:set", FOLD_CC_SETTING_ID, true]]);
-  assert.equal(api.settings.get(FOLD_CC_SETTING_ID), true);
-
-  api.calls.length = 0;
-  await initializeFoldCcSettings(api);
-  assert.deepEqual(api.calls, []);
-
-  const stored = fakeExtensionApi({ [FOLD_CC_SETTING_ID]: false });
-  await initializeFoldCcSettings(stored);
-  assert.deepEqual(stored.calls, [], "an explicit user choice is never rewritten");
-
-  const locked = fakeExtensionApi();
-  locked.settings.canSet = false;
-  await initializeFoldCcSettings(locked);
-  assert.deepEqual(locked.calls, []);
 });
 
 test("the React preview row appears only when Roam's React is available", () => {
