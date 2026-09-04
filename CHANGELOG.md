@@ -8,9 +8,9 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 - **Folded-bullet cue** (`src/css/42-fold-cc.css`, CSS-only): a static caret-colored
   halo on `.rm-bullet--closed` (`--svy-beam-caret` in both modes, with per-mode
-  fallbacks so the cue survives the beam pack being switched off) — a crisp
-  color-mix ring plus a soft 6px outer glow, scaled to the 12px bullet so adjacent
-  bullets never smear. No rest-state caret, triangle, or count: the native fold
+  fallbacks so the cue survives the beam pack being switched off) — a soft
+  color-mix glow that hugs the ~5px painted disc via negative spread, scaled so
+  adjacent bullets never smear. No rest-state caret, triangle, or count: the native fold
   caret is unhidden on hover of the block's own line only. Replaces the v0.2.0
   hollow ring plus `data-svy-cc` child count and deletes the `bp-fold-cc` setting
   and its observer/pull path (`src/fold-cc.js`).
@@ -58,6 +58,13 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Fixed
 
+- **Folded-bullet halo no longer enlarges the bullet** (`src/css/42-fold-cc.css`): the
+  `0 0 0 1.5px` spread ring drew around the 12.3px border-box, so folded bullets read
+  as bigger donuts than their open siblings. The halo is now a negative-spread
+  (`-3.65px`, the transparent border width) box-shadow whose glow originates at the
+  ~5px painted disc's edge — same disc diameter as an open bullet, only extra ink is
+  a soft caret-colored glow. Layout geometry of `.rm-bullet` / `.rm-bullet__inner`
+  is untouched.
 - **Beam overlay on CSS-transformed surfaces.** Plexus Diagram (`.pxd-world` /
   `.pxd-root`) and Roam Grid (`.rg-root` / `.rg-portal`) scale their canvases with
   `transform: scale()`. `measureCaretRect` now derives `scaleX` / `scaleY` from
