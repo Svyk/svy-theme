@@ -65,6 +65,7 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
 | Row | id | Control | Default |
 |---|---|---|---|
 | Appearance | `bp-appearance` | select `auto` / `dark` / `light` | `auto` |
+| Folded child count | `bp-fold-cc` | switch | on |
 | Svy Beam | `bp-pack-beam` | switch | on |
 | Caret color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
 | Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |

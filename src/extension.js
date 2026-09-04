@@ -1,6 +1,7 @@
 import { createLifecycle } from "./lifecycle.js";
 import { installCaretOverlay } from "./caret-overlay.js";
 import { installDarkSignalBridge } from "./dark-signal-bridge.js";
+import { installFoldCc, initializeFoldCcSettings } from "./fold-cc.js";
 import { applyAppearance, installDarkModeToggle } from "./dm-toggle.js";
 import { createSettingsPanel, initializeBeamSettings, initializeSettings } from "./settings.js";
 import { installThemeVars } from "./theme-vars.js";
@@ -16,8 +17,10 @@ export async function onload({ extensionAPI, extension }) {
   try {
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
+    await initializeFoldCcSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
     const caretOverlay = installCaretOverlay({ extensionAPI, lifecycle });
+    const foldCc = installFoldCc({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
       createSettingsPanel({
@@ -26,6 +29,7 @@ export async function onload({ extensionAPI, extension }) {
           themeVars.refresh();
           caretOverlay.refresh();
         },
+        onFoldCcChange: () => foldCc.refresh(),
       }),
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });

@@ -6,6 +6,12 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Added
 
+- **Folded-bullet cue** (`src/fold-cc.js`, `src/css/42-fold-cc.css`): a hollow teal ring
+  on `.rm-bullet--closed` (always on, tinted from `--svy-beam-caret`) plus the hidden
+  direct-child count painted into the folded block's 16px caret slot. Folded children
+  are unmounted in Roam's DOM, so the count is a read-only `data.pull` of
+  `[:block/children]` stamped as `data-svy-cc` on the caret — not a CSS counter. The new
+  `bp-fold-cc` switch (default on) toggles the count; the ring stays either way.
 - **Chief of Staff chat panel** (`src/css/20-plugins.css`): remaps
   `[data-chief-chat-panel]` `--cos-*` tokens onto `--svy-*` (raised surface,
   accent border on the user bubble, no tinted fills, theme font). `!important`

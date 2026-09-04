@@ -23,6 +23,7 @@ const expectedCssLayers = [
   "30-absorbed.css",
     "40-beam.css",
     "41-beam-motion.css",
+  "42-fold-cc.css",
 ];
 
 const run = promisify(execFile);
@@ -60,7 +61,7 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   assert.match(rootJs, /export\s*\{[\s\S]*default/);
   const rebuilt = await bundleEntry({
     rootDirectory: rootPath,
-    banner: "/* Svy Theme v0.1.0 | MIT | generated; edit src/ */",
+    banner: "/* Svy Theme v0.2.0 | MIT | generated; edit src/ */",
   });
   assert.equal(rebuilt, rootJs);
 

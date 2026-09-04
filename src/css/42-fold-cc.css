@@ -1,0 +1,30 @@
+/* Folded-bullet cue. Ring is always on. Count paints only when JS stamped data-svy-cc. */
+
+.rm-bullet.rm-bullet--closed .rm-bullet__inner,
+.sidebar-content .rm-bullet.rm-bullet--closed .rm-bullet__inner {
+  background-color: transparent !important;
+  border: 1.5px solid var(--svy-beam-caret, #00695e) !important;
+  box-sizing: border-box;
+}
+
+.rm-block--closed > .rm-block__self .rm-caret.rm-caret-closed[data-svy-cc],
+.rm-block--closed > .rm-block-main .rm-caret.rm-caret-closed[data-svy-cc] {
+  opacity: 1 !important;
+  color: transparent !important;
+  width: 16px;
+  min-width: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.rm-block--closed > .rm-block__self .rm-caret.rm-caret-closed[data-svy-cc]::before,
+.rm-block--closed > .rm-block-main .rm-caret.rm-caret-closed[data-svy-cc]::before {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1;
+  color: var(--svy-beam-caret, #00695e);
+  content: attr(data-svy-cc);
+}

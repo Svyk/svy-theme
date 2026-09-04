@@ -1,3 +1,4 @@
+import { FOLD_CC_SETTING_ID } from "./fold-cc.js";
 import {
   BEAM_DEFAULTS,
   BEAM_SETTING_IDS,
@@ -145,7 +146,7 @@ export function createBeamPreviewComponent(React = globalThis.window?.React) {
   };
 }
 
-export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = {}) {
+export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, onFoldCcChange, React } = {}) {
   const changed = () => { onThemeVarsChange?.(); };
   const preview = createBeamPreviewComponent(React);
 
@@ -161,6 +162,12 @@ export function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, Rea
           onAppearanceChange?.(event?.target?.value);
         },
       },
+    },
+    {
+      id: FOLD_CC_SETTING_ID,
+      name: "Folded child count",
+      description: "On collapsed bullets, show how many children are hidden in the fold-caret slot. The teal ring stays either way.",
+      action: { type: "switch", onChange: () => onFoldCcChange?.() },
     },
     {
       id: BEAM_SETTING_IDS.pack,
