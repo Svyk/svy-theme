@@ -64,6 +64,12 @@ export function needsOverlay({ pack, caretShape }) {
   return Boolean(pack) && caretShape !== "native";
 }
 
+// Cursor Smith paints its own canvas caret. Yield the Beam overlay when Smith is loaded
+// so users never see two insertion points stacked.
+export function smithOwnsCaret(win, doc) {
+  return Boolean(win?.__ROAM_CURSOR_SMITH_VERSION) || doc?.body?.classList?.contains("cs-active");
+}
+
 // Viewport-space caret rectangle for a textarea/input, measured by replaying its text up
 // to the insertion point into an offscreen mirror with identical box metrics.
 export function measureCaretRect(element, doc, win) {
@@ -258,6 +264,10 @@ export function installCaretOverlay({
   };
 
   const render = () => {
+    if (smithOwnsCaret(win, doc)) {
+      hide();
+      return;
+    }
     if (!enabled || !target || !overlay) return;
     if (!target.isConnected) {
       hide();
@@ -322,6 +332,10 @@ export function installCaretOverlay({
   };
 
   const show = (element) => {
+    if (smithOwnsCaret(win, doc)) {
+      hide();
+      return;
+    }
     if (!enabled || !isTextTarget(element)) return;
     ensureOverlay();
     target = element;
@@ -395,7 +409,7 @@ export function installCaretOverlay({
 
   const apply = () => {
     config = readSettings();
-    enabled = needsOverlay(config);
+    enabled = needsOverlay(config) && !smithOwnsCaret(win, doc);
     blinkOn = config.caretBlink;
     syncBlink();
     if (!enabled) {
@@ -415,6 +429,13 @@ export function installCaretOverlay({
   lifecycle.event(win, "scroll", onScroll, true);
   lifecycle.event(win, "resize", onScroll);
   if (motionQuery?.addEventListener) lifecycle.event(motionQuery, "change", apply);
+  if (doc.body && typeof globalThis.MutationObserver === "function") {
+    lifecycle.observer(
+      new globalThis.MutationObserver(() => apply()),
+      doc.body,
+      { attributes: true, attributeFilter: ["class"], subtree: false },
+    );
+  }
   lifecycle.add(() => {
     if (blinkTimer) globalThis.clearInterval(blinkTimer);
     if (pingTimer) globalThis.clearTimeout(pingTimer);

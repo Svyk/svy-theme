@@ -1,4 +1,4 @@
-/* Svy Theme v0.2.3 | MIT | generated; edit src/ */
+/* Svy Theme v0.2.4 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -385,6 +385,9 @@ function supportsNativeCaretShape(css = globalThis.CSS) {
 function needsOverlay({ pack, caretShape }) {
   return Boolean(pack) && caretShape !== "native";
 }
+function smithOwnsCaret(win, doc) {
+  return Boolean(win?.__ROAM_CURSOR_SMITH_VERSION) || doc?.body?.classList?.contains("cs-active");
+}
 function measureCaretRect(element, doc, win) {
   const computed = win.getComputedStyle(element);
   const mirror = doc.createElement("div");
@@ -553,6 +556,10 @@ function installCaretOverlay({
     lifecycle.node(overlay, doc.body || doc.documentElement);
   };
   const render = () => {
+    if (smithOwnsCaret(win, doc)) {
+      hide();
+      return;
+    }
     if (!enabled || !target || !overlay) return;
     if (!target.isConnected) {
       hide();
@@ -606,6 +613,10 @@ function installCaretOverlay({
     }
   };
   const show = (element) => {
+    if (smithOwnsCaret(win, doc)) {
+      hide();
+      return;
+    }
     if (!enabled || !isTextTarget(element)) return;
     ensureOverlay();
     target = element;
@@ -673,7 +684,7 @@ function installCaretOverlay({
   };
   const apply = () => {
     config = readSettings();
-    enabled = needsOverlay(config);
+    enabled = needsOverlay(config) && !smithOwnsCaret(win, doc);
     blinkOn = config.caretBlink;
     syncBlink();
     if (!enabled) {
@@ -692,6 +703,13 @@ function installCaretOverlay({
   lifecycle.event(win, "scroll", onScroll, true);
   lifecycle.event(win, "resize", onScroll);
   if (motionQuery?.addEventListener) lifecycle.event(motionQuery, "change", apply);
+  if (doc.body && typeof globalThis.MutationObserver === "function") {
+    lifecycle.observer(
+      new globalThis.MutationObserver(() => apply()),
+      doc.body,
+      { attributes: true, attributeFilter: ["class"], subtree: false }
+    );
+  }
   lifecycle.add(() => {
     if (blinkTimer) globalThis.clearInterval(blinkTimer);
     if (pingTimer) globalThis.clearTimeout(pingTimer);

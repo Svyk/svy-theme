@@ -200,6 +200,15 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
   the `blueprint-dm-toggle` class Better Tasks depends on and the `bp-appearance`
   auto/dark/light setting.
 
+## [0.2.4] - 2026-09-07
+
+### Fixed
+
+- **Cursor Smith caret yield** (`src/caret-overlay.js`, `src/css/40-beam.css`): Svy Beam
+  now hides its overlay and stops stamping `svy-block-caret` when Cursor Smith is loaded
+  (`__ROAM_CURSOR_SMITH_VERSION` or `body.cs-active`), so Smith's canvas caret is the
+  only insertion point. Beam stays on when Smith is absent.
+
 ## [0.1.0] - 2026-08-03
 
 ### Added

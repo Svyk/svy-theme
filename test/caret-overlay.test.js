@@ -10,6 +10,7 @@ import {
   isTextTarget,
   measureCaretRect,
   needsOverlay,
+  smithOwnsCaret,
   supportsNativeCaretShape,
 } from "../src/caret-overlay.js";
 import { createLifecycle } from "../src/lifecycle.js";
@@ -400,12 +401,40 @@ test("install is a no-op without a DOM", () => {
   assert.doesNotThrow(() => overlay.refresh());
 });
 
+test("smithOwnsCaret is true when Smith version flag or cs-active is present", () => {
+  const win = createFakeWindow();
+  const doc = createFakeDocument(win);
+  assert.equal(smithOwnsCaret(win, doc), false);
+  win.__ROAM_CURSOR_SMITH_VERSION = "1.3.3";
+  assert.equal(smithOwnsCaret(win, doc), true);
+  delete win.__ROAM_CURSOR_SMITH_VERSION;
+  doc.body.classList.add("cs-active");
+  assert.equal(smithOwnsCaret(win, doc), true);
+});
+
+test("installCaretOverlay does not stamp svy-block-caret when Smith owns the caret", () => {
+  const win = createFakeWindow();
+  win.__ROAM_CURSOR_SMITH_VERSION = "1.3.3";
+  const doc = createFakeDocument(win);
+  installCaretOverlay({
+    extensionAPI: fakeExtensionApi(),
+    lifecycle: createLifecycle(),
+    doc,
+    win,
+    nativeSupported: false,
+  });
+  doc.fire("focusin", { target: makeTextarea(doc) });
+  assert.equal(doc.documentElement.classList.contains(BLOCK_CARET_CLASS), false);
+});
+
 test("regression: 40-beam.css carries a native bar fallback and custom-caret suppression", async () => {
   const layer = await readFile(BEAM_LAYER_URL, "utf8");
   assert.match(layer, /caret-shape: var\(--svy-beam-caret-shape, bar\) !important;/);
   assert.match(layer, /caret-animation: var\(--svy-beam-caret-animation, manual\) !important;/);
   // The overlay's native-caret suppression must exist and stay behind the pack gate.
   assert.match(layer, /:not\(\.svy-off-beam\)\.svy-block-caret[\s\S]*?caret-color: transparent !important;/);
+  assert.match(layer, /body\.cs-active/);
+  assert.match(layer, /svy-caret-overlay-ui/);
 
   // The Svy beam progressively falls back to a native bar; CSS UI shapes map directly.
   assert.equal(computeThemeVars(BEAM_DEFAULTS).base["--svy-beam-caret-shape"], "bar");

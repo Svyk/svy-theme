@@ -17422,6 +17422,11 @@ svg[role="graphics-document document"] .task {
   will-change: transform, filter, opacity;
 }
 
+/* Cursor Smith owns the insertion point when active — hide Beam's overlay node only. */
+:root:not(.svy-off-beam):has(body.cs-active) .svy-caret-overlay-ui {
+  display: none !important;
+}
+
 :root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="soft"] {
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--svy-caret-overlay-color) 18%, transparent),
