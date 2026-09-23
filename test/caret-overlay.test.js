@@ -433,7 +433,7 @@ test("regression: 40-beam.css carries a native bar fallback and custom-caret sup
   assert.match(layer, /caret-animation: var\(--svy-beam-caret-animation, manual\) !important;/);
   // The overlay's native-caret suppression must exist and stay behind the pack gate.
   assert.match(layer, /:not\(\.svy-off-beam\)\.svy-block-caret[\s\S]*?caret-color: transparent !important;/);
-  assert.match(layer, /body\.cs-active/);
+  assert.doesNotMatch(layer, /:has\(body\.cs-active\)/);
   assert.match(layer, /svy-caret-overlay-ui/);
 
   // The Svy beam progressively falls back to a native bar; CSS UI shapes map directly.

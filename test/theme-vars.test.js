@@ -6,6 +6,7 @@ import { createLifecycle } from "../src/lifecycle.js";
 import {
   BEAM_DEFAULTS,
   BEAM_OFF_CLASS,
+  BEAM_WASH_CLASS,
   BEAM_SETTING_IDS,
   DARK_MEDIA_SELECTOR,
   DARK_SELECTORS,
@@ -644,6 +645,12 @@ test("the beam pack toggle adds and removes the gating class on documentElement"
   api.values.set(BEAM_SETTING_IDS.pack, true);
   handle.refresh();
   assert.equal(doc.documentElement.classList.contains(BEAM_OFF_CLASS), false);
+  assert.equal(doc.documentElement.classList.contains(BEAM_WASH_CLASS), false);
+
+  api.values.set(BEAM_SETTING_IDS.wash, true);
+  api.values.set(BEAM_SETTING_IDS.washIntensity, "subtle");
+  handle.refresh();
+  assert.equal(doc.documentElement.classList.contains(BEAM_WASH_CLASS), true);
 
   api.values.set(BEAM_SETTING_IDS.pack, false);
   handle.refresh();

@@ -98,11 +98,6 @@
   will-change: transform, filter, opacity;
 }
 
-/* Cursor Smith owns the insertion point when active — hide Beam's overlay node only. */
-:root:not(.svy-off-beam):has(body.cs-active) .svy-caret-overlay-ui {
-  display: none !important;
-}
-
 :root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="soft"] {
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--svy-caret-overlay-color) 18%, transparent),
@@ -173,12 +168,14 @@
 /* Roam uses the browser's native textarea caret, so caret-position animation would
  * need a typing-path JavaScript overlay. Keep Roam native-fast and carry the same
  * sense of motion with a tiny, compositor-friendly focus wash instead. */
-:root:not(.svy-off-beam) .roam-block-container > .rm-block-main {
+/* Off unless theme-vars.js adds .svy-beam-wash. A :focus-within rule on every
+   block is checked on every focus move, and the wash defaults to off. */
+:root:not(.svy-off-beam).svy-beam-wash .roam-block-container > .rm-block-main {
   transition: background-color var(--svy-beam-wash-duration, 0ms) linear;
   border-radius: var(--svy-beam-wash-radius, 4px);
 }
 
-:root:not(.svy-off-beam) .roam-block-container:focus-within > .rm-block-main {
+:root:not(.svy-off-beam).svy-beam-wash .roam-block-container:focus-within > .rm-block-main {
   background-color: var(--svy-beam-wash);
 }
 
@@ -216,11 +213,11 @@
     filter: none !important;
   }
 
-  :root:not(.svy-off-beam) .roam-block-container > .rm-block-main {
+  :root:not(.svy-off-beam).svy-beam-wash .roam-block-container > .rm-block-main {
     transition: none;
   }
 
-  :root:not(.svy-off-beam) .roam-block-container:focus-within > .rm-block-main {
+  :root:not(.svy-off-beam).svy-beam-wash .roam-block-container:focus-within > .rm-block-main {
     background-color: transparent;
   }
 }

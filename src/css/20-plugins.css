@@ -30,8 +30,8 @@
 }
 
 /* 2. Dark color for the dashes (light mode untouched). */
-:root.bp3-dark #inserts_btns span, body.bt-theme-dark #inserts_btns span, .rm-dark-theme #inserts_btns span,
-body.roam-body.dark #inserts_btns span {
+:root.bp3-dark #inserts_btns span,
+.rm-dark-theme #inserts_btns span {
   color: #8A9BA8;
 }
 @media (prefers-color-scheme: dark) {
@@ -120,9 +120,7 @@ body.roam-body.dark #inserts_btns span {
 }
 
 :root.bp3-dark [data-chief-chat-panel],
-body.bt-theme-dark [data-chief-chat-panel],
-.rm-dark-theme [data-chief-chat-panel],
-body.roam-body.dark [data-chief-chat-panel] {
+.rm-dark-theme [data-chief-chat-panel] {
   --cos-panel-bg: var(--svy-raised, #293742) !important;
   --cos-panel-text: var(--svy-text, #e1e8ed) !important;
   --cos-muted: var(--svy-text-muted, #b3c1cc) !important;
@@ -132,19 +130,13 @@ body.roam-body.dark [data-chief-chat-panel] {
   color: var(--svy-text, #e1e8ed) !important;
 }
 :root.bp3-dark [data-chief-chat-panel] .chief-tab,
-body.bt-theme-dark [data-chief-chat-panel] .chief-tab,
-.rm-dark-theme [data-chief-chat-panel] .chief-tab,
-body.roam-body.dark [data-chief-chat-panel] .chief-tab {
+.rm-dark-theme [data-chief-chat-panel] .chief-tab {
   color: var(--svy-text-muted, #b3c1cc) !important;
 }
 :root.bp3-dark [data-chief-chat-panel] .chief-tab:hover,
 :root.bp3-dark [data-chief-chat-panel] .chief-tab--active,
-body.bt-theme-dark [data-chief-chat-panel] .chief-tab:hover,
-body.bt-theme-dark [data-chief-chat-panel] .chief-tab--active,
 .rm-dark-theme [data-chief-chat-panel] .chief-tab:hover,
-.rm-dark-theme [data-chief-chat-panel] .chief-tab--active,
-body.roam-body.dark [data-chief-chat-panel] .chief-tab:hover,
-body.roam-body.dark [data-chief-chat-panel] .chief-tab--active {
+.rm-dark-theme [data-chief-chat-panel] .chief-tab--active {
   color: var(--svy-text, #e1e8ed) !important;
   border-bottom-color: var(--svy-accent, #48aff0) !important;
 }
@@ -152,24 +144,14 @@ body.roam-body.dark [data-chief-chat-panel] .chief-tab--active {
 :root.bp3-dark [data-chief-chat-panel] .chief-panel-btn,
 :root.bp3-dark [data-chief-chat-panel] .chief-panel-btn--close,
 :root.bp3-dark [data-chief-chat-panel] [data-chief-chat-send],
-body.bt-theme-dark [data-chief-chat-panel] .chief-panel-title,
-body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn,
-body.bt-theme-dark [data-chief-chat-panel] .chief-panel-btn--close,
-body.bt-theme-dark [data-chief-chat-panel] [data-chief-chat-send],
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-title,
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-btn,
 .rm-dark-theme [data-chief-chat-panel] .chief-panel-btn--close,
-.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-send],
-body.roam-body.dark [data-chief-chat-panel] .chief-panel-title,
-body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn,
-body.roam-body.dark [data-chief-chat-panel] .chief-panel-btn--close,
-body.roam-body.dark [data-chief-chat-panel] [data-chief-chat-send] {
+.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-send] {
   color: var(--svy-text, #e1e8ed) !important;
 }
 :root.bp3-dark [data-chief-chat-panel] [data-chief-chat-cost],
-body.bt-theme-dark [data-chief-chat-panel] [data-chief-chat-cost],
-.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-cost],
-body.roam-body.dark [data-chief-chat-panel] [data-chief-chat-cost] {
+.rm-dark-theme [data-chief-chat-panel] [data-chief-chat-cost] {
   color: var(--svy-text-muted, #b3c1cc) !important;
 }
 

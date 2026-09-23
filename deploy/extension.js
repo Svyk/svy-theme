@@ -1,4 +1,4 @@
-/* Svy Theme v0.3.1 | MIT | generated; edit src/ */
+/* Svy Theme v0.3.2 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -88,6 +88,7 @@ function createLifecycle() {
 // src/theme-vars.js
 var THEME_VARS_STYLE_ID = "svy-theme-vars";
 var BEAM_OFF_CLASS = "svy-off-beam";
+var BEAM_WASH_CLASS = "svy-beam-wash";
 var BEAM_SETTING_IDS = Object.freeze({
   pack: "bp-pack-beam",
   caretLight: "bp-beam-caret-light",
@@ -323,8 +324,12 @@ ${block(DARK_MEDIA_SELECTOR, dark, "  ")}}
 function applyPackClasses(doc, config) {
   const root = doc?.documentElement;
   if (!root?.classList) return;
-  if (normalizeBeamConfig(config).pack) root.classList.remove(BEAM_OFF_CLASS);
+  const normalized = normalizeBeamConfig(config);
+  if (normalized.pack) root.classList.remove(BEAM_OFF_CLASS);
   else root.classList.add(BEAM_OFF_CLASS);
+  const washOn = normalized.pack && normalized.wash && normalized.washIntensity !== "off";
+  if (washOn) root.classList.add(BEAM_WASH_CLASS);
+  else root.classList.remove(BEAM_WASH_CLASS);
 }
 function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }) {
   if (!doc?.createElement) return { refresh() {
@@ -333,7 +338,10 @@ function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }
   style.id = THEME_VARS_STYLE_ID;
   style.type = "text/css";
   lifecycle.node(style, doc.head || doc.documentElement);
-  lifecycle.add(() => doc.documentElement?.classList?.remove(BEAM_OFF_CLASS));
+  lifecycle.add(() => {
+    doc.documentElement?.classList?.remove(BEAM_OFF_CLASS);
+    doc.documentElement?.classList?.remove(BEAM_WASH_CLASS);
+  });
   const refresh = () => {
     const config = readBeamSettings(extensionAPI);
     style.textContent = renderThemeVarsCss(config);

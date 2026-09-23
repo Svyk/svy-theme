@@ -2,6 +2,27 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-09-22
+
+### Fixed
+
+- Top bar, left sidebar, and right sidebar use the page color (`#F5F8FA` /
+  `#202B33`). The white menu bar and the white sidebar slab were the seams.
+  Starred pages, the graph menu, log buttons, and the sidebar top row get that
+  same fill. A 1 px shadow is the divider. The menu bar's own bottom line is
+  painted the page color.
+
+### Changed
+
+- OS-dark chrome rules are no longer wrapped in `:where()`, so they win against
+  Roam's sidebar and topbar rules in Auto dark. Forced light still wins.
+- Selectors that required `body.roam-body` are gone. That class lives on a div.
+- Plugin dark colors no longer key off `body.bt-theme-dark`.
+- The Beam `:has(body.cs-active)` rule is gone. Cursor Smith already hides that
+  caret, and `:has()` on the page root is rechecked on body-class changes.
+- The focus wash's `:focus-within` rules apply only while `.svy-beam-wash` is
+  on. The wash still defaults off.
+
 ## [0.3.1] - 2026-09-22
 
 ### Fixed

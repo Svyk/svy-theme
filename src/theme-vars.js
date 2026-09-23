@@ -17,6 +17,7 @@ export const THEME_VARS_STYLE_ID = "svy-theme-vars";
 // Pack gating: 40-beam.css scopes every rule under :root:not(.svy-off-beam), so putting
 // this class on <html> disables the layer with one class test per rule and no reload.
 export const BEAM_OFF_CLASS = "svy-off-beam";
+export const BEAM_WASH_CLASS = "svy-beam-wash";
 
 export const BEAM_SETTING_IDS = Object.freeze({
   pack: "bp-pack-beam",
@@ -357,8 +358,12 @@ export function renderThemeVarsCss(config) {
 export function applyPackClasses(doc, config) {
   const root = doc?.documentElement;
   if (!root?.classList) return;
-  if (normalizeBeamConfig(config).pack) root.classList.remove(BEAM_OFF_CLASS);
+  const normalized = normalizeBeamConfig(config);
+  if (normalized.pack) root.classList.remove(BEAM_OFF_CLASS);
   else root.classList.add(BEAM_OFF_CLASS);
+  const washOn = normalized.pack && normalized.wash && normalized.washIntensity !== "off";
+  if (washOn) root.classList.add(BEAM_WASH_CLASS);
+  else root.classList.remove(BEAM_WASH_CLASS);
 }
 
 export function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }) {
@@ -369,7 +374,10 @@ export function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.doc
   style.id = THEME_VARS_STYLE_ID;
   style.type = "text/css";
   lifecycle.node(style, doc.head || doc.documentElement);
-  lifecycle.add(() => doc.documentElement?.classList?.remove(BEAM_OFF_CLASS));
+  lifecycle.add(() => {
+    doc.documentElement?.classList?.remove(BEAM_OFF_CLASS);
+    doc.documentElement?.classList?.remove(BEAM_WASH_CLASS);
+  });
 
   const refresh = () => {
     const config = readBeamSettings(extensionAPI);
