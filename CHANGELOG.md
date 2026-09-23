@@ -2,6 +2,15 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2026-09-22
+
+### Fixed
+
+- Roam settings no longer shows light vertical bars beside the section list
+  and the scrollbar. The dialog was painted the overlay color (`#30404D`),
+  and that color showed through the scrollbar gutter. Settings now uses the
+  page color.
+
 ## [0.3.4] - 2026-09-22
 
 ### Fixed

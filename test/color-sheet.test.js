@@ -106,6 +106,7 @@ test("10-colors.css stays a flat literal color sheet", async () => {
   assert.match(css, /#202B33/);
   assert.match(css, /:root:not\(\.bp3-dark\) \.rm-topbar,[\s\S]*?background-color: #F5F8FA;/);
   assert.match(css, /:root\.bp3-dark \.rm-topbar,[\s\S]*?background-color: #202B33;/);
+  assert.match(css, /:root\.bp3-dark \.rm-settings,[\s\S]*?background-color: #202B33;/);
   assert.match(css, /:root:not\(\.bp3-dark\) \.rm-topbar \{\s*border-bottom-color: #F5F8FA;/);
   assert.match(css, /\.roam-sidebar-container \{\s*box-shadow: 1px 0 0 #C5CBD3;/);
   assert.match(css, /#right-sidebar \{\s*box-shadow: -1px 0 0 #5C7080;/);

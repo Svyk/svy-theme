@@ -465,6 +465,18 @@ find-or-create ----------------------- */
   border-color: #738091;
   color: #E1E8ED;
 }
+/* Settings is a full dialog. The overlay fill showed through the scrollbar
+   gutter as a vertical bar on each side. Keep the page color. */
+:root.bp3-dark .rm-settings,
+.rm-dark-theme .rm-settings,
+:root.bp3-dark .rm-settings .rm-settings-panel,
+.rm-dark-theme .rm-settings .rm-settings-panel {
+  background-color: #202B33;
+}
+:root.bp3-dark .rm-settings .rm-settings__panel-wrapper::-webkit-scrollbar:vertical,
+.rm-dark-theme .rm-settings .rm-settings__panel-wrapper::-webkit-scrollbar:vertical {
+  background-color: #202B33;
+}
 :root.bp3-dark .bp3-menu-item,
 :root.bp3-dark .rm-autocomplete-result,
 .rm-dark-theme .bp3-menu-item,
@@ -509,6 +521,13 @@ find-or-create ----------------------- */
     background-color: #30404D;
     border-color: #738091;
     color: #E1E8ED;
+  }
+  :root:not(.bp3-light) .rm-settings,
+  :root:not(.bp3-light) .rm-settings .rm-settings-panel {
+    background-color: #202B33;
+  }
+  :root:not(.bp3-light) .rm-settings .rm-settings__panel-wrapper::-webkit-scrollbar:vertical {
+    background-color: #202B33;
   }
   :where(:root:not(.bp3-light)) .bp3-menu-item,
   :where(:root:not(.bp3-light)) .rm-autocomplete-result {
