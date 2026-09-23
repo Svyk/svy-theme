@@ -1,4 +1,4 @@
-/* Svy Theme v0.3.2 | MIT | generated; edit src/ */
+/* Svy Theme v0.3.3 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {

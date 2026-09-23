@@ -641,6 +641,16 @@ find-or-create ----------------------- */
   }
 }
 
+/* Roam's site.css paints these hovers #10161A with no dark-mode guard, so in
+   light mode the sidebar header becomes a black bar. Same selector plus
+   :root:not(.bp3-dark) wins on source order. Dark mode keeps Roam's hover. */
+:root:not(.bp3-dark) .roam-body .roam-app .roam-sidebar-container .roam-sidebar-content .top-row:hover,
+:root:not(.bp3-dark) .roam-body .roam-app .roam-sidebar-container .roam-sidebar-content .log-button:hover,
+:root:not(.bp3-dark) .roam-body .roam-app .roam-sidebar-container .roam-sidebar-content .starred-pages-wrapper .starred-pages .page:hover {
+  background-color: #E1E8ED;
+  color: #182026;
+}
+
 /* Block-stats tooltip safety net: intentionally dark in BOTH modes. */
 .rm-bullet__tooltip, .roam-app .tooltiptext {
   background-color: var(--bc-tooltip__content, #30404d) !important;

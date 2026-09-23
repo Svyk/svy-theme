@@ -2,6 +2,14 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-09-22
+
+### Fixed
+
+- Light-mode sidebar hover no longer turns the header black. Roam's own
+  `.top-row:hover` is `#10161A` and is not limited to dark mode. Light mode
+  now uses `#E1E8ED`. The same override covers log buttons and starred pages.
+
 ## [0.3.2] - 2026-09-22
 
 ### Fixed
