@@ -2,6 +2,16 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-09-22
+
+### Fixed
+
+- Quick-insert dashes on headings sit just outside the fold caret instead of
+  falling into the next block. The old spacer heights (43/39/39px) were
+  measured for Blueprint's tall heading boxes. Native rows are shorter, so
+  those dashes overlapped the heading bullet and the block below. H1/H2/H3
+  tops are 5/1/-2px and the spacer is 12px.
+
 ## [0.3.3] - 2026-09-22
 
 ### Fixed

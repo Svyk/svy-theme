@@ -601,33 +601,27 @@ find-or-create ----------------------- */
 /* === 20-plugins.css === */
 /* U3 — Quick-insert + block-info tooltip compatibility (third-party extension fixes). */
 
-/* 1. Heading hit-target fix: re-anchor #inserts_btns per heading level and push the
-   lower dash (insert-sibling-below) past the fold caret and bullet via the .place
-   spacer. Spacer heights are measured, not chosen: with tops -6/-8/-12 the lower
-   dash center clears the caret and bullet centers by >=24px (WCAG 2.5.8 spacing)
-   at all three heading control heights (42/33/27px). Only one #inserts_btns exists
-   at a time (the plugin recreates it per hovered block), so cross-block spacing
-   does not apply. */
+/* Quick-insert dashes on headings. The column is position:absolute on the block
+   line. Native rows are 45/36/32px and the fold caret is 16px, so the old
+   43/39px spacers (Blueprint control boxes 42/33/27) drop the lower dash into
+   the next block. Tops put the stroke ~4px outside the caret and still inside
+   the row. Left 6px keeps it in the caret column, clear of the bullet. */
 .rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns {
-  top: -6px;
+  top: 5px;
   left: 6px;
-}
-.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns .place {
-  height: 43px;
 }
 .rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns {
-  top: -8px;
+  top: 1px;
   left: 6px;
-}
-.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns .place {
-  height: 39px;
 }
 .rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns {
-  top: -12px;
+  top: -2px;
   left: 6px;
 }
+.rm-heading-level-1 > .rm-block__self > .rm-block__controls #inserts_btns .place,
+.rm-heading-level-2 > .rm-block__self > .rm-block__controls #inserts_btns .place,
 .rm-heading-level-3 > .rm-block__self > .rm-block__controls #inserts_btns .place {
-  height: 39px;
+  height: 12px;
 }
 
 /* 2. Dark color for the dashes (light mode untouched). */

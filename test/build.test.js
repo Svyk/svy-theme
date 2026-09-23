@@ -61,7 +61,7 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   assert.match(rootJs, /export\s*\{[\s\S]*default/);
   const rebuilt = await bundleEntry({
     rootDirectory: rootPath,
-    banner: "/* Svy Theme v0.3.3 | MIT | generated; edit src/ */",
+    banner: "/* Svy Theme v0.3.4 | MIT | generated; edit src/ */",
   });
   assert.equal(rebuilt, rootJs);
 
@@ -115,6 +115,11 @@ test("plugin layer remaps Chief of Staff chat panel onto Svy tokens", async () =
   assert.doesNotMatch(css, /overflow:\s*visible/);
   assert.match(css, /:root:not\(\.bp3-dark\).*top-row:hover/);
   assert.match(css, /background-color: #E1E8ED;/);
+  assert.match(css, /\.rm-heading-level-1 > \.rm-block__self > \.rm-block__controls #inserts_btns \{\s*top: 5px;/);
+  assert.match(css, /\.rm-heading-level-2 > \.rm-block__self > \.rm-block__controls #inserts_btns \{\s*top: 1px;/);
+  assert.match(css, /\.rm-heading-level-3 > \.rm-block__self > \.rm-block__controls #inserts_btns \{\s*top: -2px;/);
+  assert.match(css, /#inserts_btns \.place \{\s*height: 12px;/);
+  assert.doesNotMatch(css, /height: 43px|height: 39px/);
 });
 
 test("Pages build ships a themed home page from its checked source", async () => {
