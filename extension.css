@@ -172,7 +172,8 @@ body.roam-body.dark {
 /* --- page and chrome ----------------------------------------------------- */
 
 @media (prefers-color-scheme: light) {
-  :root:not(.bp3-dark) body.roam-body,
+  :root:not(.bp3-dark) body,
+  :root:not(.bp3-dark) .roam-body,
   :root:not(.bp3-dark) .roam-app {
     background-color: #F5F8FA;
     color: #182026;
@@ -193,7 +194,8 @@ body.roam-body.dark {
   }
 }
 
-:root.bp3-light body.roam-body,
+:root.bp3-light body,
+:root.bp3-light .roam-body,
 :root.bp3-light .roam-app {
   background-color: #F5F8FA;
   color: #182026;
@@ -213,11 +215,14 @@ body.roam-body.dark {
   color: #182026;
 }
 
-:root.bp3-dark body.roam-body,
+:root.bp3-dark body,
+:root.bp3-dark .roam-body,
 :root.bp3-dark .roam-app,
-.rm-dark-theme body.roam-body,
+.rm-dark-theme body,
+.rm-dark-theme .roam-body,
 .rm-dark-theme .roam-app,
 body.roam-body.dark,
+.roam-body.dark,
 body.roam-body.dark .roam-app {
   background-color: #202B33;
   color: #E1E8ED;
@@ -248,7 +253,8 @@ body.roam-body.dark .rm-topbar {
 }
 
 @media (prefers-color-scheme: dark) {
-  :where(:root:not(.bp3-light)) body.roam-body,
+  :where(:root:not(.bp3-light)) body,
+  :where(:root:not(.bp3-light)) .roam-body,
   :where(:root:not(.bp3-light)) .roam-app {
     background-color: #202B33;
     color: #E1E8ED;
