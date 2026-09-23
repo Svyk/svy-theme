@@ -17,12 +17,12 @@ import {
 } from "../build.mjs";
 
 const expectedCssLayers = [
-  "00-upstream-base.css",
-  "10-fixes-dark.css",
+  "00-tokens.css",
+  "10-colors.css",
   "20-plugins.css",
   "30-absorbed.css",
-    "40-beam.css",
-    "41-beam-motion.css",
+  "40-beam.css",
+  "41-beam-motion.css",
   "42-fold-cc.css",
 ];
 
@@ -61,7 +61,7 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   assert.match(rootJs, /export\s*\{[\s\S]*default/);
   const rebuilt = await bundleEntry({
     rootDirectory: rootPath,
-    banner: "/* Svy Theme v0.2.4 | MIT | generated; edit src/ */",
+    banner: "/* Svy Theme v0.3.0 | MIT | generated; edit src/ */",
   });
   assert.equal(rebuilt, rootJs);
 
@@ -96,18 +96,8 @@ test("extension.css concatenates every src/css layer in lexicographic order", as
   assert.equal(cursor, css.length, "extension.css carries content outside the declared layers");
   assert.equal(css.length, expectedLength, "extension.css size must equal layers plus banners");
 
-  const bannerBytes = filenames.reduce((total, name) => total + cssLayerBanner(name).length, 0);
-  const baseBytes = Buffer.byteLength(bodies[0], "utf8");
-  const placeholderBytes = bodies
-    .slice(1)
-    .reduce((total, body) => total + Buffer.byteLength(body, "utf8"), 0);
-  // The base is upstream's sheet plus the tools/guard_media.py selector guard — no other
-  // edit is expected, so the exact guarded byte count is pinned here.
-  assert.equal(baseBytes, 480093, "the base layer must be upstream plus the media guard only");
-  assert.ok(
-    Buffer.byteLength(css, "utf8") - (baseBytes + bannerBytes) <= placeholderBytes + 1,
-    "extension.css must be the base plus banners plus the fix layers only",
-  );
+  assert.ok(css.length < 120_000, "extension.css must stay a color sheet, not a Blueprint dump");
+  assert.doesNotMatch(css, /00-upstream-base/);
 
   const deployCss = await readFile(resolve(rootPath, "deploy/extension.css"), "utf8");
   assert.equal(deployCss, css);
@@ -150,7 +140,7 @@ test("generated artifact verification detects a CSS layer edit", async () => {
     });
     await verifyGeneratedArtifacts(copyPath);
     await writeFile(
-      resolve(copyPath, cssLayerDirectory, "10-fixes-dark.css"),
+      resolve(copyPath, cssLayerDirectory, "10-colors.css"),
       "/* drift */\n.svy-drift { color: red; }\n",
       "utf8",
     );

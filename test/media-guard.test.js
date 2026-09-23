@@ -4,11 +4,9 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-// Invariants of the OS-dark media guard (tools/guard_media.py). The tool proves
-// specificity preservation and parser round-trips in Python before it writes; these
-// tests guard the properties the SHIPPED stylesheet has to keep, so a hand edit to
-// 00-upstream-base.css that reopens the OS-dark + forced-light leak fails
-// `npm run check`.
+// OS-dark rules must not paint through an explicit light stamp. The old Blueprint
+// sheet carried 800 :where() guards. 0.3.0 dropped that sheet. What remains is
+// the same leak check on the small color sheet.
 
 const rootPath = fileURLToPath(new URL("../", import.meta.url));
 
@@ -152,18 +150,12 @@ test("the guard adds zero specificity to every guarded selector in the built sty
         `guard changed specificity: ${original} -> ${part}`);
     }
   }
-  // The 2026-08-07 run guarded 835 parts; require the guard to be broadly present so a
-  // regeneration that quietly drops it fails here instead of shipping a half-guarded sheet.
-  assert.ok(guarded >= 800, `expected the guarded media rule set, found ${guarded} guarded parts`);
+  assert.ok(guarded > 0, "10-colors.css dark paint must use the zero-specificity :where() guard");
 });
 
-test("the committed base layer is what the tool produces (byte-idempotent guard)", async () => {
-  const base = await readText("src/css/00-upstream-base.css");
+test("the built sheet no longer ships the vendored Blueprint base", async () => {
   const built = await readText("extension.css");
-  // verify:generated already proves extension.css is built from the committed layers;
-  // this ties the guard specifically to the base layer's presence in the build.
-  assert.ok(built.includes(":where(:root:not(.bp3-light)) .bp3-button"),
-    "built stylesheet is missing the guarded base rules");
-  assert.ok(base.includes(":where(:root:not(.bp3-light)) .bp3-button"),
-    "base layer is missing the guarded rules — run tools/guard_media.py");
+  assert.equal(built.includes("00-upstream-base.css"), false);
+  assert.ok(built.includes("10-colors.css"));
+  assert.ok(Buffer.byteLength(built, "utf8") < 120_000);
 });

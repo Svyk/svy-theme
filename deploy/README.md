@@ -1,6 +1,7 @@
 # Svy Theme
 
-A personal performance fork of the **Blueprint** theme for Roam Research, built on
+A personal Roam Research theme. Version 0.3.0 paints the Svy palette and leaves
+Roam's layout, type, and spacing alone. It is built on
 [`roam-extension-template`](https://github.com/Svyk/roam-extension-template)'s
 zero-runtime-dependency, esbuild-based Depot extension scaffold.
 
@@ -9,10 +10,9 @@ zero-runtime-dependency, esbuild-based Depot extension scaffold.
 [`extension.js`](https://svyk.github.io/svy-theme/extension.js)
 
 This is not affiliated with, endorsed by, or a replacement for the upstream Depot
-listing. It exists to run a locally maintained, auditable copy of the theme with a real
-`extension.css` file (instead of upstream's JS-string-inlined CSS) and a hand-ported
-dark-mode toggle, and to make future performance refactors of the stylesheet possible
-against a pinned, provenance-tracked source. **It is never submitted to Roam Depot.**
+listing. Through 0.2.x it shipped that theme's stylesheet. 0.3.0 stopped. The
+vendored CSS remains in `vendor/upstream/` for attribution and rollback, and it is
+not part of `extension.css`. **It is never submitted to Roam Depot.**
 
 Formerly published as `roam-blueprint` — renamed to Svy Theme on 2026-08-07. The old
 install URL (`https://svyk.github.io/roam-blueprint`) is dead; use the URL below.
@@ -33,14 +33,11 @@ support, install `rcvd/blueprint` from Roam Depot directly instead of this fork.
 
 ## What's different from upstream
 
-- `extension.css` is a real stylesheet Roam loads directly, not a `<style>` tag injected
-  by a JS string (upstream's `add_css.sh` mechanism). This fork removes that mechanism
-  entirely.
-- Plain JS + esbuild build (this template's toolchain) instead of upstream's
-  TypeScript + webpack + `roamjs-components`. Zero runtime dependencies.
-- The dark-mode toggle is rewired onto this template's `src/lifecycle.js` disposal
-  contract: every DOM node, event listener, and the settings panel are registered for
-  cleanup, so disabling the extension fully restores native Roam UI with no page reload.
+- `extension.css` is a small color sheet (`00-tokens.css` + `10-colors.css`), not
+  Blueprint's layout CSS. Block height, fonts, and spacing stay Roam's.
+- Plain JS + esbuild. Zero runtime dependencies. No `roamjs-components`.
+- The dark-mode toggle is on `src/lifecycle.js`. Disabling the extension removes
+  the `svy-theme` class, the toggle, and `extension.css` without a page reload.
 
 ## Compatibility contract — do not rename these
 
@@ -110,15 +107,10 @@ Switching **Svy Beam** off puts `svy-off-beam` on `<html>`, and every rule in
 `40-beam.css` is scoped under `:root:not(.svy-off-beam)` — one extra class test per rule,
 no reload, native caret and cursors restored immediately.
 
-The dark-fixes (`10-fixes-dark.css`) and plugin-compatibility (`20-plugins.css`) layers
-have **no** master switch yet, deliberately. Gating them the same way is not a mechanical
-wrap: many of their rules are themselves rooted at `:root.bp3-dark`/`:root:not(.bp3-light)`,
-so neither a nesting wrapper (`:is(:root:not(.svy-off-…)) :root.bp3-dark …` can never
-match) nor a `@container style()` wrapper (custom-property queries evaluate against the
-parent element, so `:root`-level token declarations inside one stop applying) preserves
-their behavior. Shipping a switch that silently does nothing is worse than no switch, so
-those packs stay always-on until their rules are re-rooted during the U7 tokenization
-pass.
+Color rules in `10-colors.css` are always on. They set color, background, and
+border-color only, with literals rather than `var()`. Plugin compatibility
+(`20-plugins.css`) and the absorbed `roam/css` pills (`30-absorbed.css`) stay in
+the sheet because other extensions and old tag styles read them.
 
 ## Commands
 

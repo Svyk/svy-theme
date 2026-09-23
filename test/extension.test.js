@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import extension from "../src/extension.js";
+import extension, { installThemeMarker } from "../src/extension.js";
+import { createLifecycle } from "../src/lifecycle.js";
 
 function fakeExtensionApi() {
   const values = new Map();
@@ -60,6 +61,19 @@ test("extension exports the Roam lifecycle contract and survives repeated unload
     ...EXPECTED_BEAM_SEED,
     ["panel:create", "Svy Theme"],
   ]);
+});
+
+test("svy-theme is added on load and removed when the lifecycle disposes", async () => {
+  const classes = new Set();
+  const doc = { documentElement: { classList: {
+    add: (name) => classes.add(name),
+    remove: (name) => classes.delete(name),
+  } } };
+  const lifecycle = createLifecycle();
+  installThemeMarker(lifecycle, doc);
+  assert.ok(classes.has("svy-theme"));
+  await lifecycle.dispose();
+  assert.equal(classes.has("svy-theme"), false);
 });
 
 test("a failed onload records window.__BP_LAST_ERROR before rethrowing", async () => {

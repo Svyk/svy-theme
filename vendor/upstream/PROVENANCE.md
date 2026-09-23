@@ -1,8 +1,10 @@
 # Provenance — vendored upstream Blueprint theme
 
 `blueprint.css` in this directory is vendored verbatim (byte-identical, 455,049 bytes)
-from the upstream Blueprint theme for Roam Research, for use as this fork's
-`src/extension.css`.
+from the upstream Blueprint theme for Roam Research. Through svy-theme 0.2.x a
+guarded copy of it was concatenated into `extension.css`. **0.3.0 stopped shipping
+it.** `blueprint-guarded.css` is that old build input, kept so a rollback is a file
+move. Neither file is an input to `build.mjs`.
 
 - **Source repository**: [`rcvd/blueprint`](https://github.com/rcvd/blueprint)
 - **Author**: Alexander Rink (alex@goedel.io)

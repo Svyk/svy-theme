@@ -1,4 +1,4 @@
-/* Svy Theme v0.2.4 | MIT | generated; edit src/ */
+/* Svy Theme v0.3.0 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -1114,12 +1114,20 @@ async function installDarkModeToggle({
 
 // src/extension.js
 var activeLifecycle = null;
+var THEME_ROOT_CLASS = "svy-theme";
+function installThemeMarker(lifecycle, doc = globalThis.document) {
+  const root = doc?.documentElement;
+  if (!root?.classList || !lifecycle?.add) return;
+  root.classList.add(THEME_ROOT_CLASS);
+  lifecycle.add(() => root.classList.remove(THEME_ROOT_CLASS));
+}
 async function onload({ extensionAPI, extension }) {
   if (!extensionAPI) throw new TypeError("Roam did not provide extensionAPI");
   if (activeLifecycle) await activeLifecycle.dispose();
   const lifecycle = createLifecycle();
   activeLifecycle = lifecycle;
   try {
+    installThemeMarker(lifecycle);
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
@@ -1160,6 +1168,7 @@ async function onunload() {
 var extension_default = { onload, onunload };
 export {
   extension_default as default,
+  installThemeMarker,
   onload,
   onunload
 };

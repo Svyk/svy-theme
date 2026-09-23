@@ -40,12 +40,6 @@ body.roam-body.dark #inserts_btns span {
   }
 }
 
-/* 3. Undo the base layer's box distortion. */
-.rm-block__controls #inserts_btns > span,
-.controls #inserts_btns > span {
-  display: inline-flex;
-}
-
 /* Block-stats tooltip safety net: intentionally dark in BOTH modes. */
 .rm-bullet__tooltip, .roam-app .tooltiptext {
   background-color: var(--bc-tooltip__content, #30404d) !important;

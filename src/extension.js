@@ -7,6 +7,15 @@ import { installThemeVars } from "./theme-vars.js";
 
 let activeLifecycle = null;
 
+const THEME_ROOT_CLASS = "svy-theme";
+
+export function installThemeMarker(lifecycle, doc = globalThis.document) {
+  const root = doc?.documentElement;
+  if (!root?.classList || !lifecycle?.add) return;
+  root.classList.add(THEME_ROOT_CLASS);
+  lifecycle.add(() => root.classList.remove(THEME_ROOT_CLASS));
+}
+
 export async function onload({ extensionAPI, extension }) {
   if (!extensionAPI) throw new TypeError("Roam did not provide extensionAPI");
   if (activeLifecycle) await activeLifecycle.dispose();
@@ -14,6 +23,7 @@ export async function onload({ extensionAPI, extension }) {
   const lifecycle = createLifecycle();
   activeLifecycle = lifecycle;
   try {
+    installThemeMarker(lifecycle);
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });

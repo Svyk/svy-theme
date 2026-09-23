@@ -2,12 +2,10 @@ import { SETTING_IDS, normalizeMode } from "./settings.js";
 
 // Dark signal bridge.
 //
-// Upstream's dark styling (src/css/00-upstream-base.css) only reacts to two signals:
-// `.bp3-dark` on documentElement and the OS `prefers-color-scheme: dark` media query.
-// Independent host/third-party dark markers — Roam's `body.roam-body.dark` and
-// `.rm-dark-theme` (stamped on html or body by some themes) — mean nothing to it, so
-// on an OS-light machine either of those leaves the base layer rendering light while
-// everything else is dark.
+// Roam core and Roam Grid key dark mode on `.bp3-dark`. Independent host markers
+// — `body.roam-body.dark` and `.rm-dark-theme` — do not stamp that class, so on
+// an OS-light machine either of those would leave `.bp3-dark` consumers in light
+// while the rest of the page is dark.
 //
 // This module bridges the gap: while bp-appearance is "auto" and an independent
 // marker is present or the OS prefers dark, it stamps `.bp3-dark` on documentElement,

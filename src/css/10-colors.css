@@ -1,0 +1,411 @@
+/* Color only. Roam keeps layout, type, and spacing.
+ *
+ * Colors are written out. A large custom-property cascade measured slower.
+ * Dark paint does not key off the Better Tasks follower class: Better Tasks
+ * follows this theme, and treating that class as a source latches Auto dark.
+ *
+ * Light rules match OS-light, or an explicit .bp3-light stamp.
+ * Dark rules match .bp3-dark, .rm-dark-theme, body.roam-body.dark, and
+ * OS-dark guarded so forced light still wins.
+ */
+
+/* --- page and chrome ----------------------------------------------------- */
+
+@media (prefers-color-scheme: light) {
+  :root:not(.bp3-dark) body.roam-body,
+  :root:not(.bp3-dark) .roam-app {
+    background-color: #F5F8FA;
+    color: #182026;
+  }
+  :root:not(.bp3-dark) .roam-article,
+  :root:not(.bp3-dark) .rm-article-wrapper {
+    background-color: #F5F8FA;
+    color: #182026;
+  }
+  :root:not(.bp3-dark) .roam-sidebar-container,
+  :root:not(.bp3-dark) .roam-sidebar-content {
+    background-color: #FFFFFF;
+    color: #182026;
+  }
+  :root:not(.bp3-dark) .rm-topbar {
+    background-color: #FFFFFF;
+    color: #182026;
+  }
+}
+
+:root.bp3-light body.roam-body,
+:root.bp3-light .roam-app {
+  background-color: #F5F8FA;
+  color: #182026;
+}
+:root.bp3-light .roam-article,
+:root.bp3-light .rm-article-wrapper {
+  background-color: #F5F8FA;
+  color: #182026;
+}
+:root.bp3-light .roam-sidebar-container,
+:root.bp3-light .roam-sidebar-content {
+  background-color: #FFFFFF;
+  color: #182026;
+}
+:root.bp3-light .rm-topbar {
+  background-color: #FFFFFF;
+  color: #182026;
+}
+
+:root.bp3-dark body.roam-body,
+:root.bp3-dark .roam-app,
+.rm-dark-theme body.roam-body,
+.rm-dark-theme .roam-app,
+body.roam-body.dark,
+body.roam-body.dark .roam-app {
+  background-color: #202B33;
+  color: #E1E8ED;
+}
+:root.bp3-dark .roam-article,
+:root.bp3-dark .rm-article-wrapper,
+.rm-dark-theme .roam-article,
+.rm-dark-theme .rm-article-wrapper,
+body.roam-body.dark .roam-article,
+body.roam-body.dark .rm-article-wrapper {
+  background-color: #202B33;
+  color: #E1E8ED;
+}
+:root.bp3-dark .roam-sidebar-container,
+:root.bp3-dark .roam-sidebar-content,
+.rm-dark-theme .roam-sidebar-container,
+.rm-dark-theme .roam-sidebar-content,
+body.roam-body.dark .roam-sidebar-container,
+body.roam-body.dark .roam-sidebar-content {
+  background-color: #182026;
+  color: #E1E8ED;
+}
+:root.bp3-dark .rm-topbar,
+.rm-dark-theme .rm-topbar,
+body.roam-body.dark .rm-topbar {
+  background-color: #182026;
+  color: #E1E8ED;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) body.roam-body,
+  :where(:root:not(.bp3-light)) .roam-app {
+    background-color: #202B33;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .roam-article,
+  :where(:root:not(.bp3-light)) .rm-article-wrapper {
+    background-color: #202B33;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .roam-sidebar-container,
+  :where(:root:not(.bp3-light)) .roam-sidebar-content {
+    background-color: #182026;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .rm-topbar {
+    background-color: #182026;
+    color: #E1E8ED;
+  }
+}
+
+/* --- writing surface ----------------------------------------------------- */
+
+:root.bp3-dark .rm-block__input,
+:root.bp3-dark textarea.rm-block-input,
+.rm-dark-theme .rm-block__input,
+.rm-dark-theme textarea.rm-block-input,
+body.roam-body.dark .rm-block__input,
+body.roam-body.dark textarea.rm-block-input {
+  background-color: transparent;
+  color: #E1E8ED;
+}
+:root.bp3-dark .rm-page-ref,
+.rm-dark-theme .rm-page-ref,
+body.roam-body.dark .rm-page-ref {
+  color: #B3D9F2;
+}
+:root.bp3-dark .rm-block-ref,
+.rm-dark-theme .rm-block-ref,
+body.roam-body.dark .rm-block-ref {
+  color: #48AFF0;
+  border-color: #48AFF0;
+}
+:root.bp3-dark .rm-page-ref--tag,
+.rm-dark-theme .rm-page-ref--tag,
+body.roam-body.dark .rm-page-ref--tag {
+  color: #B3D9F2;
+}
+:root.bp3-dark .rm-highlight,
+:root.bp3-dark mark,
+.rm-dark-theme .rm-highlight,
+.rm-dark-theme mark,
+body.roam-body.dark .rm-highlight,
+body.roam-body.dark mark {
+  background-color: #33485C;
+  color: #E1E8ED;
+}
+:root.bp3-dark code,
+:root.bp3-dark .rm-code-block,
+.rm-dark-theme code,
+.rm-dark-theme .rm-code-block,
+body.roam-body.dark code,
+body.roam-body.dark .rm-code-block {
+  background-color: #293742;
+  color: #E1E8ED;
+}
+:root.bp3-dark .rm-bullet__inner,
+.rm-dark-theme .rm-bullet__inner,
+body.roam-body.dark .rm-bullet__inner {
+  background-color: #8A9BA8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) .rm-block__input,
+  :where(:root:not(.bp3-light)) textarea.rm-block-input {
+    background-color: transparent;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .rm-page-ref {
+    color: #B3D9F2;
+  }
+  :where(:root:not(.bp3-light)) .rm-block-ref {
+    color: #48AFF0;
+    border-color: #48AFF0;
+  }
+  :where(:root:not(.bp3-light)) .rm-page-ref--tag {
+    color: #B3D9F2;
+  }
+  :where(:root:not(.bp3-light)) .rm-highlight,
+  :where(:root:not(.bp3-light)) mark {
+    background-color: #33485C;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) code,
+  :where(:root:not(.bp3-light)) .rm-code-block {
+    background-color: #293742;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .rm-bullet__inner {
+    background-color: #8A9BA8;
+  }
+}
+
+:root.bp3-dark ::selection,
+.rm-dark-theme ::selection,
+body.roam-body.dark ::selection {
+  background-color: #33485C;
+  color: #E1E8ED;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) ::selection {
+    background-color: #33485C;
+    color: #E1E8ED;
+  }
+}
+
+/* --- tags. Authored dark pair, not a flipped light chip. ---------------- */
+
+:root.bp3-dark .bp3-tag,
+.rm-dark-theme .bp3-tag,
+body.roam-body.dark .bp3-tag {
+  background-color: #3B4C58;
+  border-color: #5C7080;
+  color: #E8EDF2;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) .bp3-tag {
+    background-color: #3B4C58;
+    border-color: #5C7080;
+    color: #E8EDF2;
+  }
+}
+
+/* --- tooltips stay dark in both modes, including the arrow. ------------- */
+
+.bp3-tooltip .bp3-popover-content {
+  background-color: #30404D;
+  color: #E1E8ED;
+}
+.bp3-tooltip .bp3-popover-arrow-fill {
+  fill: #30404D;
+}
+.bp3-tooltip .bp3-heading {
+  color: #E1E8ED;
+}
+
+/* --- menus, dialogs, autocomplete, find-or-create ----------------------- */
+
+:root.bp3-dark .bp3-popover-content,
+:root.bp3-dark .bp3-menu,
+:root.bp3-dark .bp3-dialog,
+:root.bp3-dark .rm-settings-panel,
+:root.bp3-dark .rm-autocomplete__results,
+:root.bp3-dark .rm-find-or-create-popover,
+.rm-dark-theme .bp3-popover-content,
+.rm-dark-theme .bp3-menu,
+.rm-dark-theme .bp3-dialog,
+.rm-dark-theme .rm-settings-panel,
+.rm-dark-theme .rm-autocomplete__results,
+.rm-dark-theme .rm-find-or-create-popover,
+body.roam-body.dark .bp3-popover-content,
+body.roam-body.dark .bp3-menu,
+body.roam-body.dark .bp3-dialog,
+body.roam-body.dark .rm-settings-panel,
+body.roam-body.dark .rm-autocomplete__results,
+body.roam-body.dark .rm-find-or-create-popover {
+  background-color: #30404D;
+  border-color: #738091;
+  color: #E1E8ED;
+}
+:root.bp3-dark .bp3-menu-item,
+:root.bp3-dark .rm-autocomplete-result,
+.rm-dark-theme .bp3-menu-item,
+.rm-dark-theme .rm-autocomplete-result,
+body.roam-body.dark .bp3-menu-item,
+body.roam-body.dark .rm-autocomplete-result {
+  color: #E1E8ED;
+}
+:root.bp3-dark .bp3-menu-item.bp3-active,
+:root.bp3-dark .rm-autocomplete-result:hover,
+.rm-dark-theme .bp3-menu-item.bp3-active,
+.rm-dark-theme .rm-autocomplete-result:hover,
+body.roam-body.dark .bp3-menu-item.bp3-active,
+body.roam-body.dark .rm-autocomplete-result:hover {
+  background-color: #2B3A42;
+  color: #E1E8ED;
+}
+:root.bp3-dark .bp3-input,
+:root.bp3-dark #find-or-create-input,
+.rm-dark-theme .bp3-input,
+.rm-dark-theme #find-or-create-input,
+body.roam-body.dark .bp3-input,
+body.roam-body.dark #find-or-create-input {
+  background-color: #182026;
+  border-color: #738091;
+  color: #E1E8ED;
+}
+:root.bp3-dark .bp3-button,
+.rm-dark-theme .bp3-button,
+body.roam-body.dark .bp3-button {
+  background-color: #293742;
+  border-color: #738091;
+  color: #E1E8ED;
+}
+:root.bp3-dark .bp3-button.bp3-minimal,
+.rm-dark-theme .bp3-button.bp3-minimal,
+body.roam-body.dark .bp3-button.bp3-minimal {
+  background-color: transparent;
+  border-color: transparent;
+  color: #E1E8ED;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) .bp3-popover-content,
+  :where(:root:not(.bp3-light)) .bp3-menu,
+  :where(:root:not(.bp3-light)) .bp3-dialog,
+  :where(:root:not(.bp3-light)) .rm-settings-panel,
+  :where(:root:not(.bp3-light)) .rm-autocomplete__results,
+  :where(:root:not(.bp3-light)) .rm-find-or-create-popover {
+    background-color: #30404D;
+    border-color: #738091;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .bp3-menu-item,
+  :where(:root:not(.bp3-light)) .rm-autocomplete-result {
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .bp3-menu-item.bp3-active,
+  :where(:root:not(.bp3-light)) .rm-autocomplete-result:hover {
+    background-color: #2B3A42;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .bp3-input,
+  :where(:root:not(.bp3-light)) #find-or-create-input {
+    background-color: #182026;
+    border-color: #738091;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .bp3-button {
+    background-color: #293742;
+    border-color: #738091;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .bp3-button.bp3-minimal {
+    background-color: transparent;
+    border-color: transparent;
+    color: #E1E8ED;
+  }
+}
+
+/* --- tables. Roam's own dark table rules key only on .bp3-dark. --------- */
+
+:root.bp3-dark .rm-table,
+:root.bp3-dark .roam-table,
+.rm-dark-theme .rm-table,
+.rm-dark-theme .roam-table,
+body.roam-body.dark .rm-table,
+body.roam-body.dark .roam-table {
+  background-color: #293742;
+  border-color: #738091;
+}
+:root.bp3-dark .rm-table th,
+:root.bp3-dark .rm-table td,
+:root.bp3-dark .roam-table th,
+:root.bp3-dark .roam-table td,
+.rm-dark-theme .rm-table th,
+.rm-dark-theme .rm-table td,
+.rm-dark-theme .roam-table th,
+.rm-dark-theme .roam-table td,
+body.roam-body.dark .rm-table th,
+body.roam-body.dark .rm-table td,
+body.roam-body.dark .roam-table th,
+body.roam-body.dark .roam-table td {
+  background-color: #293742;
+  border-color: #738091;
+  color: #E1E8ED;
+}
+:root.bp3-dark .rm-table th,
+:root.bp3-dark .roam-table th,
+.rm-dark-theme .rm-table th,
+.rm-dark-theme .roam-table th,
+body.roam-body.dark .rm-table th,
+body.roam-body.dark .roam-table th {
+  background-color: #2B3A42;
+}
+:root.bp3-dark .rm-table__add-row-btn:hover,
+:root.bp3-dark .rm-table__add-col-btn:hover,
+.rm-dark-theme .rm-table__add-row-btn:hover,
+.rm-dark-theme .rm-table__add-col-btn:hover,
+body.roam-body.dark .rm-table__add-row-btn:hover,
+body.roam-body.dark .rm-table__add-col-btn:hover {
+  background-color: #2B3A42;
+  border-color: #738091;
+  color: #8A9BA8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not(.bp3-light)) .rm-table,
+  :where(:root:not(.bp3-light)) .roam-table {
+    background-color: #293742;
+    border-color: #738091;
+  }
+  :where(:root:not(.bp3-light)) .rm-table th,
+  :where(:root:not(.bp3-light)) .rm-table td,
+  :where(:root:not(.bp3-light)) .roam-table th,
+  :where(:root:not(.bp3-light)) .roam-table td {
+    background-color: #293742;
+    border-color: #738091;
+    color: #E1E8ED;
+  }
+  :where(:root:not(.bp3-light)) .rm-table th,
+  :where(:root:not(.bp3-light)) .roam-table th {
+    background-color: #2B3A42;
+  }
+  :where(:root:not(.bp3-light)) .rm-table__add-row-btn:hover,
+  :where(:root:not(.bp3-light)) .rm-table__add-col-btn:hover {
+    background-color: #2B3A42;
+    border-color: #738091;
+    color: #8A9BA8;
+  }
+}

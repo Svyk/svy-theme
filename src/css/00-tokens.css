@@ -1,0 +1,158 @@
+/* Public tokens. Custom properties only. Paint lives in 10-colors.css as literals.
+ *
+ * Light and dark are authored separately. Nothing here is an inverted twin.
+ * Aliases repeat on every signal that can land below <html>, because a var()
+ * on :root resolves there and a later body signal would not retarget it.
+ * body.bt-theme-dark is included so Roam Grid follows Better Tasks. The color
+ * sheet does not use that follower as a paint signal.
+ */
+
+:root {
+  --svy-canvas: #FFFFFF;
+  --svy-surface: #F5F8FA;
+  --svy-raised: #FFFFFF;
+  --svy-overlay: #FFFFFF;
+  --svy-hover: #F1F5F8;
+  --svy-selected: #DBEAF7;
+  --svy-border-subtle: #C5CBD3;
+  --svy-border: #A7B6C2;
+  --svy-border-strong: #8A9BA8;
+  --svy-text: #182026;
+  --svy-text-strong: #10161A;
+  --svy-text-muted: #5C7080;
+  --svy-text-faint: #738091;
+  --svy-link: #0E5A8A;
+  --svy-accent: #137CBD;
+  --svy-tag-bg: #D3E3F2;
+  --svy-tag-text: #106BA3;
+  --svy-tag-border: #A7B6C2;
+  --svy-ff-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --bc-main: var(--svy-raised);
+  --bc-menu: var(--svy-border-subtle);
+  --bc-hover: var(--svy-hover);
+  --bc-topbar: var(--svy-surface);
+  --cl-gray-550: var(--svy-text-muted);
+  --cl-blue: var(--svy-accent);
+  --cl-text-color: var(--svy-text);
+  --ff-main: var(--svy-ff-main);
+  --bc-page: var(--svy-canvas);
+  --bc-surface: var(--svy-surface);
+  --bc-raised: var(--svy-raised);
+  --cl-main: var(--svy-text);
+  --cl-muted: var(--svy-text-muted);
+  --cl-accent: var(--svy-accent);
+  --tagBg: var(--svy-tag-bg);
+  --tagText: var(--svy-tag-text);
+  --tagBorder: var(--svy-tag-border);
+
+  /* Block-stats reads these in both modes. Tooltips stay dark on purpose. */
+  --bc-tooltip__content: #30404D;
+  --co-tooltip__content: #E1E8ED;
+  --bt-tooltip: 1px solid #5C7080;
+  --ff-app__div: inherit;
+  --fs-tooltip__content: 14px;
+}
+
+:root.bp3-dark,
+body.bt-theme-dark,
+.rm-dark-theme,
+body.roam-body.dark {
+  --svy-canvas: #182026;
+  --svy-surface: #202B33;
+  --svy-raised: #293742;
+  --svy-overlay: #30404D;
+  --svy-hover: #26333D;
+  --svy-selected: #33485C;
+  --svy-border-subtle: #5C7080;
+  --svy-border: #738091;
+  --svy-border-strong: #8A9BA8;
+  --svy-text: #E1E8ED;
+  --svy-text-strong: #E1E8ED;
+  --svy-text-muted: #B3C1CC;
+  --svy-text-faint: #8A9BA8;
+  --svy-link: #B3D9F2;
+  --svy-accent: #48AFF0;
+  --svy-tag-bg: #3D566B;
+  --svy-tag-text: #B3D9F2;
+  --svy-tag-border: #5C7080;
+
+  --bc-main: var(--svy-raised);
+  --bc-menu: var(--svy-border-subtle);
+  --bc-hover: var(--svy-overlay);
+  --bc-topbar: var(--svy-canvas);
+  --cl-gray-550: var(--svy-text-muted);
+  --cl-blue: var(--svy-accent);
+  --cl-text-color: var(--svy-text);
+  --ff-main: var(--svy-ff-main);
+  --bc-page: var(--svy-canvas);
+  --bc-surface: var(--svy-surface);
+  --bc-raised: var(--svy-raised);
+  --cl-main: var(--svy-text);
+  --cl-muted: var(--svy-text-muted);
+  --cl-accent: var(--svy-accent);
+  --tagBg: var(--svy-tag-bg);
+  --tagText: var(--svy-tag-text);
+  --tagBorder: var(--svy-tag-border);
+
+  --bc-tooltip__content: #30404D;
+  --co-tooltip__content: #E1E8ED;
+  --bt-tooltip: 1px solid #5C7080;
+  --ff-app__div: inherit;
+  --fs-tooltip__content: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Not :where(). This block has to beat the :root light values above.
+     :root:not(.bp3-light) loses as soon as the user forces light. */
+  :root:not(.bp3-light) {
+    --svy-canvas: #182026;
+    --svy-surface: #202B33;
+    --svy-raised: #293742;
+    --svy-overlay: #30404D;
+    --svy-hover: #26333D;
+    --svy-selected: #33485C;
+    --svy-border-subtle: #5C7080;
+    --svy-border: #738091;
+    --svy-border-strong: #8A9BA8;
+    --svy-text: #E1E8ED;
+    --svy-text-strong: #E1E8ED;
+    --svy-text-muted: #B3C1CC;
+    --svy-text-faint: #8A9BA8;
+    --svy-link: #B3D9F2;
+    --svy-accent: #48AFF0;
+    --svy-tag-bg: #3D566B;
+    --svy-tag-text: #B3D9F2;
+    --svy-tag-border: #5C7080;
+
+    --bc-main: var(--svy-raised);
+    --bc-menu: var(--svy-border-subtle);
+    --bc-hover: var(--svy-overlay);
+    --bc-topbar: var(--svy-canvas);
+    --cl-gray-550: var(--svy-text-muted);
+    --cl-blue: var(--svy-accent);
+    --cl-text-color: var(--svy-text);
+    --ff-main: var(--svy-ff-main);
+    --bc-page: var(--svy-canvas);
+    --bc-surface: var(--svy-surface);
+    --bc-raised: var(--svy-raised);
+    --cl-main: var(--svy-text);
+    --cl-muted: var(--svy-text-muted);
+    --cl-accent: var(--svy-accent);
+    --tagBg: var(--svy-tag-bg);
+    --tagText: var(--svy-tag-text);
+    --tagBorder: var(--svy-tag-border);
+
+    --bc-tooltip__content: #30404D;
+    --co-tooltip__content: #E1E8ED;
+    --bt-tooltip: 1px solid #5C7080;
+    --ff-app__div: inherit;
+    --fs-tooltip__content: 14px;
+  }
+}
+
+/* roam-grid reads --bc-main as both fill and outer border. Give the border
+   its own value so the light grid keeps an outline. */
+:root .rg-root {
+  --rg-border-strong: var(--svy-border);
+}

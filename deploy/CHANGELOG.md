@@ -2,6 +2,21 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-09-22
+
+### Changed
+
+- **Color-only theme.** `extension.css` no longer includes the vendored Blueprint
+  sheet (`src/css/00-upstream-base.css`, about 480 KB, moved to
+  `vendor/upstream/blueprint-guarded.css` and kept out of the build). Roam's own
+  layout, type, and spacing come back. The Svy palette stays: light page
+  `#F5F8FA`, dark page `#202B33`, chrome `#FFFFFF` / `#182026`.
+- Public tokens (`--svy-*`, `--bc-*`, `--cl-*`, `--ff-main`, tag aliases) moved to
+  `src/css/00-tokens.css`. Paint is literal color in `src/css/10-colors.css`.
+  Dark paint does not key off `body.bt-theme-dark`, so Auto does not latch dark
+  after Better Tasks leaves that class behind.
+- `<html>` gets `svy-theme` while the extension is loaded and loses it on unload.
+
 ## [Unreleased]
 
 ### Added
