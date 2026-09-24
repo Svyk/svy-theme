@@ -111,6 +111,7 @@ test("10-colors.css stays a flat literal color sheet", async () => {
   assert.match(css, /\.roam-sidebar-container \{\s*box-shadow: 1px 0 0 #C5CBD3;/);
   assert.match(css, /#right-sidebar \{\s*box-shadow: -1px 0 0 #5C7080;/);
   assert.equal(css.includes("body.roam-body.dark"), false);
+  assert.equal(css.includes("::selection"), false);
   assert.match(css, /#182026/);
   assert.match(css, /#E1E8ED/);
   assert.match(css, /#30404D/);

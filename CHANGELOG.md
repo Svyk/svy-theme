@@ -2,6 +2,16 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2026-09-23
+
+### Changed
+
+- Dark selected text uses the browser highlight again. The theme's
+  `::selection` rule matched every element under the page and was the whole
+  restyle gap versus the theme being off (about 15ms per forced flush on the
+  Svy daily page). The rest of the color sheet, measured alone, sat on that
+  floor.
+
 ## [0.3.5] - 2026-09-22
 
 ### Fixed
