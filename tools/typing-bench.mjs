@@ -23,7 +23,8 @@
 // `name=file.css[+file2.css][#class1.class2]` (theme sheets off, files injected, classes
 // added to <html> and <body> while the arm runs). A `!nojs` suffix on any arm detaches the
 // live theme's document/window typing listeners for that arm (restored afterwards);
-// `--jsoff` does the same for `off`.
+// `--jsoff` does the same for `off`. `--markers a,b` swaps the source substrings used to
+// find those listeners, so the same switch can detach another extension's handlers.
 import { readFile } from "node:fs/promises";
 
 const PORT = process.env.CDP_PORT || 9223;
@@ -44,6 +45,7 @@ function parseArgs(argv) {
     cleanup: false,
     jsoff: false,
     profile: null,
+    markers: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -56,6 +58,7 @@ function parseArgs(argv) {
     else if (flag === "--warmup") { options.warmup = Number(value); index += 1; }
     else if (flag === "--text") { options.text = value; index += 1; }
     else if (flag === "--profile") { options.profile = value; index += 1; }
+    else if (flag === "--markers") { options.markers = value.split(",").map((part) => part.trim()).filter(Boolean); index += 1; }
     else if (flag === "--json") options.json = true;
     else if (flag === "--cleanup") options.cleanup = true;
     else if (flag === "--jsoff") options.jsoff = true;
@@ -288,7 +291,9 @@ async function pageTeardown({ cleanup }) {
     });
   }
   const summary = { restored: true };
-  document.activeElement?.blur?.();
+  // Blur only the scratch block. Anything else focused is the user's.
+  const scratchId = `block-input-${bench.windowId}-${bench.blockUid}`;
+  if (document.activeElement?.id === scratchId) document.activeElement.blur();
   if (cleanup) {
     await new Promise((resolve) => setTimeout(resolve, 400));
     if (!bench.hadWindow) {
@@ -312,14 +317,14 @@ const THEME_LISTENER_MARKERS = [
   "if (lifecycle.disposed || !enabled) return;",
 ];
 
-async function themeListeners(call) {
+async function themeListeners(call, markers = THEME_LISTENER_MARKERS) {
   const found = [];
   for (const expression of ["document", "window"]) {
     const { result } = await call("Runtime.evaluate", { expression, objectGroup: "svy-bench" });
     const { listeners } = await call("DOMDebugger.getEventListeners", { objectId: result.objectId });
     for (const listener of listeners) {
       const source = listener.handler?.description || "";
-      if (THEME_LISTENER_MARKERS.some((marker) => source.includes(marker))) {
+      if (markers.some((marker) => source.includes(marker))) {
         found.push({ targetId: result.objectId, type: listener.type, useCapture: listener.useCapture, handlerId: listener.handler.objectId });
       }
     }
@@ -433,7 +438,7 @@ try {
   const setup = await evaluate(pageSetup, { title: PAGE_TITLE });
   await evaluate(pageInstallProbe);
   const liveFound = await evaluate(pageArmSheets, { arms, liveIds: LIVE_SHEET_IDS });
-  if (arms.some((arm) => arm.nojs)) listeners = await themeListeners(call);
+  if (arms.some((arm) => arm.nojs)) listeners = await themeListeners(call, options.markers || THEME_LISTENER_MARKERS);
   if (!options.json) {
     process.stdout.write(`${page.title} | scratch ${setup.pageUid}/${setup.blockUid} | live sheets ${liveFound} | theme listeners ${listeners.length}\n`);
   }
@@ -519,7 +524,7 @@ function summarizeProfile(profiles) {
     }
   }
   const top = (map, count) => [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, count).map(([name, ms]) => ({ name, ms: +ms.toFixed(1) }));
-  return { totalMs: +total.toFixed(1), byUrl: top(byUrl, 25), byFunction: top(byFunction, 30) };
+  return { totalMs: +total.toFixed(1), byUrl: top(byUrl, 25), byFunction: top(byFunction, options.json ? 600 : 30) };
 }
 
 socket.close();
