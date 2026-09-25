@@ -23,13 +23,15 @@
   height: 12px;
 }
 
-/* 2. Dark color for the dashes (light mode untouched). */
-:root.bp3-dark #inserts_btns span,
-.rm-dark-theme #inserts_btns span {
+/* 2. Dark color for the dashes (light mode untouched). The dashes are
+   span.bp3-icon children of #inserts_btns. A bare `span` ending tried the
+   rule on every span in the page. */
+:root.bp3-dark #inserts_btns > .bp3-icon,
+.rm-dark-theme #inserts_btns > .bp3-icon {
   color: #8A9BA8;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not(.bp3-light) #inserts_btns span {
+  :root:not(.bp3-light) #inserts_btns > .bp3-icon {
     color: #8A9BA8;
   }
 }

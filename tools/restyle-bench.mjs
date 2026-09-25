@@ -12,7 +12,8 @@
 //   CDP_PORT=9223 node tools/restyle-bench.mjs --target "Svy - " \
 //     --arm off --arm live --arm "cand=extension.css" [--blocks 15 --per-block 10]
 // An arm is `off` (theme sheets disabled), `live` (the loaded theme sheets), or
-// `name=file.css[+file2.css]` (theme sheets disabled, the listed files injected).
+// `name=file.css[+file2.css][#class1.class2]` (theme sheets disabled, the listed files
+// injected, the classes added to <html> and <body> while the arm runs).
 import { readFile } from "node:fs/promises";
 
 const PORT = process.env.CDP_PORT || 9223;
@@ -37,12 +38,13 @@ function parseArgs(argv) {
 }
 
 async function resolveArm(spec) {
-  if (spec === "off") return { name: "off", live: false, styles: [] };
-  if (spec === "live") return { name: "live", live: true, styles: [] };
-  const [name, files] = spec.split("=");
-  if (!files) throw new Error(`arm ${spec} needs name=file.css`);
+  if (spec === "off") return { name: "off", live: false, styles: [], classes: [] };
+  if (spec === "live") return { name: "live", live: true, styles: [], classes: [] };
+  const [name, rest] = spec.split("=");
+  if (!rest) throw new Error(`arm ${spec} needs name=file.css`);
+  const [files, classList = ""] = rest.split("#");
   const styles = await Promise.all(files.split("+").map((file) => readFile(file, "utf8")));
-  return { name, live: false, styles };
+  return { name, live: false, styles, classes: classList.split(".").filter(Boolean) };
 }
 
 async function connect(target) {
@@ -84,9 +86,16 @@ async function pageBench({ arms, blocks, perBlock, warmup, settle, liveIds }) {
     element.sheet.disabled = true;
     return element;
   }));
+  let classes = [];
+  const setClasses = (next) => {
+    for (const cls of classes) { document.documentElement.classList.remove(cls); document.body.classList.remove(cls); }
+    for (const cls of next) { document.documentElement.classList.add(cls); document.body.classList.add(cls); }
+    classes = next;
+  };
   const select = (armIndex) => {
     live.forEach((element) => { element.sheet.disabled = !arms[armIndex].live; });
     injected.forEach((elements, index) => elements.forEach((element) => { element.sheet.disabled = index !== armIndex; }));
+    setClasses(arms[armIndex].classes);
   };
   const once = () => {
     const start = performance.now();
@@ -114,6 +123,7 @@ async function pageBench({ arms, blocks, perBlock, warmup, settle, liveIds }) {
     }
   } finally {
     root.classList.remove("svy-bench-force");
+    setClasses([]);
     live.forEach((element, index) => { element.sheet.disabled = liveBefore[index]; });
     injected.flat().forEach((element) => element.remove());
     force.remove();

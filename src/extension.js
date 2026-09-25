@@ -1,5 +1,4 @@
 import { createLifecycle } from "./lifecycle.js";
-import { installCaretOverlay } from "./caret-overlay.js";
 import { installDarkSignalBridge } from "./dark-signal-bridge.js";
 import { applyAppearance, installDarkModeToggle } from "./dm-toggle.js";
 import { createSettingsPanel, initializeBeamSettings, initializeSettings } from "./settings.js";
@@ -27,15 +26,11 @@ export async function onload({ extensionAPI, extension }) {
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
-    const caretOverlay = installCaretOverlay({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
       createSettingsPanel({
         onAppearanceChange: (mode) => applyAppearance(mode),
-        onThemeVarsChange: () => {
-          themeVars.refresh();
-          caretOverlay.refresh();
-        },
+        onThemeVarsChange: () => themeVars.refresh(),
       }),
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });

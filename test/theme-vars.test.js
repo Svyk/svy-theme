@@ -6,7 +6,6 @@ import { createLifecycle } from "../src/lifecycle.js";
 import {
   BEAM_DEFAULTS,
   BEAM_OFF_CLASS,
-  BEAM_WASH_CLASS,
   BEAM_SETTING_IDS,
   DARK_MEDIA_SELECTOR,
   DARK_SELECTORS,
@@ -19,7 +18,6 @@ import {
   normalizeBeamConfig,
   normalizeChoice,
   normalizeHex,
-  normalizeNumber,
   normalizeSwitch,
   readBeamSettings,
   renderThemeVarsCss,
@@ -99,8 +97,8 @@ function fakeExtensionApi(initial = {}) {
 //
 // Selector support is exactly what these two stylesheets use — :root, tag, .class,
 // :not(), :is(), :where(), descendant and child combinators — plus the media
-// features they gate on. Anything outside that grammar would throw rather than
-// quietly not match, so the test cannot pass by failing to see a rule.
+// features they gate on and cascade layers. Anything outside that grammar would throw
+// rather than quietly not match, so the test cannot pass by failing to see a rule.
 // ---------------------------------------------------------------------------
 
 function tokenizeCompound(compound) {
@@ -260,7 +258,7 @@ function parseDeclarations(body) {
 
 function parseStylesheet(css) {
   const rules = [];
-  const walk = (text, media) => {
+  const walk = (text, media, layer = null) => {
     let index = 0;
     while (index < text.length) {
       const open = text.indexOf("{", index);
@@ -275,7 +273,9 @@ function parseStylesheet(css) {
       }
       const body = text.slice(open + 1, close - 1);
       if (prelude.startsWith("@media")) {
-        walk(body, [...media, prelude.slice("@media".length).trim()]);
+        walk(body, [...media, prelude.slice("@media".length).trim()], layer);
+      } else if (prelude.startsWith("@layer")) {
+        walk(body, media, prelude.slice("@layer".length).trim());
       } else if (prelude.startsWith("@")) {
         throw new Error(`unsupported at-rule in test cascade: ${prelude}`);
       } else {
@@ -283,6 +283,7 @@ function parseStylesheet(css) {
           selectors: splitTopLevel(prelude),
           declarations: parseDeclarations(body),
           media,
+          layer,
           order: rules.length,
         });
       }
@@ -318,8 +319,12 @@ function declaredValue(element, rules, environment, property) {
     for (const selector of rule.selectors) {
       if (!matchSelector(element, selector)) continue;
       const [classes, types] = specificity(selector);
-      // origin/importance, then specificity, then document order — the cascade in order.
-      const key = [declaration.important ? 1 : 0, classes, types, rule.order];
+      // origin/importance, then layer, then specificity, then document order — the
+      // cascade in order. An unlayered normal declaration beats every layered one; for
+      // !important the order flips. One named layer is all these sheets use.
+      const unlayered = rule.layer == null ? 1 : 0;
+      const layerRank = declaration.important ? 1 - unlayered : unlayered;
+      const key = [declaration.important ? 1 : 0, layerRank, classes, types, rule.order];
       if (!winner || compareKeys(key, winner.key) > 0) winner = { key, value: declaration.value };
     }
   }
@@ -396,35 +401,22 @@ test("normalizeChoice and normalizeSwitch tolerate synced string forms", () => {
   assert.equal(normalizeSwitch(0, true), true);
 });
 
-test("normalizeNumber accepts numeric inputs, retains one decimal, and clamps safely", () => {
-  const limits = { min: 50, max: 200 };
-  assert.equal(normalizeNumber("112.25", limits, 100), 112.3);
-  assert.equal(normalizeNumber(250, limits, 100), 200);
-  assert.equal(normalizeNumber("12", limits, 100), 50);
-  assert.equal(normalizeNumber("", limits, 100), 100);
-  assert.equal(normalizeNumber("wide", limits, 100), 100);
-});
-
 test("normalizeBeamConfig rejects one bad field without dropping its valid neighbours", () => {
   const config = normalizeBeamConfig({
     pack: false,
     caretLight: "not-a-color",
     caretDark: "#ABC",
-    caretShape: "bar",
     caretBlink: "true",
-    wash: false,
-    washIntensity: "nope",
     cursor: "native",
   });
   assert.deepEqual(config, {
     ...BEAM_DEFAULTS,
     pack: false,
     caretDark: "#aabbcc",
-    caretShape: "bar",
     caretBlink: true,
-    wash: false,
     cursor: "native",
   });
+  assert.deepEqual(normalizeBeamConfig({ cursor: "wobble", caretLight: 42 }), BEAM_DEFAULTS);
 });
 
 test("the light caret default moved off Beam v1's value and the old one is still named", () => {
@@ -434,73 +426,32 @@ test("the light caret default moved off Beam v1's value and the old one is still
   assert.equal(BEAM_DEFAULTS.caretDark, "#48d0c0", "the dark caret default is unchanged");
 });
 
-test("computeThemeVars publishes the researched caret pair, and the default paints no wash", () => {
+test("computeThemeVars publishes the researched caret pair and nothing the layer does not read", () => {
   const { base } = computeThemeVars(BEAM_DEFAULTS);
   assert.equal(base["--svy-beam-caret-light"], "#00695e");
   assert.equal(base["--svy-beam-caret-dark"], "#48d0c0");
   assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
   assert.equal(base["--svy-beam-caret-dark-p3"], "oklch(0.78 0.15 184)");
-  assert.equal(BEAM_DEFAULTS.caretShape, "beam");
-  assert.equal(base["--svy-beam-caret-shape"], "bar");
   assert.equal(base["--svy-beam-caret-animation"], "manual");
-  assert.equal(base["--svy-beam-caret-preview-width"], "3px");
-  assert.equal(base["--svy-beam-caret-preview-height"], "16.4px");
-  assert.equal(base["--svy-beam-caret-radius"], "3px");
-  assert.equal(base["--svy-beam-caret-opacity"], "1");
-  assert.equal(base["--svy-beam-wash-radius"], "4px");
-
-  // The 2026-08-07 default: caret only, no focus wash.
-  assert.equal(BEAM_DEFAULTS.wash, false);
-  assert.equal(BEAM_DEFAULTS.washIntensity, "off");
-  assert.equal(base["--svy-beam-wash-light"], "transparent");
-  assert.equal(base["--svy-beam-wash-dark"], "transparent");
-  assert.equal(base["--svy-beam-wash-duration"], "0ms");
-});
-
-test("the hand-tuned v1 wash bases still apply when the wash is switched back on", () => {
-  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, wash: true, washIntensity: "subtle" });
-  assert.equal(base["--svy-beam-wash-light"], "rgba(0, 122, 112, 0.045)");
-  assert.equal(base["--svy-beam-wash-dark"], "rgba(72, 208, 192, 0.055)");
-  assert.equal(base["--svy-beam-wash-light-p3"], "oklch(0.47 0.11 182 / 0.045)");
-  assert.equal(base["--svy-beam-wash-dark-p3"], "oklch(0.78 0.15 184 / 0.055)");
-  assert.equal(base["--svy-beam-wash-duration"], "70ms");
-});
-
-test("computeThemeVars derives the wash and the P3 pair from a customized caret", () => {
-  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, wash: true, caretDark: "#FF8800", washIntensity: "medium" });
-  assert.equal(base["--svy-beam-caret-dark"], "#ff8800");
-  assert.equal(base["--svy-beam-wash-dark"], "rgba(255, 136, 0, 0.11)");
-  // A custom caret has no gamut-expanded equivalent, so the P3 block publishes the
-  // same sRGB value instead of silently reverting to the default teal.
-  assert.equal(base["--svy-beam-caret-dark-p3"], "#ff8800");
-  assert.equal(base["--svy-beam-wash-dark-p3"], "rgba(255, 136, 0, 0.11)");
-  // The untouched light side keeps the hand-tuned v1 pairing.
-  assert.equal(base["--svy-beam-wash-light"], "rgba(0, 122, 112, 0.09)");
-  assert.equal(base["--svy-beam-wash-light-p3"], "oklch(0.47 0.11 182 / 0.09)");
-});
-
-test("computeThemeVars disables the wash from either the switch or the off intensity", () => {
-  // Both arms start from an explicitly-ON config. Deriving them from BEAM_DEFAULTS would
-  // make this a test that cannot fail now that the default is already off.
-  const on = { ...BEAM_DEFAULTS, wash: true, washIntensity: "subtle" };
-  assert.notEqual(computeThemeVars(on).base["--svy-beam-wash-light"], "transparent");
-  for (const config of [
-    { ...on, wash: false },
-    { ...on, washIntensity: "off" },
-  ]) {
-    const { base } = computeThemeVars(config);
-    assert.equal(base["--svy-beam-wash-light"], "transparent");
-    assert.equal(base["--svy-beam-wash-dark"], "transparent");
-    assert.equal(base["--svy-beam-wash-light-p3"], "transparent");
-    assert.equal(base["--svy-beam-wash-dark-p3"], "transparent");
-    assert.equal(base["--svy-beam-wash-duration"], "0ms");
+  // v4 has no overlay geometry and no focus wash to publish.
+  for (const name of Object.keys(base)) {
+    assert.doesNotMatch(name, /wash|shape|preview|radius|opacity/, `${name} belongs to the retired overlay`);
   }
 });
 
+test("computeThemeVars publishes a customized caret as-is in the P3 block", () => {
+  const { base } = computeThemeVars({ ...BEAM_DEFAULTS, caretDark: "#FF8800" });
+  assert.equal(base["--svy-beam-caret-dark"], "#ff8800");
+  // A custom caret has no gamut-expanded equivalent, so the P3 block publishes the
+  // same sRGB value instead of silently reverting to the default teal.
+  assert.equal(base["--svy-beam-caret-dark-p3"], "#ff8800");
+  // The untouched light side keeps its gamut-expanded default.
+  assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
+});
+
 test("computeThemeVars maps caret blink, and native cursors need no dark block", () => {
-  const { base: blinking } = computeThemeVars({ ...BEAM_DEFAULTS, caretBlink: true, caretShape: "bar" });
+  const { base: blinking } = computeThemeVars({ ...BEAM_DEFAULTS, caretBlink: true });
   assert.equal(blinking["--svy-beam-caret-animation"], "auto");
-  assert.equal(blinking["--svy-beam-caret-shape"], "bar");
 
   const native = computeThemeVars({ ...BEAM_DEFAULTS, cursor: "native" });
   assert.equal(native.base["--svy-beam-cursor-default"], "auto");
@@ -572,7 +523,7 @@ test("renderThemeVarsCss emits the :root block, the dark signal block, and the O
 
   assert.deepEqual(rules[0].selectors, [":root"]);
   assert.deepEqual(Object.keys(rules[0].declarations), Object.keys(base));
-  assert.equal(Object.keys(base).length, 19);
+  assert.equal(Object.keys(base).length, 8);
 
   assert.deepEqual(rules[1].selectors, [...DARK_SELECTORS]);
   assert.deepEqual(rules[1].media, []);
@@ -617,18 +568,15 @@ test("refresh republishes the sheet from the current settings", () => {
   const api = fakeExtensionApi();
 
   const handle = installThemeVars({ extensionAPI: api, lifecycle, doc });
-  assert.match(handle.element.textContent, /--svy-beam-wash-dark: transparent;/, "default is wash-off");
+  assert.match(handle.element.textContent, /--svy-beam-caret-animation: manual;/, "default holds the caret steady");
 
   api.values.set(BEAM_SETTING_IDS.caretDark, "#ff8800");
-  // Turning the wash ON is the state change worth proving: asserting "off" against a
-  // default that is already off would pass no matter what refresh() did.
-  api.values.set(BEAM_SETTING_IDS.wash, true);
-  api.values.set(BEAM_SETTING_IDS.washIntensity, "medium");
+  api.values.set(BEAM_SETTING_IDS.caretBlink, true);
   handle.refresh();
 
   assert.equal(doc.appended.length, 1, "refresh must reuse the injected sheet, not add another");
   assert.match(handle.element.textContent, /--svy-beam-caret-dark: #ff8800;/);
-  assert.match(handle.element.textContent, /--svy-beam-wash-dark: rgba\(255, 136, 0, 0\.11\);/);
+  assert.match(handle.element.textContent, /--svy-beam-caret-animation: auto;/);
   // The dark cursor block follows the same refresh, not just the :root block.
   const rules = parseStylesheet(handle.element.textContent);
   assert.ok(rules[1].declarations["--svy-beam-cursor-default"].value.includes("%23ff8800"));
@@ -645,12 +593,6 @@ test("the beam pack toggle adds and removes the gating class on documentElement"
   api.values.set(BEAM_SETTING_IDS.pack, true);
   handle.refresh();
   assert.equal(doc.documentElement.classList.contains(BEAM_OFF_CLASS), false);
-  assert.equal(doc.documentElement.classList.contains(BEAM_WASH_CLASS), false);
-
-  api.values.set(BEAM_SETTING_IDS.wash, true);
-  api.values.set(BEAM_SETTING_IDS.washIntensity, "subtle");
-  handle.refresh();
-  assert.equal(doc.documentElement.classList.contains(BEAM_WASH_CLASS), true);
 
   api.values.set(BEAM_SETTING_IDS.pack, false);
   handle.refresh();
@@ -703,18 +645,29 @@ test("every --svy-beam-* the stylesheet reads is either computed in the layer or
   assert.doesNotMatch(code, /#008478/, "no rule may still paint the superseded light caret");
   assert.match(code, /@media \(prefers-color-scheme: dark\)/);
   assert.match(code, /:root:not\(\.bp3-light\):not\(\.svy-off-beam\)/);
-  assert.match(code, /@media \(prefers-reduced-motion: reduce\)/);
 
-  // Pack gating is the whole layer's job: no rule may escape the class test.
-  const ruleSelectors = code
-    .split("}")
-    .map((chunk) => chunk.slice(0, chunk.indexOf("{")).trim())
-    .filter((selector) => selector && !selector.startsWith("@"));
-  for (const selector of ruleSelectors) {
-    assert.ok(
-      splitTopLevel(selector).every((part) => part.includes(".svy-off-beam")),
-      `ungated rule in 40-beam.css: ${selector}`,
-    );
+  // Pack gating is the whole layer's job: no rule may escape the class test, including
+  // the ones nested in @media and @layer blocks.
+  for (const rule of parseStylesheet(layer)) {
+    for (const selector of rule.selectors) {
+      assert.ok(selector.includes(".svy-off-beam"), `ungated rule in 40-beam.css: ${selector}`);
+    }
+  }
+});
+
+test("every 40-beam.css selector ends in a compound Blink can bucket", async () => {
+  // A selector whose last compound is only :root, :is(), or :where() is tried against
+  // every element on every restyle. Three such rules were 56% of the theme's selector
+  // time on the Svy daily page before 0.4.0. :root-only blocks are the one exception:
+  // they declare custom properties on <html> and fail on one pseudo-class test.
+  for (const rule of parseStylesheet(await readFile(BEAM_LAYER_URL, "utf8"))) {
+    for (const selector of rule.selectors) {
+      const last = selectorSequence(selector).at(-1);
+      if (/^:root(?::not\([^()]*\))*$/.test(last)) continue;
+      const bare = last.replace(/:(?:is|where|not)\([^()]*\)/g, "");
+      assert.match(bare, /^[a-z]|[.#[]/, `unbucketed selector in 40-beam.css: ${selector}`);
+      assert.doesNotMatch(last, /^:(?:is|where)\(/, `leading :is()/:where() in 40-beam.css: ${selector}`);
+    }
   }
 });
 
@@ -739,13 +692,14 @@ test("the baked cursor fallbacks in 40-beam.css are byte-identical to what this 
   );
   assert.equal(scaledSurfaceRules.length, 0, "no native-caret fallback for scaled diagram/grid roots");
 
-  // Dark art lives in the zero-specificity :where() blocks.
+  // Dark art lives in a cascade layer, so the unlayered injected sheet always outranks it
+  // without a :where() list that Blink would try on every element.
   const darkBlocks = rules.filter((rule) => rule.declarations["--svy-beam-cursor-default"]);
   assert.equal(darkBlocks.length, 2, "one dark token block plus its prefers-color-scheme twin");
   for (const rule of darkBlocks) {
+    assert.equal(rule.layer, "svy-beam-fallback", "the baked dark block must sit in the fallback layer");
     for (const selector of rule.selectors) {
-      assert.match(selector, /^:where\(/, "the baked dark block must not outrank the injected sheet");
-      assert.deepEqual(specificity(selector), [0, 0]);
+      assert.doesNotMatch(selector, /^:where\(/, "a leading :where() list is matched against every element");
     }
     for (const property of CURSOR_PROPERTIES) {
       assert.equal(rule.declarations[property].value, dark[property], `${property} dark fallback has drifted`);
@@ -852,8 +806,8 @@ test(".rm-dark-theme on an inner node darkens its subtree and nothing above it",
 });
 
 test("a customized dark caret still wins over the baked dark fallback", async () => {
-  // The whole point of the :where() wrapper: the layer must never outrank a published
-  // value, or the dark caret setting would silently stop recolouring the cursors.
+  // The whole point of the fallback layer: it must never outrank a published value, or
+  // the dark caret setting would silently stop recolouring the cursors.
   const layer = await readFile(BEAM_LAYER_URL, "utf8");
   const config = { ...BEAM_DEFAULTS, caretDark: "#ff8800" };
   const rules = parseStylesheet(`${layer}\n${renderThemeVarsCss(config)}`);
@@ -887,6 +841,7 @@ test("readBeamSettings normalizes what the settings panel stored", () => {
     [BEAM_SETTING_IDS.caretLight]: "  #ABC ",
     [BEAM_SETTING_IDS.caretDark]: "garbage",
     [BEAM_SETTING_IDS.cursor]: "NATIVE",
+    "bp-beam-caret-shape": "block",
   });
   assert.deepEqual(readBeamSettings(api), {
     ...BEAM_DEFAULTS,

@@ -1,4 +1,4 @@
-/* Svy Theme v0.3.6 | MIT | generated; edit src/ */
+/* Svy Theme v0.4.0 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -88,61 +88,23 @@ function createLifecycle() {
 // src/theme-vars.js
 var THEME_VARS_STYLE_ID = "svy-theme-vars";
 var BEAM_OFF_CLASS = "svy-off-beam";
-var BEAM_WASH_CLASS = "svy-beam-wash";
 var BEAM_SETTING_IDS = Object.freeze({
   pack: "bp-pack-beam",
   caretLight: "bp-beam-caret-light",
   caretDark: "bp-beam-caret-dark",
-  caretShape: "bp-beam-caret-shape",
-  caretWidth: "bp-beam-caret-width",
-  caretHeight: "bp-beam-caret-height",
-  caretRadius: "bp-beam-caret-radius",
-  caretOpacity: "bp-beam-caret-opacity",
-  caretGlow: "bp-beam-caret-glow",
-  caretBehavior: "bp-beam-caret-behavior",
   caretBlink: "bp-beam-caret-blink",
-  wash: "bp-beam-wash",
-  washIntensity: "bp-beam-wash-intensity",
   cursor: "bp-beam-cursor"
 });
-var CARET_SHAPES = Object.freeze(["beam", "block", "outline", "underline", "bar", "native"]);
-var CARET_GLOWS = Object.freeze(["soft", "none", "halo"]);
-var CARET_BEHAVIORS = Object.freeze(["responsive", "steady", "glide", "breathe", "comet"]);
-var WASH_INTENSITIES = Object.freeze(["subtle", "medium", "off"]);
 var CURSOR_STYLES = Object.freeze(["svy", "native"]);
-var CARET_CONTROL_LIMITS = Object.freeze({
-  caretWidth: Object.freeze({ min: 50, max: 200 }),
-  caretHeight: Object.freeze({ min: 30, max: 120 }),
-  caretRadius: Object.freeze({ min: 0, max: 12 }),
-  caretOpacity: Object.freeze({ min: 45, max: 100 })
-});
 var LEGACY_CARET_LIGHT = "#008478";
-var WASH_MIGRATION_SETTING_ID = "bp-beam-wash-migrated-2026-08-07";
-var CARET_V3_MIGRATION_SETTING_ID = "bp-beam-caret-v3-migrated-2026-08-08";
 var BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
-  caretShape: "beam",
-  caretWidth: 100,
-  caretHeight: 82,
-  caretRadius: 3,
-  caretOpacity: 100,
-  caretGlow: "soft",
-  caretBehavior: "responsive",
   caretBlink: false,
-  wash: false,
-  washIntensity: "off",
   cursor: "svy"
 });
-var DEFAULT_WASH_RGB = Object.freeze({ light: "0, 122, 112", dark: "72, 208, 192" });
 var DEFAULT_CARET_P3 = Object.freeze({ light: "0.47 0.11 182", dark: "0.78 0.15 184" });
-var WASH_ALPHA = Object.freeze({
-  subtle: Object.freeze({ light: 0.045, dark: 0.055 }),
-  medium: Object.freeze({ light: 0.09, dark: 0.11 })
-});
-var WASH_DURATION = "70ms";
-var WASH_RADIUS = "4px";
 var HEX_PATTERN = /^#?(?:([0-9a-f]{3})|([0-9a-f]{6}))$/i;
 function normalizeHex(value, fallback = null) {
   if (typeof value !== "string") return fallback;
@@ -162,29 +124,12 @@ function normalizeSwitch(value, fallback) {
   if (value === "false") return false;
   return fallback;
 }
-function normalizeNumber(value, { min, max }, fallback) {
-  if (typeof value !== "string" && typeof value !== "number" || String(value).trim() === "") {
-    return fallback;
-  }
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return fallback;
-  return Math.round(Math.min(max, Math.max(min, parsed)) * 10) / 10;
-}
 function normalizeBeamConfig(raw = {}) {
   return {
     pack: normalizeSwitch(raw.pack, BEAM_DEFAULTS.pack),
     caretLight: normalizeHex(raw.caretLight, BEAM_DEFAULTS.caretLight),
     caretDark: normalizeHex(raw.caretDark, BEAM_DEFAULTS.caretDark),
-    caretShape: normalizeChoice(raw.caretShape, CARET_SHAPES, BEAM_DEFAULTS.caretShape),
-    caretWidth: normalizeNumber(raw.caretWidth, CARET_CONTROL_LIMITS.caretWidth, BEAM_DEFAULTS.caretWidth),
-    caretHeight: normalizeNumber(raw.caretHeight, CARET_CONTROL_LIMITS.caretHeight, BEAM_DEFAULTS.caretHeight),
-    caretRadius: normalizeNumber(raw.caretRadius, CARET_CONTROL_LIMITS.caretRadius, BEAM_DEFAULTS.caretRadius),
-    caretOpacity: normalizeNumber(raw.caretOpacity, CARET_CONTROL_LIMITS.caretOpacity, BEAM_DEFAULTS.caretOpacity),
-    caretGlow: normalizeChoice(raw.caretGlow, CARET_GLOWS, BEAM_DEFAULTS.caretGlow),
-    caretBehavior: normalizeChoice(raw.caretBehavior, CARET_BEHAVIORS, BEAM_DEFAULTS.caretBehavior),
     caretBlink: normalizeSwitch(raw.caretBlink, BEAM_DEFAULTS.caretBlink),
-    wash: normalizeSwitch(raw.wash, BEAM_DEFAULTS.wash),
-    washIntensity: normalizeChoice(raw.washIntensity, WASH_INTENSITIES, BEAM_DEFAULTS.washIntensity),
     cursor: normalizeChoice(raw.cursor, CURSOR_STYLES, BEAM_DEFAULTS.cursor)
   };
 }
@@ -194,24 +139,9 @@ function readBeamSettings(extensionAPI) {
     pack: get(BEAM_SETTING_IDS.pack),
     caretLight: get(BEAM_SETTING_IDS.caretLight),
     caretDark: get(BEAM_SETTING_IDS.caretDark),
-    caretShape: get(BEAM_SETTING_IDS.caretShape),
-    caretWidth: get(BEAM_SETTING_IDS.caretWidth),
-    caretHeight: get(BEAM_SETTING_IDS.caretHeight),
-    caretRadius: get(BEAM_SETTING_IDS.caretRadius),
-    caretOpacity: get(BEAM_SETTING_IDS.caretOpacity),
-    caretGlow: get(BEAM_SETTING_IDS.caretGlow),
-    caretBehavior: get(BEAM_SETTING_IDS.caretBehavior),
     caretBlink: get(BEAM_SETTING_IDS.caretBlink),
-    wash: get(BEAM_SETTING_IDS.wash),
-    washIntensity: get(BEAM_SETTING_IDS.washIntensity),
     cursor: get(BEAM_SETTING_IDS.cursor)
   });
-}
-function hexToRgbTriplet(hex) {
-  const red = Number.parseInt(hex.slice(1, 3), 16);
-  const green = Number.parseInt(hex.slice(3, 5), 16);
-  const blue = Number.parseInt(hex.slice(5, 7), 16);
-  return `${red}, ${green}, ${blue}`;
 }
 function encodeSvg(svg) {
   return svg.replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E").replace(/"/g, "%22").replace(/\s+/g, " ").trim();
@@ -256,39 +186,14 @@ function cursorVarsForMode(normalized, mode) {
 }
 function computeThemeVars(config) {
   const normalized = normalizeBeamConfig(config);
-  const washOn = normalized.wash && normalized.washIntensity !== "off";
   const base = {};
   for (const mode of CURSOR_MODES) {
     const caret = mode === "light" ? normalized.caretLight : normalized.caretDark;
     const isDefault = caret === (mode === "light" ? BEAM_DEFAULTS.caretLight : BEAM_DEFAULTS.caretDark);
-    const alpha = washOn ? WASH_ALPHA[normalized.washIntensity][mode] : null;
     base[`--svy-beam-caret-${mode}`] = caret;
     base[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
-    if (alpha == null) {
-      base[`--svy-beam-wash-${mode}`] = "transparent";
-      base[`--svy-beam-wash-${mode}-p3`] = "transparent";
-    } else {
-      const rgb = isDefault ? DEFAULT_WASH_RGB[mode] : hexToRgbTriplet(caret);
-      base[`--svy-beam-wash-${mode}`] = `rgba(${rgb}, ${alpha})`;
-      base[`--svy-beam-wash-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]} / ${alpha})` : `rgba(${rgb}, ${alpha})`;
-    }
   }
-  const nativeShape = {
-    beam: "bar",
-    block: "block",
-    outline: "block",
-    underline: "underscore",
-    bar: "bar",
-    native: "auto"
-  }[normalized.caretShape];
-  base["--svy-beam-caret-shape"] = nativeShape;
   base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
-  base["--svy-beam-caret-preview-width"] = `${3 * (normalized.caretWidth / 100)}px`;
-  base["--svy-beam-caret-preview-height"] = `${20 * (normalized.caretHeight / 100)}px`;
-  base["--svy-beam-caret-radius"] = `${normalized.caretRadius}px`;
-  base["--svy-beam-caret-opacity"] = `${normalized.caretOpacity / 100}`;
-  base["--svy-beam-wash-duration"] = washOn ? WASH_DURATION : "0ms";
-  base["--svy-beam-wash-radius"] = WASH_RADIUS;
   const light = cursorVarsForMode(normalized, "light");
   const dark = cursorVarsForMode(normalized, "dark");
   Object.assign(base, light);
@@ -324,12 +229,8 @@ ${block(DARK_MEDIA_SELECTOR, dark, "  ")}}
 function applyPackClasses(doc, config) {
   const root = doc?.documentElement;
   if (!root?.classList) return;
-  const normalized = normalizeBeamConfig(config);
-  if (normalized.pack) root.classList.remove(BEAM_OFF_CLASS);
+  if (normalizeBeamConfig(config).pack) root.classList.remove(BEAM_OFF_CLASS);
   else root.classList.add(BEAM_OFF_CLASS);
-  const washOn = normalized.pack && normalized.wash && normalized.washIntensity !== "off";
-  if (washOn) root.classList.add(BEAM_WASH_CLASS);
-  else root.classList.remove(BEAM_WASH_CLASS);
 }
 function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }) {
   if (!doc?.createElement) return { refresh() {
@@ -338,10 +239,7 @@ function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }
   style.id = THEME_VARS_STYLE_ID;
   style.type = "text/css";
   lifecycle.node(style, doc.head || doc.documentElement);
-  lifecycle.add(() => {
-    doc.documentElement?.classList?.remove(BEAM_OFF_CLASS);
-    doc.documentElement?.classList?.remove(BEAM_WASH_CLASS);
-  });
+  lifecycle.add(() => doc.documentElement?.classList?.remove(BEAM_OFF_CLASS));
   const refresh = () => {
     const config = readBeamSettings(extensionAPI);
     style.textContent = renderThemeVarsCss(config);
@@ -349,387 +247,6 @@ function installThemeVars({ extensionAPI, lifecycle, doc = globalThis.document }
   };
   refresh();
   return { refresh, element: style };
-}
-
-// src/caret-overlay.js
-var BLOCK_CARET_CLASS = "svy-block-caret";
-var CARET_OVERLAY_CLASS = "svy-caret-overlay-ui";
-var CARET_PING_CLASS = "svy-caret-ping";
-var MARKER_CHAR = "​";
-var BLINK_PERIOD_MS = 530;
-var MIRROR_PROPERTIES = Object.freeze([
-  "boxSizing",
-  "width",
-  "paddingTop",
-  "paddingRight",
-  "paddingBottom",
-  "paddingLeft",
-  "borderTopWidth",
-  "borderRightWidth",
-  "borderBottomWidth",
-  "borderLeftWidth",
-  "fontFamily",
-  "fontSize",
-  "fontWeight",
-  "fontStyle",
-  "fontVariant",
-  "letterSpacing",
-  "textTransform",
-  "textIndent",
-  "lineHeight",
-  "tabSize",
-  "direction"
-]);
-function isTextTarget(element) {
-  if (!element || !element.tagName) return false;
-  if (element.tagName === "TEXTAREA") return true;
-  if (element.tagName !== "INPUT") return false;
-  const type = (element.getAttribute?.("type") || "text").toLowerCase();
-  return ["text", "search", "url", "tel", "email", "number"].includes(type);
-}
-function supportsNativeCaretShape(css = globalThis.CSS) {
-  return Boolean(css?.supports?.("caret-shape", "block"));
-}
-function needsOverlay({ pack, caretShape }) {
-  return Boolean(pack) && caretShape !== "native";
-}
-function smithOwnsCaret(win, doc) {
-  return Boolean(win?.__ROAM_CURSOR_SMITH_VERSION) || doc?.body?.classList?.contains("cs-active");
-}
-function measureCaretRect(element, doc, win) {
-  const computed = win.getComputedStyle(element);
-  const mirror = doc.createElement("div");
-  const style = mirror.style;
-  style.position = "absolute";
-  style.top = "0";
-  style.left = "-99999px";
-  style.visibility = "hidden";
-  style.height = "auto";
-  style.whiteSpace = "pre-wrap";
-  style.overflowWrap = "break-word";
-  for (const name of MIRROR_PROPERTIES) style[name] = computed[name];
-  const value = element.value ?? "";
-  const start = Math.min(element.selectionStart ?? value.length, value.length);
-  const underCaret = value[start] && value[start] !== "\n" ? value[start] : "0";
-  const hasGlyph = underCaret !== "0" || value[start] === "0";
-  mirror.textContent = value.slice(0, start);
-  const marker = doc.createElement("span");
-  const lineHeightPx = Number.parseFloat(computed.lineHeight) || Number.parseFloat(computed.fontSize) * 1.2 || 19;
-  marker.style.display = "inline-block";
-  marker.style.width = "0";
-  marker.style.height = `${lineHeightPx}px`;
-  marker.style.verticalAlign = "top";
-  marker.textContent = MARKER_CHAR;
-  mirror.appendChild(marker);
-  const glyph = doc.createElement("span");
-  glyph.textContent = underCaret;
-  mirror.appendChild(glyph);
-  (doc.body || doc.documentElement).appendChild(mirror);
-  const measured = {
-    top: marker.offsetTop,
-    left: marker.offsetLeft,
-    height: marker.offsetHeight || lineHeightPx,
-    width: glyph.offsetWidth || Number.parseFloat(computed.fontSize) * 0.6 || 8,
-    glyph: hasGlyph ? underCaret : ""
-  };
-  mirror.remove();
-  const box = element.getBoundingClientRect();
-  const offsetW = element.offsetWidth || 0;
-  const offsetH = element.offsetHeight || 0;
-  const scaleX = offsetW ? box.width / offsetW : 1;
-  const scaleY = offsetH ? box.height / offsetH : 1;
-  const borderLeft = Number.parseFloat(computed.borderLeftWidth) || 0;
-  const borderTop = Number.parseFloat(computed.borderTopWidth) || 0;
-  const x = box.left + (borderLeft + measured.left - (element.scrollLeft || 0)) * scaleX;
-  const y = box.top + (borderTop + measured.top - (element.scrollTop || 0)) * scaleY;
-  const padLeft = Number.parseFloat(computed.paddingLeft) || 0;
-  const padTop = Number.parseFloat(computed.paddingTop) || 0;
-  const padRight = Number.parseFloat(computed.paddingRight) || 0;
-  const padBottom = Number.parseFloat(computed.paddingBottom) || 0;
-  const width = measured.width * scaleX;
-  const height = measured.height * scaleY;
-  const content = {
-    left: box.left + (borderLeft + padLeft) * scaleX,
-    top: box.top + (borderTop + padTop) * scaleY,
-    right: box.right - (borderLeft + padRight) * scaleX,
-    bottom: box.bottom - (borderTop + padBottom) * scaleY
-  };
-  const visible = x + width > content.left && x < content.right && y + height > content.top && y < content.bottom;
-  return {
-    x,
-    y,
-    width,
-    height,
-    glyph: measured.glyph,
-    visible
-  };
-}
-var halfPixel = (value) => Math.round(value * 2) / 2;
-function computeCaretBox(rect, config) {
-  const normalized = normalizeBeamConfig(config);
-  const widthScale = normalized.caretWidth / 100;
-  const heightScale = normalized.caretHeight / 100;
-  const shape = normalized.caretShape;
-  const cellWidth = Math.max(1, rect.width);
-  const lineHeight = Math.max(1, rect.height);
-  let width = cellWidth * widthScale;
-  let height = Math.max(2, lineHeight * heightScale);
-  let x = rect.x;
-  let y = rect.y + (lineHeight - height) / 2;
-  if (shape === "beam") {
-    width = 3 * widthScale;
-    x = rect.x - width / 2;
-  } else if (shape === "bar") {
-    width = 2 * widthScale;
-    x = rect.x - width / 2;
-  } else if (shape === "underline") {
-    height = Math.max(2, Math.min(6, lineHeight * 0.16 * (normalized.caretHeight / 82)));
-    y = rect.y + lineHeight - height;
-  }
-  width = Math.max(1, width);
-  return {
-    x: halfPixel(x),
-    y: halfPixel(y),
-    width: halfPixel(width),
-    height: halfPixel(height),
-    lineOffset: halfPixel(y - rect.y)
-  };
-}
-function surfaceColorBehind(element, win) {
-  let node = element;
-  while (node && node.nodeType === 1) {
-    const color = win.getComputedStyle(node).backgroundColor;
-    if (color && color !== "transparent" && color !== "rgba(0, 0, 0, 0)") return color;
-    node = node.parentElement;
-  }
-  return win.getComputedStyle(win.document?.body || element).backgroundColor || "#ffffff";
-}
-function installCaretOverlay({
-  extensionAPI,
-  lifecycle,
-  doc = globalThis.document,
-  win = globalThis.window,
-  // Retained so older callers/tests need no signature change. Custom v3 styles render
-  // identically regardless of native caret-shape support.
-  nativeSupported = supportsNativeCaretShape()
-} = {}) {
-  void nativeSupported;
-  const inert = { refresh() {
-  }, get active() {
-    return false;
-  } };
-  if (!doc?.createElement || !doc?.documentElement?.classList || !win?.getComputedStyle) return inert;
-  const root = doc.documentElement;
-  const motionQuery = win.matchMedia?.("(prefers-reduced-motion: reduce)") || null;
-  const motionReduced = () => Boolean(motionQuery?.matches);
-  let config = BEAM_DEFAULTS;
-  let enabled = false;
-  let target = null;
-  let overlay = null;
-  let glyphNode = null;
-  let blinkOn = false;
-  let blinkVisible = true;
-  let blinkTimer = null;
-  let pingTimer = null;
-  const readSettings = () => {
-    const get = (key) => extensionAPI?.settings?.get?.(key);
-    return normalizeBeamConfig(
-      Object.fromEntries(Object.entries(BEAM_SETTING_IDS).map(([key, id]) => [key, get(id)]))
-    );
-  };
-  const hide = () => {
-    target = null;
-    root.classList.remove(BLOCK_CARET_CLASS);
-    if (overlay) overlay.style.display = "none";
-  };
-  const ensureOverlay = () => {
-    if (overlay) return;
-    overlay = doc.createElement("div");
-    overlay.setAttribute("aria-hidden", "true");
-    overlay.classList.add(CARET_OVERLAY_CLASS);
-    const style = overlay.style;
-    style.position = "fixed";
-    style.top = "0";
-    style.left = "0";
-    style.zIndex = "900";
-    style.pointerEvents = "none";
-    style.boxSizing = "border-box";
-    style.overflow = "hidden";
-    style.display = "none";
-    glyphNode = doc.createElement("span");
-    glyphNode.style.display = "none";
-    glyphNode.style.textAlign = "center";
-    glyphNode.style.whiteSpace = "pre";
-    overlay.appendChild(glyphNode);
-    lifecycle.node(overlay, doc.body || doc.documentElement);
-  };
-  const render = () => {
-    if (smithOwnsCaret(win, doc)) {
-      hide();
-      return;
-    }
-    if (!enabled || !target || !overlay) return;
-    if (!target.isConnected) {
-      hide();
-      return;
-    }
-    if (target.selectionEnd != null && target.selectionStart !== target.selectionEnd) {
-      overlay.style.display = "none";
-      return;
-    }
-    let rect;
-    try {
-      rect = measureCaretRect(target, doc, win);
-    } catch {
-      hide();
-      return;
-    }
-    if (!rect.visible) {
-      overlay.style.display = "none";
-      return;
-    }
-    const targetStyle = win.getComputedStyle(target);
-    const rootStyle = win.getComputedStyle(root);
-    const caretColor = targetStyle.getPropertyValue?.("--svy-beam-caret")?.trim() || rootStyle.getPropertyValue?.("--svy-beam-caret")?.trim() || BEAM_DEFAULTS.caretLight;
-    const box = computeCaretBox(rect, config);
-    const reduced = motionReduced();
-    const behavior = reduced || blinkOn ? "steady" : config.caretBehavior;
-    const radius = Math.min(config.caretRadius, box.width / 2, box.height / 2);
-    overlay.setAttribute("data-shape", config.caretShape);
-    overlay.setAttribute("data-glow", config.caretGlow);
-    overlay.setAttribute("data-behavior", behavior);
-    overlay.style.display = "block";
-    overlay.style.transform = `translate(${box.x}px, ${box.y}px)`;
-    overlay.style.width = `${box.width}px`;
-    overlay.style.height = `${box.height}px`;
-    overlay.style.borderRadius = `${radius}px`;
-    overlay.style.opacity = blinkOn && !blinkVisible ? "0" : `${config.caretOpacity / 100}`;
-    overlay.style.backgroundColor = config.caretShape === "outline" ? "transparent" : caretColor;
-    overlay.style.border = config.caretShape === "outline" ? `1.5px solid ${caretColor}` : "0";
-    overlay.style.setProperty?.("--svy-caret-overlay-color", caretColor);
-    const paintsGlyph = config.caretShape === "block";
-    glyphNode.style.display = paintsGlyph && rect.glyph ? "block" : "none";
-    if (paintsGlyph && rect.glyph) {
-      glyphNode.textContent = rect.glyph;
-      glyphNode.style.fontFamily = targetStyle.fontFamily;
-      glyphNode.style.fontSize = targetStyle.fontSize;
-      glyphNode.style.fontWeight = targetStyle.fontWeight;
-      glyphNode.style.fontStyle = targetStyle.fontStyle;
-      glyphNode.style.color = surfaceColorBehind(target, win);
-      glyphNode.style.lineHeight = `${rect.height}px`;
-      glyphNode.style.transform = `translateY(${-box.lineOffset}px)`;
-    }
-  };
-  const show = (element) => {
-    if (smithOwnsCaret(win, doc)) {
-      hide();
-      return;
-    }
-    if (!enabled || !isTextTarget(element)) return;
-    ensureOverlay();
-    target = element;
-    root.classList.add(BLOCK_CARET_CLASS);
-    render();
-  };
-  const ping = () => {
-    if (!overlay || motionReduced()) return;
-    if (config.caretBehavior !== "responsive" && config.caretBehavior !== "comet") return;
-    overlay.classList.remove(CARET_PING_CLASS);
-    void overlay.offsetWidth;
-    overlay.classList.add(CARET_PING_CLASS);
-    if (pingTimer) globalThis.clearTimeout(pingTimer);
-    pingTimer = globalThis.setTimeout(() => {
-      overlay?.classList.remove(CARET_PING_CLASS);
-      pingTimer = null;
-    }, 180);
-  };
-  const ensureAttached = () => {
-    if (!enabled) return;
-    const active = doc.activeElement;
-    if (isTextTarget(active) && active !== target) show(active);
-  };
-  const onFocusIn = (event) => {
-    if (enabled && isTextTarget(event.target)) show(event.target);
-  };
-  const onFocusOut = (event) => {
-    if (event.target !== target) return;
-    globalThis.setTimeout(() => {
-      if (lifecycle.disposed || !enabled) return;
-      const active = doc.activeElement;
-      if (isTextTarget(active)) show(active);
-      else hide();
-    }, 0);
-  };
-  const onEdit = (event) => {
-    ensureAttached();
-    if (event.target === target) {
-      blinkVisible = true;
-      render();
-      ping();
-    }
-  };
-  const onSelectionChange = () => {
-    ensureAttached();
-    if (target && doc.activeElement === target) render();
-  };
-  const onScroll = () => {
-    if (target) render();
-  };
-  const syncBlink = () => {
-    const wanted = enabled && blinkOn && !motionReduced();
-    if (wanted && !blinkTimer) {
-      blinkTimer = globalThis.setInterval(() => {
-        if (target) {
-          blinkVisible = !blinkVisible;
-          render();
-        }
-      }, BLINK_PERIOD_MS);
-    } else if (!wanted && blinkTimer) {
-      globalThis.clearInterval(blinkTimer);
-      blinkTimer = null;
-    }
-    if (!wanted) blinkVisible = true;
-  };
-  const apply = () => {
-    config = readSettings();
-    enabled = needsOverlay(config) && !smithOwnsCaret(win, doc);
-    blinkOn = config.caretBlink;
-    syncBlink();
-    if (!enabled) {
-      hide();
-      return;
-    }
-    if (isTextTarget(doc.activeElement)) show(doc.activeElement);
-    else if (target) render();
-  };
-  lifecycle.event(doc, "focusin", onFocusIn);
-  lifecycle.event(doc, "focusout", onFocusOut);
-  lifecycle.event(doc, "input", onEdit, true);
-  lifecycle.event(doc, "selectionchange", onSelectionChange);
-  lifecycle.event(doc, "keyup", onSelectionChange, true);
-  lifecycle.event(doc, "mouseup", onSelectionChange, true);
-  lifecycle.event(win, "scroll", onScroll, true);
-  lifecycle.event(win, "resize", onScroll);
-  if (motionQuery?.addEventListener) lifecycle.event(motionQuery, "change", apply);
-  if (doc.body && typeof globalThis.MutationObserver === "function") {
-    lifecycle.observer(
-      new globalThis.MutationObserver(() => apply()),
-      doc.body,
-      { attributes: true, attributeFilter: ["class"], subtree: false }
-    );
-  }
-  lifecycle.add(() => {
-    if (blinkTimer) globalThis.clearInterval(blinkTimer);
-    if (pingTimer) globalThis.clearTimeout(pingTimer);
-    root.classList.remove(BLOCK_CARET_CLASS);
-  });
-  apply();
-  return {
-    refresh: apply,
-    get active() {
-      return Boolean(enabled && target);
-    }
-  };
 }
 
 // src/settings.js
@@ -766,58 +283,11 @@ async function initializeBeamSettings(extensionAPI) {
   if (normalizeHex(storedLight) === LEGACY_CARET_LIGHT) {
     await extensionAPI.settings.set(BEAM_SETTING_IDS.caretLight, BEAM_DEFAULTS.caretLight);
   }
-  if (!normalizeSwitch(extensionAPI.settings.get(WASH_MIGRATION_SETTING_ID), false)) {
-    if (normalizeSwitch(extensionAPI.settings.get(BEAM_SETTING_IDS.wash), false)) {
-      await extensionAPI.settings.set(BEAM_SETTING_IDS.wash, false);
-    }
-    await extensionAPI.settings.set(WASH_MIGRATION_SETTING_ID, true);
-  }
-  if (!normalizeSwitch(extensionAPI.settings.get(CARET_V3_MIGRATION_SETTING_ID), false)) {
-    const storedShape = extensionAPI.settings.get(BEAM_SETTING_IDS.caretShape);
-    if (typeof storedShape === "string" && storedShape.trim().toLowerCase() === "block") {
-      await extensionAPI.settings.set(BEAM_SETTING_IDS.caretShape, BEAM_DEFAULTS.caretShape);
-    }
-    await extensionAPI.settings.set(CARET_V3_MIGRATION_SETTING_ID, true);
-  }
 }
-function createBeamPreviewComponent(React = globalThis.window?.React) {
-  if (typeof React?.createElement !== "function") return null;
-  const h = React.createElement;
-  return function SvyBeamPreview() {
-    return h(
-      "div",
-      {
-        style: {
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          padding: "8px 10px",
-          borderRadius: "var(--svy-beam-wash-radius, 4px)",
-          background: "var(--svy-beam-wash, rgba(0, 122, 112, 0.045))",
-          border: "1px solid var(--svy-beam-caret, #00695e)"
-        }
-      },
-      h("span", {
-        className: "svy-beam-preview-caret",
-        style: {
-          display: "inline-block",
-          width: "var(--svy-beam-caret-preview-width, 3px)",
-          height: "var(--svy-beam-caret-preview-height, 16.4px)",
-          borderRadius: "var(--svy-beam-caret-radius, 3px)",
-          background: "var(--svy-beam-caret, #00695e)",
-          boxShadow: "0 0 8px color-mix(in srgb, var(--svy-beam-caret, #00695e) 32%, transparent)",
-          opacity: "var(--svy-beam-caret-opacity, 1)"
-        }
-      }),
-      h("span", { style: { fontSize: "12px", opacity: 0.8 } }, "Svy Beam · color and size update live")
-    );
-  };
-}
-function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = {}) {
+function createSettingsPanel({ onAppearanceChange, onThemeVarsChange } = {}) {
   const changed = () => {
     onThemeVarsChange?.();
   };
-  const preview = createBeamPreviewComponent(React);
   const settings = [
     {
       id: SETTING_IDS.appearance,
@@ -834,7 +304,7 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
     {
       id: BEAM_SETTING_IDS.pack,
       name: "Svy Beam",
-      description: "Master switch for the beam layer: caret color/shape, focus wash, and custom cursors. Off restores Roam's native caret and cursors without a reload.",
+      description: "Master switch for the beam layer: caret color and custom cursors. Off restores Roam's native caret and cursors without a reload. Shaped carets live in Roam Caret.",
       action: { type: "switch", onChange: changed }
     },
     {
@@ -850,64 +320,10 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretDark, onChange: changed }
     },
     {
-      id: BEAM_SETTING_IDS.caretShape,
-      name: "Caret shape",
-      description: "beam (default) is a short rounded insertion mark; block fills the glyph cell; outline frames it; underline sits below it; bar is classic; native restores the platform caret.",
-      action: { type: "select", items: [...CARET_SHAPES], onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretWidth,
-      name: "Caret width scale (%)",
-      description: "Fine control from 50–200. Scales the chosen shape: 100 is a 3px beam or one glyph-cell block.",
-      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretWidth), onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretHeight,
-      name: "Caret height (%)",
-      description: "Height relative to the current line, from 30–120. The quieter default is 82.",
-      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretHeight), onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretRadius,
-      name: "Caret corner radius (px)",
-      description: "Corner softness from 0–12px. Try 0 for terminal-sharp, 3 for Svy, or 8 for a pill.",
-      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretRadius), onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretOpacity,
-      name: "Caret opacity (%)",
-      description: "Visibility from 45–100. Keep 100 for maximum contrast; lower values feel softer on large block shapes.",
-      action: { type: "input", placeholder: String(BEAM_DEFAULTS.caretOpacity), onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretGlow,
-      name: "Caret glow",
-      description: "soft adds a restrained edge light; none is perfectly flat; halo is the playful high-energy option.",
-      action: { type: "select", items: [...CARET_GLOWS], onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretBehavior,
-      name: "Caret behavior",
-      description: "responsive gives a quick typing ping; steady never moves; glide eases between positions; breathe idles gently; comet adds a tiny trail. Reduce Motion makes every option steady.",
-      action: { type: "select", items: [...CARET_BEHAVIORS], onChange: changed }
-    },
-    {
       id: BEAM_SETTING_IDS.caretBlink,
       name: "Caret blink",
-      description: "Optional classic blink. Off keeps the selected behavior; on blinks the custom caret at the platform-like cadence.",
+      description: "Off (default) holds the caret steady; on restores the platform blink.",
       action: { type: "switch", onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.wash,
-      name: "Focus wash",
-      description: "Off by default: the caret alone marks the focused block. On tints the focused block with the caret color. Always disabled under prefers-reduced-motion, regardless of this switch.",
-      action: { type: "switch", onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.washIntensity,
-      name: "Wash intensity",
-      description: "off (default) paints nothing even with the switch on; subtle is the original tint; medium doubles the alpha.",
-      action: { type: "select", items: [...WASH_INTENSITIES], onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.cursor,
@@ -916,14 +332,6 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange, React } = 
       action: { type: "select", items: [...CURSOR_STYLES], onChange: changed }
     }
   ];
-  if (preview) {
-    settings.push({
-      id: "bp-beam-preview",
-      name: "Preview",
-      description: "Live sample of the current caret and focus wash.",
-      action: { type: "reactComponent", component: preview }
-    });
-  }
   return { tabTitle: "Svy Theme", settings };
 }
 
@@ -1139,15 +547,11 @@ async function onload({ extensionAPI, extension }) {
     await initializeSettings(extensionAPI);
     await initializeBeamSettings(extensionAPI);
     const themeVars = installThemeVars({ extensionAPI, lifecycle });
-    const caretOverlay = installCaretOverlay({ extensionAPI, lifecycle });
     await lifecycle.settingsPanel(
       extensionAPI,
       createSettingsPanel({
         onAppearanceChange: (mode) => applyAppearance(mode),
-        onThemeVarsChange: () => {
-          themeVars.refresh();
-          caretOverlay.refresh();
-        }
+        onThemeVarsChange: () => themeVars.refresh()
       })
     );
     await installDarkModeToggle({ extensionAPI, lifecycle });

@@ -1,36 +1,26 @@
-/* U5 — Svy Beam v3: configurable caret, focus wash, custom cursors.
+/* Svy Beam v4: caret color and custom cursors. Nothing on the typing path.
  *
- * Every value in this layer flows through a --svy-beam-* custom property whose
- * fallback is the CURRENT default, so the layer renders like the shipped defaults when
- * src/theme-vars.js never runs (JS disabled, load failure, older cached bundle).
- * theme-vars.js publishes the settings-derived values from one injected
- * <style id="svy-theme-vars"> sheet.
+ * v3 painted the caret from a fixed overlay that re-measured on every input,
+ * selectionchange, and keyup: a mirror div, forced layouts, and a forced style flush
+ * per key. In a window without Roam Caret that was +140 ms median per key at 120 ms
+ * pacing (Readwisenotes, 15k elements, 2026-09-24). v4 colors the browser caret.
+ * Roam Caret owns shaped carets.
  *
- * CONTRACT CHANGE 2026-08-07: these fallbacks used to be pinned to Beam v1's values. They
- * now track computeThemeVars(BEAM_DEFAULTS) instead. The focus wash defaults OFF, and a
- * fallback frozen at v1 would repaint the wash precisely in the cases the user cannot
- * fix from the settings panel — a failed bundle load or a stale cached build. The wash
- * fallbacks are therefore `transparent` / `0ms`, and the caret keeps its (unchanged)
- * default colour so the layer's whole reason for existing still works without JS.
+ * Every rule ends in a tag, class, or attribute, so Blink files it in a bucket and
+ * only tries it on elements that can match. A bare `:is()` list or a `:where()` list
+ * as the whole selector is tried on every element on every restyle. Three such rules
+ * were 56% of this theme's selector time on the Svy daily page.
  *
- * Pack gate: theme-vars.js puts .svy-off-beam on <html> when the beam pack is
- * switched off, and every rule below carries :root:not(.svy-off-beam).
+ * Values flow through --svy-beam-* custom properties whose fallbacks are the shipped
+ * defaults, so the layer renders like the defaults when src/theme-vars.js never runs.
+ * theme-vars.js publishes the settings-derived values from <style id="svy-theme-vars">.
  *
- * v1 defect fixed here: auto mode (nothing stamped, OS dark) used to leave the light
- * teal caret #008478 on the dark page at APCA Lc -26.6. The guarded
- * @media (prefers-color-scheme: dark) { :root:not(.bp3-light) ... } block below is the
- * fifth dark signal, matching the shape used by 10-fixes-dark.css and Roam Grid.
- *
- * v2 cursors: the caret already had a value per mode, but the cursor art did not — one
- * set with #182026 ink was painted onto both surfaces, and on the dark page that ink has
- * nothing to separate it from the background. The three cursor properties now carry their
- * mode: light art is the var() fallback on each cursor rule, dark art is republished by
- * the :where() blocks below (and, when JavaScript runs, by the injected sheet).
+ * Pack gate: theme-vars.js puts .svy-off-beam on <html> when the pack is off, and
+ * every rule below carries :root:not(.svy-off-beam).
  */
 
 :root:not(.svy-off-beam) {
   --svy-beam-caret: var(--svy-beam-caret-light, #00695e);
-  --svy-beam-wash: var(--svy-beam-wash-light, transparent);
 }
 
 :root:not(.svy-off-beam).bp3-dark,
@@ -39,13 +29,11 @@
 :root:not(.svy-off-beam) body.bt-theme-dark,
 :root:not(.svy-off-beam) body.roam-body.dark {
   --svy-beam-caret: var(--svy-beam-caret-dark, #48d0c0);
-  --svy-beam-wash: var(--svy-beam-wash-dark, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.bp3-light):not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-dark, #48d0c0);
-    --svy-beam-wash: var(--svy-beam-wash-dark, transparent);
   }
 }
 
@@ -53,137 +41,62 @@
   cursor: var(--svy-beam-cursor-default, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='%2348aff0' stroke='%23182026' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 5L12 21' stroke='%2300695e' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto);
 }
 
-:root:not(.svy-off-beam) :is(a, button, [role="button"], [role="link"], summary, label, select,
-    .rm-page-ref, .rm-block-ref, .bp3-menu-item, .bp3-button) {
+:root:not(.svy-off-beam) a,
+:root:not(.svy-off-beam) button,
+:root:not(.svy-off-beam) summary,
+:root:not(.svy-off-beam) label,
+:root:not(.svy-off-beam) select,
+:root:not(.svy-off-beam) [role="button"],
+:root:not(.svy-off-beam) [role="link"],
+:root:not(.svy-off-beam) .rm-page-ref,
+:root:not(.svy-off-beam) .rm-block-ref,
+:root:not(.svy-off-beam) .bp3-menu-item,
+:root:not(.svy-off-beam) .bp3-button {
   cursor: var(--svy-beam-cursor-pointer, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23182026' stroke='%2348aff0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2300695e' stroke='%23f5f8fa' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer);
 }
 
-:root:not(.svy-off-beam) body :is(
-  input,
-  textarea,
-  [contenteditable="true"],
-  .rm-block-input,
-  .rm-block__input,
-  .rm-block-text,
-  .rm-title-textarea
-) {
+/* caret-animation: manual stops the blink (Chromium 139+); older engines ignore it. */
+:root:not(.svy-off-beam) input,
+:root:not(.svy-off-beam) textarea,
+:root:not(.svy-off-beam) [contenteditable="true"],
+:root:not(.svy-off-beam) .rm-block-input,
+:root:not(.svy-off-beam) .rm-block__input,
+:root:not(.svy-off-beam) .rm-block-text,
+:root:not(.svy-off-beam) .rm-title-textarea {
   caret-color: var(--svy-beam-caret) !important;
-  /* Progressive fallback when the v3 overlay is unavailable. */
-  caret-shape: var(--svy-beam-caret-shape, bar) !important;
   caret-animation: var(--svy-beam-caret-animation, manual) !important;
   cursor: var(--svy-beam-cursor-text, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23182026' stroke='%2348aff0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2300695e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f5f8fa'/%3E%3C/svg%3E") 16 16, text) !important;
 }
 
-/* src/caret-overlay.js stamps this compatibility class whenever one of Svy's custom
- * caret styles is painting. The explicit native style never stamps it. */
-:root:not(.svy-off-beam).svy-block-caret body :is(
-  input,
-  textarea,
-  [contenteditable="true"],
-  .rm-block-input,
-  .rm-block__input,
-  .rm-block-text,
-  .rm-title-textarea
-) {
-  caret-color: transparent !important;
-}
-
-/* One fixed overlay node paints the custom insertion point. Shape geometry and the
- * current color are supplied by caret-overlay.js; CSS owns only composited decoration
- * and motion, keeping the typing path free from layout-producing animation. */
-:root:not(.svy-off-beam) .svy-caret-overlay-ui {
-  --svy-caret-overlay-color: var(--svy-beam-caret, #00695e);
-  contain: layout style;
-  transform-origin: center;
-  will-change: transform, filter, opacity;
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="soft"] {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--svy-caret-overlay-color) 18%, transparent),
-    0 0 8px color-mix(in srgb, var(--svy-caret-overlay-color) 30%, transparent);
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="halo"] {
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--svy-caret-overlay-color) 20%, transparent),
-    0 0 14px 3px color-mix(in srgb, var(--svy-caret-overlay-color) 42%, transparent);
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-glow="none"] { box-shadow: none; }
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="glide"] {
-  transition: transform 68ms cubic-bezier(0.2, 0.75, 0.3, 1);
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="comet"] {
-  box-shadow:
-    -5px 0 9px -2px color-mix(in srgb, var(--svy-caret-overlay-color) 44%, transparent),
-    0 0 5px color-mix(in srgb, var(--svy-caret-overlay-color) 38%, transparent);
-  transition: transform 105ms cubic-bezier(0.16, 0.8, 0.25, 1);
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui[data-behavior="breathe"] {
-  animation: svy-caret-breathe 1.8s ease-in-out infinite alternate;
-}
-
-:root:not(.svy-off-beam) .svy-caret-overlay-ui.svy-caret-ping {
-  animation: svy-caret-ping 150ms ease-out;
-}
-
-/* The settings preview consumes the same generated size tokens as the live renderer. */
-:root:not(.svy-off-beam) .svy-beam-preview-caret {
-  width: var(--svy-beam-caret-preview-width, 3px);
-  height: var(--svy-beam-caret-preview-height, 16.4px);
-  border-radius: var(--svy-beam-caret-radius, 3px);
-  opacity: var(--svy-beam-caret-opacity, 1);
-}
-
-/* JS-absent fallback for the dark cursor set. theme-vars.js publishes the same three
- * values from the injected sheet; these declarations sit inside :where() so their
- * specificity is 0-0-0 and ANY published value outranks them regardless of which
- * stylesheet the browser happens to have inserted last. Without JavaScript they are the
- * only declarations in play, so the dark cursors still hold. Light needs no equivalent:
- * it is the var() fallback baked into the three cursor rules above.
- * Values must stay byte-identical to computeThemeVars(BEAM_DEFAULTS) — theme-vars.test.js
+/* Dark cursor art for when JavaScript never runs. theme-vars.js publishes the same
+ * three values unlayered, and any unlayered declaration beats a layered one whatever
+ * the specificity, so a customized caret always wins. The layer, not :where(), keeps
+ * these rules in class buckets. Light art is the var() fallback in the rules above.
+ * Values must stay byte-identical to computeThemeVars(BEAM_DEFAULTS); theme-vars.test.js
  * fails the build if they drift. */
-:where(:root:not(.svy-off-beam).bp3-dark,
-       :root:not(.svy-off-beam).rm-dark-theme,
-       :root:not(.svy-off-beam) .rm-dark-theme,
-       :root:not(.svy-off-beam) body.bt-theme-dark,
-       :root:not(.svy-off-beam) body.roam-body.dark) {
-  --svy-beam-cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='%23182026' stroke='%23e1e8ed' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 5L12 21' stroke='%2348d0c0' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto;
-  --svy-beam-cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2348d0c0' stroke='%23182026' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer;
-  --svy-beam-cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2348d0c0'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23182026'/%3E%3C/svg%3E") 16 16, text;
-}
-
-@media (prefers-color-scheme: dark) {
-  :where(:root:not(.bp3-light):not(.svy-off-beam)) {
+@layer svy-beam-fallback {
+  :root:not(.svy-off-beam).bp3-dark,
+  :root:not(.svy-off-beam).rm-dark-theme,
+  :root:not(.svy-off-beam) .rm-dark-theme,
+  :root:not(.svy-off-beam) body.bt-theme-dark,
+  :root:not(.svy-off-beam) body.roam-body.dark {
     --svy-beam-cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='%23182026' stroke='%23e1e8ed' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 5L12 21' stroke='%2348d0c0' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto;
     --svy-beam-cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2348d0c0' stroke='%23182026' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer;
     --svy-beam-cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2348d0c0'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23182026'/%3E%3C/svg%3E") 16 16, text;
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.bp3-light):not(.svy-off-beam) {
+      --svy-beam-cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3L25 16L16 19L21 28L16 31L11 21L4 27Z' fill='%23182026' stroke='%23e1e8ed' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M6 5L12 21' stroke='%2348d0c0' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto;
+      --svy-beam-cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2348d0c0' stroke='%23182026' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer;
+      --svy-beam-cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23e1e8ed' stroke='%2348d0c0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2348d0c0'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23182026'/%3E%3C/svg%3E") 16 16, text;
+    }
+  }
 }
 
-/* Roam uses the browser's native textarea caret, so caret-position animation would
- * need a typing-path JavaScript overlay. Keep Roam native-fast and carry the same
- * sense of motion with a tiny, compositor-friendly focus wash instead. */
-/* Off unless theme-vars.js adds .svy-beam-wash. A :focus-within rule on every
-   block is checked on every focus move, and the wash defaults to off. */
-:root:not(.svy-off-beam).svy-beam-wash .roam-block-container > .rm-block-main {
-  transition: background-color var(--svy-beam-wash-duration, 0ms) linear;
-  border-radius: var(--svy-beam-wash-radius, 4px);
-}
-
-:root:not(.svy-off-beam).svy-beam-wash .roam-block-container:focus-within > .rm-block-main {
-  background-color: var(--svy-beam-wash);
-}
-
-/* P3 override covers the wash tint as well as the caret (v1 was caret-only). */
 @media (color-gamut: p3) {
   :root:not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-light-p3, oklch(0.47 0.11 182));
-    --svy-beam-wash: var(--svy-beam-wash-light-p3, transparent);
   }
 
   :root:not(.svy-off-beam).bp3-dark,
@@ -192,47 +105,11 @@
   :root:not(.svy-off-beam) body.bt-theme-dark,
   :root:not(.svy-off-beam) body.roam-body.dark {
     --svy-beam-caret: var(--svy-beam-caret-dark-p3, oklch(0.78 0.15 184));
-    --svy-beam-wash: var(--svy-beam-wash-dark-p3, transparent);
   }
 }
 
 @media (color-gamut: p3) and (prefers-color-scheme: dark) {
   :root:not(.bp3-light):not(.svy-off-beam) {
     --svy-beam-caret: var(--svy-beam-caret-dark-p3, oklch(0.78 0.15 184));
-    --svy-beam-wash: var(--svy-beam-wash-dark-p3, transparent);
-  }
-}
-
-/* Reduced motion DISABLES the wash outright rather than shortening it (design-tokens
- * motion policy). Must stay last: it overrides the background-color set above. */
-@media (prefers-reduced-motion: reduce) {
-  :root:not(.svy-off-beam) .svy-caret-overlay-ui,
-  :root:not(.svy-off-beam) .svy-caret-overlay-ui.svy-caret-ping {
-    animation: none !important;
-    transition: none !important;
-    filter: none !important;
-  }
-
-  :root:not(.svy-off-beam).svy-beam-wash .roam-block-container > .rm-block-main {
-    transition: none;
-  }
-
-  :root:not(.svy-off-beam).svy-beam-wash .roam-block-container:focus-within > .rm-block-main {
-    background-color: transparent;
-  }
-}
-
-@media (forced-colors: active) {
-  :root:not(.svy-off-beam) .svy-caret-overlay-ui {
-    --svy-caret-overlay-color: Highlight !important;
-    background-color: Highlight !important;
-    border-color: Highlight !important;
-    box-shadow: none !important;
-    filter: none !important;
-    forced-color-adjust: none;
-  }
-
-  :root:not(.svy-off-beam) .svy-caret-overlay-ui[data-shape="outline"] {
-    background-color: transparent !important;
   }
 }

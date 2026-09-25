@@ -711,8 +711,15 @@ svg[role="graphics-document document"] .task {
    copied: the original used `[data-page-links*=".rm-focus"] *` universal-
    descendant selectors and `.rm-zoom ... *` — a style-recalc hazard of
    exactly the shape this campaign exists to remove. Every rule now targets
-   the specific elements it needs; the substring attribute match appears
-   only on the container, once per rule, never combined with a bare `*`.
+   the specific elements it needs.
+
+   Roam turns a `#.rm-focus` tag into the class `rm-focus` on that block's
+   .roam-block-container (verified live 2026-09-24, as for `#.list-query`).
+   The block rules key on that class. The old `[data-page-links*=".rm-focus"]`
+   ancestor made every bullet, control, and block row walk its ancestors and
+   substring-search each one's link list: about a quarter of this theme's
+   selector time on the Svy daily page. The class sits in the ancestor bloom
+   filter, so rows outside a focus block are rejected before any walk.
 
    Features preserved exactly: hide bullets/controls; flatten indent and
    remove left borders; serif 18px/1.7 reading typography; centered 750px
@@ -741,12 +748,12 @@ svg[role="graphics-document document"] .task {
 }
 
 /* Hide bullets and block controls (both plain and zoomed-into contexts). */
-.roam-block-container[data-page-links*=".rm-focus"] .rm-bullet,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-bullet,
-.roam-block-container[data-page-links*=".rm-focus"] .simple-bullet-outer,
-.roam-block-container[data-page-links*=".rm-focus"] .simple-bullet-inner,
-.roam-block-container[data-page-links*=".rm-focus"] .controls,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block__controls,
+.roam-block-container.rm-focus .rm-bullet,
+.roam-block-container.rm-focus .rm-block-bullet,
+.roam-block-container.rm-focus .simple-bullet-outer,
+.roam-block-container.rm-focus .simple-bullet-inner,
+.roam-block-container.rm-focus .controls,
+.roam-block-container.rm-focus .rm-block__controls,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-bullet,
 .rm-zoom[data-page-links*=".rm-focus"] .controls {
   display: none !important;
@@ -754,10 +761,10 @@ svg[role="graphics-document document"] .task {
 
 /* Flatten hierarchy: no indent, no left/right borders, no guide shadows on
    the structural elements that carry them. */
-.roam-block-container[data-page-links*=".rm-focus"] .roam-block,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-input,
+.roam-block-container.rm-focus .roam-block,
+.roam-block-container.rm-focus .rm-block-main,
+.roam-block-container.rm-focus .rm-block-text,
+.roam-block-container.rm-focus .rm-block-input,
 .rm-zoom[data-page-links*=".rm-focus"] .roam-block,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-block-main,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-block-text,
@@ -772,7 +779,7 @@ svg[role="graphics-document document"] .task {
 
 /* .rm-block-children split out: Roam emits inline margin-left on it in log
    view, and inline styles beat any non-!important author rule. */
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children,
+.roam-block-container.rm-focus .rm-block-children,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-block-children {
   border-left: none;
   border-right: none;
@@ -785,30 +792,30 @@ svg[role="graphics-document document"] .task {
 /* Roam's indent guide lines are drawn as border-right on the dedicated
    .rm-multibar element (child of .rm-block-children) — the element only the
    original's banned '*' selector reached. */
-.roam-block-container[data-page-links*=".rm-focus"] .rm-multibar,
+.roam-block-container.rm-focus .rm-multibar,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-multibar {
   border-right: none;
 }
 
 /* Pseudo-elements on the same named containers (the original nuked
    *:before/*:after — that is the banned universal-descendant shape). */
-.roam-block-container[data-page-links*=".rm-focus"]:before,
-.roam-block-container[data-page-links*=".rm-focus"]:after,
-.roam-block-container[data-page-links*=".rm-focus"] .roam-block:before,
-.roam-block-container[data-page-links*=".rm-focus"] .roam-block:after,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children:before,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-children:after,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main:before,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-main:after,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text:before,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text:after {
+.roam-block-container.rm-focus:before,
+.roam-block-container.rm-focus:after,
+.roam-block-container.rm-focus .roam-block:before,
+.roam-block-container.rm-focus .roam-block:after,
+.roam-block-container.rm-focus .rm-block-children:before,
+.roam-block-container.rm-focus .rm-block-children:after,
+.roam-block-container.rm-focus .rm-block-main:before,
+.roam-block-container.rm-focus .rm-block-main:after,
+.roam-block-container.rm-focus .rm-block-text:before,
+.roam-block-container.rm-focus .rm-block-text:after {
   border-left: none;
   box-shadow: none;
   outline: none;
 }
 
 /* Reading typography: serif, 18px/1.7, tokenized ink. */
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-text,
+.roam-block-container.rm-focus .rm-block-text,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-block-text {
   font-size: 18px !important;
   line-height: 1.7 !important;
@@ -818,26 +825,26 @@ svg[role="graphics-document document"] .task {
 }
 
 /* Block rhythm. */
-.roam-block-container[data-page-links*=".rm-focus"] .roam-block,
+.roam-block-container.rm-focus .roam-block,
 .rm-zoom[data-page-links*=".rm-focus"] .roam-block {
   margin-bottom: 12px;
   margin-top: 0;
 }
 
 /* Hide ref chrome. */
-.roam-block-container[data-page-links*=".rm-focus"] .rm-block-ref,
+.roam-block-container.rm-focus .rm-block-ref,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-block-ref,
-.roam-block-container[data-page-links*=".rm-focus"] .block-highlight-blue,
+.roam-block-container.rm-focus .block-highlight-blue,
 .rm-zoom[data-page-links*=".rm-focus"] .block-highlight-blue {
   background: transparent;
   border: none;
 }
-.roam-block-container[data-page-links*=".rm-focus"] .rm-page-ref__brackets,
+.roam-block-container.rm-focus .rm-page-ref__brackets,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-page-ref__brackets {
   display: none;
 }
-.roam-block-container[data-page-links*=".rm-focus"] .block-embed,
-.roam-block-container[data-page-links*=".rm-focus"] .rm-embed-container,
+.roam-block-container.rm-focus .block-embed,
+.roam-block-container.rm-focus .rm-embed-container,
 .rm-zoom[data-page-links*=".rm-focus"] .block-embed,
 .rm-zoom[data-page-links*=".rm-focus"] .rm-embed-container {
   border: none;
@@ -848,8 +855,8 @@ svg[role="graphics-document document"] .task {
    "nuclear option" border-left trio is covered by the flattening rules
    above). The measure belongs to .roam-block-container ONLY — the .rm-zoom
    container gets the border/outline/box-shadow reset but no measure. */
-.roam-block-container[data-page-links*=".rm-focus"],
-.rm-zoom .roam-block-container[data-page-links*=".rm-focus"] {
+.roam-block-container.rm-focus,
+.rm-zoom .roam-block-container.rm-focus {
   max-width: 750px !important;
   margin: 0 auto !important;
   padding: 20px;

@@ -52,10 +52,12 @@ body.roam-body.dark {
  * fires for a folded block. Unhide the closed caret on hover of the block's own
  * line (both .controls and .rm-block__controls generations of Roam's DOM); every
  * other caret on the page stays untouched. The mobile (max-width: 600px)
- * caret-always-visible rules in the base layer are left alone. */
+ * caret-always-visible rules in the base layer are left alone.
+ * Child combinators only: the caret sits three fixed hops below the line
+ * (live DOM 2026-09-24), so a descendant walk would only add cost. */
 .rm-block__self:hover > .controls > .block-expand > .rm-caret.rm-caret-closed,
-.rm-block__self:hover .rm-block__controls .rm-caret.rm-caret-closed,
+.rm-block__self:hover > .rm-block__controls > .block-expand > .rm-caret.rm-caret-closed,
 .rm-block-main:hover > .controls > .block-expand > .rm-caret.rm-caret-closed,
-.rm-block-main:hover .rm-block__controls .rm-caret.rm-caret-closed {
+.rm-block-main:hover > .rm-block__controls > .block-expand > .rm-caret.rm-caret-closed {
   opacity: 1 !important;
 }

@@ -65,26 +65,18 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
 | Svy Beam | `bp-pack-beam` | switch | on |
 | Caret color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
 | Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
-| Caret shape | `bp-beam-caret-shape` | select `beam` / `block` / `outline` / `underline` / `bar` / `native` | `beam` |
-| Caret width scale (%) | `bp-beam-caret-width` | input, clamped 50–200 | `100` |
-| Caret height (%) | `bp-beam-caret-height` | input, clamped 30–120 | `82` |
-| Caret corner radius (px) | `bp-beam-caret-radius` | input, clamped 0–12 | `3` |
-| Caret opacity (%) | `bp-beam-caret-opacity` | input, clamped 45–100 | `100` |
-| Caret glow | `bp-beam-caret-glow` | select `soft` / `none` / `halo` | `soft` |
-| Caret behavior | `bp-beam-caret-behavior` | select `responsive` / `steady` / `glide` / `breathe` / `comet` | `responsive` |
 | Caret blink | `bp-beam-caret-blink` | switch | off |
-| Focus wash | `bp-beam-wash` | switch | off |
-| Wash intensity | `bp-beam-wash-intensity` | select `subtle` / `medium` / `off` | `off` |
 | Cursor style | `bp-beam-cursor` | select `svy` / `native` | `svy` |
-| Preview | `bp-beam-preview` | `reactComponent` | — |
 
 Roam's settings panel supports only generic `input`, `select`, `switch`, `button`, and
-`reactComponent` rows — there is no native color picker or slider. Colors are typed as
-hex; invalid values fall back without reaching CSS. Numeric inputs accept decimals,
-retain one decimal place, and clamp to the documented safe range, so a synced typo cannot
-make the caret vanish or fill the screen. The preview row renders through Roam's own
-`window.React`, adding no dependency; it is stateless and repaints from the same custom
-properties the stylesheet reads. It is omitted if `window.React` is unavailable.
+`reactComponent` rows — there is no native color picker. Colors are typed as hex;
+invalid values fall back without reaching CSS.
+
+0.4.0 retired the caret overlay and the focus wash, and with them the shape, width,
+height, radius, opacity, glow, behavior, wash, wash-intensity, and preview rows. Their
+ids are no longer read or seeded, and whatever Roam stored under them stays put. The
+caret is the browser's own, colored teal, so typing runs no theme code. For a shaped
+caret, install Roam Caret; this theme's caret color yields to it.
 
 ### How settings reach the CSS
 
@@ -96,8 +88,9 @@ including the user's own `roam/css`, could override it. The element is registere
 lifecycle, so unload removes it in one `node.remove()`.
 
 `src/css/40-beam.css` reads every value through `var(--svy-beam-…, <safe value>)`. With
-JavaScript unavailable, the researched caret colors and a native bar remain; the extended
-shape/size/behavior system simply steps aside. A test asserts both directions of the
+JavaScript unavailable, the researched caret colors and both cursor sets remain: light
+art is the `var()` fallback, dark art sits in the `svy-beam-fallback` cascade layer,
+which any unlayered published value outranks. A test asserts both directions of the
 variable contract: nothing the stylesheet reads is unpublished, and nothing published
 is unread.
 
@@ -106,6 +99,10 @@ is unread.
 Switching **Svy Beam** off puts `svy-off-beam` on `<html>`, and every rule in
 `40-beam.css` is scoped under `:root:not(.svy-off-beam)` — one extra class test per rule,
 no reload, native caret and cursors restored immediately.
+
+Every `40-beam.css` rule ends in a tag, class, or attribute. A selector that ends in a
+bare `:is()` or `:where()` list is tried on every element on every restyle, and a test
+fails the build if one comes back.
 
 Color rules in `10-colors.css` are always on. They set color, background, and
 border-color only, with literals rather than `var()`. Plugin compatibility
@@ -122,6 +119,20 @@ npm run scan:secrets     # fail on common committed credentials
 npm run verify:generated # compare source with root/Pages artifacts
 npm run check  # build, syntax check, and tests
 ```
+
+Speed benches drive the live Roam Desktop window over CDP (port 9223):
+
+```bash
+# Forced full restyle (the popup path): theme off vs loaded vs a candidate sheet.
+CDP_PORT=9223 node tools/restyle-bench.mjs --arm off --arm live --arm "cand=extension.css"
+# Typing: real keystrokes into a scratch block in the right sidebar, keydown to frame end.
+# `!nojs` detaches the loaded theme's typing listeners for that arm.
+CDP_PORT=9223 node tools/typing-bench.mjs --arm off --arm live --arm "cand=extension.css!nojs" --interval 30
+```
+
+The typing bench creates a page named `svy-theme typing bench`, types only into its one
+block, stops if focus leaves that block, and leaves the block empty. `--cleanup` deletes
+the page afterwards.
 
 There are no runtime dependencies. The sole build-time dependency is exactly pinned
 `esbuild`, with its complete dependency graph locked in `package-lock.json`. It bundles

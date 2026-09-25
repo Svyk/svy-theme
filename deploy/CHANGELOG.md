@@ -2,6 +2,49 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-24
+
+### Removed
+
+- The Beam caret overlay and its motion. On every input, selectionchange, and
+  keyup it measured the caret with a mirror div and forced layouts. In a window
+  without Roam Caret (Readwisenotes, 15k elements), typing one key every 120 ms
+  took 121.8 ms median from keydown to the end of the next frame with 0.3.6,
+  against 64.2 ms with the theme off, and ran 16.9 style recalcs per key
+  instead of 5. The caret is now the browser's own, colored teal, with no
+  theme code on the typing path. Roam Caret owns shaped carets.
+- The focus wash, off by default since 2026-08-07.
+- Settings rows for caret shape, width, height, radius, opacity, glow,
+  behavior, wash, wash intensity, and the preview. Their ids are no longer
+  read or seeded. Values Roam already stored under them stay put.
+
+### Changed
+
+- Every Beam rule ends in a tag, class, or attribute. The pointer-cursor
+  `:is()` list, the caret `body :is()` list, and the dark-cursor `:where()`
+  fallback were tried on every element on every restyle, and were 56% of the
+  theme's traced selector time on the Svy daily page. The dark cursor
+  fallback now sits in `@layer svy-beam-fallback`, which published values
+  outrank without a zero-specificity list.
+- Focus mode keys on the `rm-focus` class Roam adds to a block tagged
+  `#.rm-focus`, not on `[data-page-links*=".rm-focus"]` ancestors that every
+  bullet and row had to walk and substring-search.
+- Fold-caret hover rules use child combinators only. The quick-insert dark
+  dash color targets `#inserts_btns > .bp3-icon` instead of every span.
+- Traced theme selector time in a forced restyle fell from 37.0 to 9.1 ms on
+  the Svy daily page (6 restyles), and from 3.9 to 0.8 ms per restyle on
+  Readwisenotes.
+
+### Added
+
+- `tools/typing-bench.mjs`: real CDP keystrokes into a scratch block in the
+  right sidebar, keydown to the end of the next frame, with per-key style,
+  layout, and script time and an arm switch that detaches the loaded theme's
+  typing listeners.
+- `tools/restyle-bench.mjs` arms can add classes to `<html>` and `<body>`
+  (`name=file.css#class`), so a sheet like Custom Dark Mode's is measured with
+  its own gate class.
+
 ## [0.3.6] - 2026-09-23
 
 ### Changed
