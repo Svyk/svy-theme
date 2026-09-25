@@ -230,7 +230,7 @@ function pageSelectArm(armIndex) {
     document.documentElement.classList.remove(cls);
     document.body.classList.remove(cls);
   }
-  sheets.live.forEach((element) => { element.sheet.disabled = !arm.live; });
+  sheets.live.forEach((element) => { if (element.sheet) element.sheet.disabled = !arm.live; });
   sheets.injected.forEach((elements, index) => elements.forEach((element) => { element.sheet.disabled = index !== armIndex; }));
   for (const cls of arm.classes) {
     document.documentElement.classList.add(cls);
@@ -278,12 +278,14 @@ async function pageTeardown({ cleanup }) {
   const api = window.roamAlphaAPI;
   if (bench.probe) { bench.probe.running = false; bench.probe.armed = false; bench.probe.dispose(); }
   if (bench.sheets) {
+    bench.sheets.injected.flat().forEach((element) => element.remove());
     for (const cls of bench.sheets.classes) {
       document.documentElement.classList.remove(cls);
       document.body.classList.remove(cls);
     }
-    bench.sheets.live.forEach((element, index) => { element.sheet.disabled = bench.sheets.liveBefore[index]; });
-    bench.sheets.injected.flat().forEach((element) => element.remove());
+    bench.sheets.live.forEach((element, index) => {
+      if (element.sheet) element.sheet.disabled = bench.sheets.liveBefore[index];
+    });
   }
   const summary = { restored: true };
   document.activeElement?.blur?.();

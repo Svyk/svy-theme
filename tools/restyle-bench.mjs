@@ -122,11 +122,13 @@ async function pageBench({ arms, blocks, perBlock, warmup, settle, liveIds }) {
       }
     }
   } finally {
-    root.classList.remove("svy-bench-force");
-    setClasses([]);
-    live.forEach((element, index) => { element.sheet.disabled = liveBefore[index]; });
+    // Injected sheets go first: if Roam reloads the extension mid-run its <style> is
+    // replaced and the old element has no sheet, which must not strand a candidate.
     injected.flat().forEach((element) => element.remove());
     force.remove();
+    root.classList.remove("svy-bench-force");
+    setClasses([]);
+    live.forEach((element, index) => { if (element.sheet) element.sheet.disabled = liveBefore[index]; });
   }
   return { samples, elements: root.getElementsByTagName("*").length, liveFound: live.length };
 }
