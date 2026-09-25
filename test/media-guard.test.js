@@ -159,3 +159,10 @@ test("the built sheet no longer ships the vendored Blueprint base", async () => 
   assert.ok(built.includes("10-colors.css"));
   assert.ok(Buffer.byteLength(built, "utf8") < 120_000);
 });
+
+test("the built sheet leaves the caret to Roam Caret", async () => {
+  // Roam Caret (svyk.github.io/roam-caret) owns the caret. A caret property here would
+  // fight it, and the old overlay path cost a mirror layout per key.
+  const built = (await readText("extension.css")).replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(built, /caret-(?:color|shape|animation)\s*:/);
+});

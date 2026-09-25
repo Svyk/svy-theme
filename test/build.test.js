@@ -60,7 +60,7 @@ test("build emits deterministic, matching browser ESM artifacts with a default e
   assert.match(rootJs, /export\s*\{[\s\S]*default/);
   const rebuilt = await bundleEntry({
     rootDirectory: rootPath,
-    banner: "/* Svy Theme v0.4.0 | MIT | generated; edit src/ */",
+    banner: "/* Svy Theme v0.5.0 | MIT | generated; edit src/ */",
   });
   assert.equal(rebuilt, rootJs);
 

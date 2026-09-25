@@ -2,6 +2,22 @@
 
 All notable changes to this project follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-09-24
+
+### Removed
+
+- All caret styling. Roam Caret (https://svyk.github.io/roam-caret) owns the
+  caret. The theme sets no `caret-color` or `caret-animation`, and the
+  Caret blink row is gone (`bp-beam-caret-blink` is no longer read or
+  seeded). A test fails the build if any layer sets a caret property.
+
+### Changed
+
+- The two caret color rows are now Accent color (light/dark). Their ids
+  (`bp-beam-caret-light`, `bp-beam-caret-dark`) and `--svy-beam-caret` keep
+  their names. They tint the spark in the Svy cursors and the halo on folded
+  bullets.
+
 ## [0.4.0] - 2026-09-24
 
 ### Removed

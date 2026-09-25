@@ -15,7 +15,7 @@ import {
   LEGACY_CARET_LIGHT,
 } from "../src/theme-vars.js";
 
-// Ids of the overlay, motion, and wash knobs that 0.4.0 retired. Roam keeps whatever is
+// Ids of the overlay, motion, wash, and caret knobs retired in 0.4.0 and 0.5.0. Roam keeps whatever is
 // stored under them; this extension must neither read, seed, nor show them again.
 const RETIRED_BEAM_IDS = [
   "bp-beam-caret-shape",
@@ -25,6 +25,7 @@ const RETIRED_BEAM_IDS = [
   "bp-beam-caret-opacity",
   "bp-beam-caret-glow",
   "bp-beam-caret-behavior",
+  "bp-beam-caret-blink",
   "bp-beam-wash",
   "bp-beam-wash-intensity",
   "bp-beam-wash-migrated-2026-08-07",
@@ -107,7 +108,6 @@ test("initializeBeamSettings seeds every beam default once, then is a no-op", as
     ["setting:set", "bp-pack-beam", true],
     ["setting:set", "bp-beam-caret-light", "#00695e"],
     ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
-    ["setting:set", "bp-beam-caret-blink", false],
     ["setting:set", "bp-beam-cursor", "svy"],
   ]);
 
@@ -247,7 +247,6 @@ test("createSettingsPanel exposes every beam knob with the right control type", 
     [BEAM_SETTING_IDS.pack, "switch"],
     [BEAM_SETTING_IDS.caretLight, "input"],
     [BEAM_SETTING_IDS.caretDark, "input"],
-    [BEAM_SETTING_IDS.caretBlink, "switch"],
     [BEAM_SETTING_IDS.cursor, "select"],
   ];
   for (const [id, type] of expected) {

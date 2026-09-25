@@ -1,4 +1,4 @@
-/* Svy Theme v0.4.0 | MIT | generated; edit src/ */
+/* Svy Theme v0.5.0 | MIT | generated; edit src/ */
 
 // src/lifecycle.js
 function isPromiseLike(value) {
@@ -92,7 +92,6 @@ var BEAM_SETTING_IDS = Object.freeze({
   pack: "bp-pack-beam",
   caretLight: "bp-beam-caret-light",
   caretDark: "bp-beam-caret-dark",
-  caretBlink: "bp-beam-caret-blink",
   cursor: "bp-beam-cursor"
 });
 var CURSOR_STYLES = Object.freeze(["svy", "native"]);
@@ -101,7 +100,6 @@ var BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
-  caretBlink: false,
   cursor: "svy"
 });
 var DEFAULT_CARET_P3 = Object.freeze({ light: "0.47 0.11 182", dark: "0.78 0.15 184" });
@@ -129,7 +127,6 @@ function normalizeBeamConfig(raw = {}) {
     pack: normalizeSwitch(raw.pack, BEAM_DEFAULTS.pack),
     caretLight: normalizeHex(raw.caretLight, BEAM_DEFAULTS.caretLight),
     caretDark: normalizeHex(raw.caretDark, BEAM_DEFAULTS.caretDark),
-    caretBlink: normalizeSwitch(raw.caretBlink, BEAM_DEFAULTS.caretBlink),
     cursor: normalizeChoice(raw.cursor, CURSOR_STYLES, BEAM_DEFAULTS.cursor)
   };
 }
@@ -139,7 +136,6 @@ function readBeamSettings(extensionAPI) {
     pack: get(BEAM_SETTING_IDS.pack),
     caretLight: get(BEAM_SETTING_IDS.caretLight),
     caretDark: get(BEAM_SETTING_IDS.caretDark),
-    caretBlink: get(BEAM_SETTING_IDS.caretBlink),
     cursor: get(BEAM_SETTING_IDS.cursor)
   });
 }
@@ -193,7 +189,6 @@ function computeThemeVars(config) {
     base[`--svy-beam-caret-${mode}`] = caret;
     base[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
   }
-  base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
   const light = cursorVarsForMode(normalized, "light");
   const dark = cursorVarsForMode(normalized, "dark");
   Object.assign(base, light);
@@ -304,31 +299,25 @@ function createSettingsPanel({ onAppearanceChange, onThemeVarsChange } = {}) {
     {
       id: BEAM_SETTING_IDS.pack,
       name: "Svy Beam",
-      description: "Master switch for the beam layer: caret color and custom cursors. Off restores Roam's native caret and cursors without a reload. Shaped carets live in Roam Caret.",
+      description: "Master switch for the beam layer: the Svy cursors and their teal accent. Off restores Roam's native cursors without a reload. The caret belongs to Roam Caret.",
       action: { type: "switch", onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.caretLight,
-      name: "Caret color (light)",
-      description: "Hex color for the text insertion point in light mode, and the accent color of the light-mode cursors. Accepts #rgb or #rrggbb; anything else falls back to the default #00695E (APCA Lc 77.6 on the light surface).",
+      name: "Accent color (light)",
+      description: "Hex color of the teal accent in light mode: the spark in the Svy cursors and the halo on folded bullets. Accepts #rgb or #rrggbb; anything else falls back to the default #00695E. The caret is Roam Caret's.",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretLight, onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.caretDark,
-      name: "Caret color (dark)",
-      description: "Hex color for the insertion point in dark mode, and the accent color of the dark-mode cursors. Default #48D0C0 (APCA Lc -62.9 on the dark surface).",
+      name: "Accent color (dark)",
+      description: "Hex color of the teal accent in dark mode. Default #48D0C0.",
       action: { type: "input", placeholder: BEAM_DEFAULTS.caretDark, onChange: changed }
-    },
-    {
-      id: BEAM_SETTING_IDS.caretBlink,
-      name: "Caret blink",
-      description: "Off (default) holds the caret steady; on restores the platform blink.",
-      action: { type: "switch", onChange: changed }
     },
     {
       id: BEAM_SETTING_IDS.cursor,
       name: "Cursor style",
-      description: "svy uses the custom SVG arrow/target/beam cursors, published as a light and a dark set and tinted from that mode's caret color; native leaves Roam's cursors alone.",
+      description: "svy uses the custom SVG arrow/target/beam cursors, published as a light and a dark set and tinted from that mode's accent color; native leaves Roam's cursors alone.",
       action: { type: "select", items: [...CURSOR_STYLES], onChange: changed }
     }
   ];

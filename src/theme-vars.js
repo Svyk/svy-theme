@@ -18,15 +18,16 @@ export const THEME_VARS_STYLE_ID = "svy-theme-vars";
 // this class on <html> disables the layer with one class test per rule and no reload.
 export const BEAM_OFF_CLASS = "svy-off-beam";
 
-// v4 (0.4.0) dropped the caret overlay, its shape/size/glow/behavior knobs, and the
-// focus wash. Their ids (bp-beam-caret-shape, -width, -height, -radius, -opacity,
-// -glow, -behavior, bp-beam-wash, bp-beam-wash-intensity) are no longer read or
-// seeded; stored values stay where Roam synced them. Do not reuse those ids.
+// 0.4.0 dropped the caret overlay, its shape/size/glow/behavior knobs, and the focus
+// wash; 0.5.0 handed the caret itself to Roam Caret and dropped the blink switch. Their
+// ids (bp-beam-caret-shape, -width, -height, -radius, -opacity, -glow, -behavior,
+// -blink, bp-beam-wash, bp-beam-wash-intensity) are no longer read or seeded; stored
+// values stay where Roam synced them. Do not reuse those ids. caretLight/caretDark keep
+// their ids and now set the teal accent: the cursor spark and the folded-bullet halo.
 export const BEAM_SETTING_IDS = Object.freeze({
   pack: "bp-pack-beam",
   caretLight: "bp-beam-caret-light",
   caretDark: "bp-beam-caret-dark",
-  caretBlink: "bp-beam-caret-blink",
   cursor: "bp-beam-cursor",
 });
 
@@ -43,7 +44,6 @@ export const BEAM_DEFAULTS = Object.freeze({
   pack: true,
   caretLight: "#00695e",
   caretDark: "#48d0c0",
-  caretBlink: false,
   cursor: "svy",
 });
 
@@ -88,7 +88,6 @@ export function normalizeBeamConfig(raw = {}) {
     pack: normalizeSwitch(raw.pack, BEAM_DEFAULTS.pack),
     caretLight: normalizeHex(raw.caretLight, BEAM_DEFAULTS.caretLight),
     caretDark: normalizeHex(raw.caretDark, BEAM_DEFAULTS.caretDark),
-    caretBlink: normalizeSwitch(raw.caretBlink, BEAM_DEFAULTS.caretBlink),
     cursor: normalizeChoice(raw.cursor, CURSOR_STYLES, BEAM_DEFAULTS.cursor),
   };
 }
@@ -99,7 +98,6 @@ export function readBeamSettings(extensionAPI) {
     pack: get(BEAM_SETTING_IDS.pack),
     caretLight: get(BEAM_SETTING_IDS.caretLight),
     caretDark: get(BEAM_SETTING_IDS.caretDark),
-    caretBlink: get(BEAM_SETTING_IDS.caretBlink),
     cursor: get(BEAM_SETTING_IDS.cursor),
   });
 }
@@ -185,9 +183,6 @@ export function computeThemeVars(config) {
     base[`--svy-beam-caret-${mode}`] = caret;
     base[`--svy-beam-caret-${mode}-p3`] = isDefault ? `oklch(${DEFAULT_CARET_P3[mode]})` : caret;
   }
-
-  // caret-animation: manual means the author owns the animation, i.e. no blink.
-  base["--svy-beam-caret-animation"] = normalized.caretBlink ? "auto" : "manual";
 
   const light = cursorVarsForMode(normalized, "light");
   const dark = cursorVarsForMode(normalized, "dark");

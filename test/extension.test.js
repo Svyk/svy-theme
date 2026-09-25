@@ -26,7 +26,6 @@ const EXPECTED_BEAM_SEED = [
   ["setting:set", "bp-pack-beam", true],
   ["setting:set", "bp-beam-caret-light", "#00695e"],
   ["setting:set", "bp-beam-caret-dark", "#48d0c0"],
-  ["setting:set", "bp-beam-caret-blink", false],
   ["setting:set", "bp-beam-cursor", "svy"],
 ];
 

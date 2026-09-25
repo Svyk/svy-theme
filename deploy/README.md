@@ -63,20 +63,23 @@ Two identifiers are pinned even though the extension itself is now called Svy Th
 |---|---|---|---|
 | Appearance | `bp-appearance` | select `auto` / `dark` / `light` | `auto` |
 | Svy Beam | `bp-pack-beam` | switch | on |
-| Caret color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
-| Caret color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
-| Caret blink | `bp-beam-caret-blink` | switch | off |
+| Accent color (light) | `bp-beam-caret-light` | input (hex) | `#00695e` |
+| Accent color (dark) | `bp-beam-caret-dark` | input (hex) | `#48d0c0` |
 | Cursor style | `bp-beam-cursor` | select `svy` / `native` | `svy` |
 
 Roam's settings panel supports only generic `input`, `select`, `switch`, `button`, and
 `reactComponent` rows — there is no native color picker. Colors are typed as hex;
 invalid values fall back without reaching CSS.
 
-0.4.0 retired the caret overlay and the focus wash, and with them the shape, width,
-height, radius, opacity, glow, behavior, wash, wash-intensity, and preview rows. Their
-ids are no longer read or seeded, and whatever Roam stored under them stays put. The
-caret is the browser's own, colored teal, so typing runs no theme code. For a shaped
-caret, install Roam Caret; this theme's caret color yields to it.
+The caret belongs to [Roam Caret](https://svyk.github.io/roam-caret). This theme sets
+no `caret-color`, `caret-shape`, or `caret-animation`, and runs no code while you type.
+The two accent rows keep their `bp-beam-caret-*` ids for compatibility; they tint the
+spark in the Svy cursors and the halo on folded bullets.
+
+0.4.0 retired the caret overlay and the focus wash, and 0.5.0 the caret blink switch.
+The shape, width, height, radius, opacity, glow, behavior, blink, wash, wash-intensity,
+and preview rows are gone. Their ids are no longer read or seeded, and whatever Roam
+stored under them stays put.
 
 ### How settings reach the CSS
 
@@ -88,7 +91,7 @@ including the user's own `roam/css`, could override it. The element is registere
 lifecycle, so unload removes it in one `node.remove()`.
 
 `src/css/40-beam.css` reads every value through `var(--svy-beam-…, <safe value>)`. With
-JavaScript unavailable, the researched caret colors and both cursor sets remain: light
+JavaScript unavailable, the researched accent colors and both cursor sets remain: light
 art is the `var()` fallback, dark art sits in the `svy-beam-fallback` cascade layer,
 which any unlayered published value outranks. A test asserts both directions of the
 variable contract: nothing the stylesheet reads is unpublished, and nothing published
@@ -98,7 +101,7 @@ is unread.
 
 Switching **Svy Beam** off puts `svy-off-beam` on `<html>`, and every rule in
 `40-beam.css` is scoped under `:root:not(.svy-off-beam)` — one extra class test per rule,
-no reload, native caret and cursors restored immediately.
+no reload, native cursors restored immediately.
 
 Every `40-beam.css` rule ends in a tag, class, or attribute. A selector that ends in a
 bare `:is()` or `:where()` list is tried on every element on every restyle, and a test

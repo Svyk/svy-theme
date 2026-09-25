@@ -1,10 +1,14 @@
-/* Svy Beam v4: caret color and custom cursors. Nothing on the typing path.
+/* Svy Beam: custom cursors and the teal accent. Nothing on the typing path.
  *
- * v3 painted the caret from a fixed overlay that re-measured on every input,
- * selectionchange, and keyup: a mirror div, forced layouts, and a forced style flush
- * per key. In a window without Roam Caret that was +140 ms median per key at 120 ms
- * pacing (Readwisenotes, 15k elements, 2026-09-24). v4 colors the browser caret.
- * Roam Caret owns shaped carets.
+ * The caret belongs to Roam Caret (https://svyk.github.io/roam-caret). This layer sets
+ * no caret-color, caret-shape, or caret-animation. v3 painted its own caret from a
+ * fixed overlay that re-measured on every input, selectionchange, and keyup: a mirror
+ * div, forced layouts, and a forced style flush per key. In a window without Roam
+ * Caret that was +140 ms median per key at 120 ms pacing (Readwisenotes, 15k elements,
+ * 2026-09-24).
+ *
+ * --svy-beam-caret keeps its name for compatibility. It is the accent: the spark in the
+ * cursor art (via theme-vars.js) and the folded-bullet halo in 42-fold-cc.css.
  *
  * Every rule ends in a tag, class, or attribute, so Blink files it in a bucket and
  * only tries it on elements that can match. A bare `:is()` list or a `:where()` list
@@ -55,7 +59,6 @@
   cursor: var(--svy-beam-cursor-pointer, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='%23182026' stroke='%2348aff0' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2300695e' stroke='%23f5f8fa' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer);
 }
 
-/* caret-animation: manual stops the blink (Chromium 139+); older engines ignore it. */
 :root:not(.svy-off-beam) input,
 :root:not(.svy-off-beam) textarea,
 :root:not(.svy-off-beam) [contenteditable="true"],
@@ -63,8 +66,6 @@
 :root:not(.svy-off-beam) .rm-block__input,
 :root:not(.svy-off-beam) .rm-block-text,
 :root:not(.svy-off-beam) .rm-title-textarea {
-  caret-color: var(--svy-beam-caret) !important;
-  caret-animation: var(--svy-beam-caret-animation, manual) !important;
   cursor: var(--svy-beam-cursor-text, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='10' y='3' width='12' height='26' rx='6' fill='%23182026' stroke='%2348aff0' stroke-width='2'/%3E%3Crect x='13' y='6' width='6' height='20' rx='3' fill='%2300695e'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f5f8fa'/%3E%3C/svg%3E") 16 16, text) !important;
 }
 

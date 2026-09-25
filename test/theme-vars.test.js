@@ -406,14 +406,12 @@ test("normalizeBeamConfig rejects one bad field without dropping its valid neigh
     pack: false,
     caretLight: "not-a-color",
     caretDark: "#ABC",
-    caretBlink: "true",
     cursor: "native",
   });
   assert.deepEqual(config, {
     ...BEAM_DEFAULTS,
     pack: false,
     caretDark: "#aabbcc",
-    caretBlink: true,
     cursor: "native",
   });
   assert.deepEqual(normalizeBeamConfig({ cursor: "wobble", caretLight: 42 }), BEAM_DEFAULTS);
@@ -432,10 +430,9 @@ test("computeThemeVars publishes the researched caret pair and nothing the layer
   assert.equal(base["--svy-beam-caret-dark"], "#48d0c0");
   assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
   assert.equal(base["--svy-beam-caret-dark-p3"], "oklch(0.78 0.15 184)");
-  assert.equal(base["--svy-beam-caret-animation"], "manual");
-  // v4 has no overlay geometry and no focus wash to publish.
+  // No overlay geometry, no focus wash, and no caret behavior: Roam Caret owns the caret.
   for (const name of Object.keys(base)) {
-    assert.doesNotMatch(name, /wash|shape|preview|radius|opacity/, `${name} belongs to the retired overlay`);
+    assert.doesNotMatch(name, /wash|shape|preview|radius|opacity|animation/, `${name} belongs to a retired knob`);
   }
 });
 
@@ -449,9 +446,7 @@ test("computeThemeVars publishes a customized caret as-is in the P3 block", () =
   assert.equal(base["--svy-beam-caret-light-p3"], "oklch(0.47 0.11 182)");
 });
 
-test("computeThemeVars maps caret blink, and native cursors need no dark block", () => {
-  const { base: blinking } = computeThemeVars({ ...BEAM_DEFAULTS, caretBlink: true });
-  assert.equal(blinking["--svy-beam-caret-animation"], "auto");
+test("native cursors need no dark block", () => {
 
   const native = computeThemeVars({ ...BEAM_DEFAULTS, cursor: "native" });
   assert.equal(native.base["--svy-beam-cursor-default"], "auto");
@@ -523,7 +518,7 @@ test("renderThemeVarsCss emits the :root block, the dark signal block, and the O
 
   assert.deepEqual(rules[0].selectors, [":root"]);
   assert.deepEqual(Object.keys(rules[0].declarations), Object.keys(base));
-  assert.equal(Object.keys(base).length, 8);
+  assert.equal(Object.keys(base).length, 7);
 
   assert.deepEqual(rules[1].selectors, [...DARK_SELECTORS]);
   assert.deepEqual(rules[1].media, []);
@@ -568,15 +563,13 @@ test("refresh republishes the sheet from the current settings", () => {
   const api = fakeExtensionApi();
 
   const handle = installThemeVars({ extensionAPI: api, lifecycle, doc });
-  assert.match(handle.element.textContent, /--svy-beam-caret-animation: manual;/, "default holds the caret steady");
+  assert.match(handle.element.textContent, /--svy-beam-caret-dark: #48d0c0;/);
 
   api.values.set(BEAM_SETTING_IDS.caretDark, "#ff8800");
-  api.values.set(BEAM_SETTING_IDS.caretBlink, true);
   handle.refresh();
 
   assert.equal(doc.appended.length, 1, "refresh must reuse the injected sheet, not add another");
   assert.match(handle.element.textContent, /--svy-beam-caret-dark: #ff8800;/);
-  assert.match(handle.element.textContent, /--svy-beam-caret-animation: auto;/);
   // The dark cursor block follows the same refresh, not just the :root block.
   const rules = parseStylesheet(handle.element.textContent);
   assert.ok(rules[1].declarations["--svy-beam-cursor-default"].value.includes("%23ff8800"));
@@ -758,7 +751,7 @@ test("the dark cursor set reaches body{cursor} under every dark signal, with JS 
     assert.equal(computedProperty(tree.body, rules, env, "cursor"), dark["--svy-beam-cursor-default"], `${label}: body arrow`);
     assert.equal(computedProperty(tree.link, rules, env, "cursor"), dark["--svy-beam-cursor-pointer"], `${label}: link target`);
     assert.equal(computedProperty(tree.input, rules, env, "cursor"), dark["--svy-beam-cursor-text"], `${label}: text beam`);
-    assert.equal(computedProperty(tree.input, rules, env, "caret-color"), "#48d0c0", `${label}: caret`);
+    assert.equal(computedProperty(tree.input, rules, env, "caret-color"), null, `${label}: the caret is Roam Caret's`);
   }
 
   for (const [label, classes, media] of LIGHT_ARMS) {
@@ -767,7 +760,7 @@ test("the dark cursor set reaches body{cursor} under every dark signal, with JS 
     assert.equal(computedProperty(tree.body, rules, env, "cursor"), base["--svy-beam-cursor-default"], `${label}: body arrow`);
     assert.equal(computedProperty(tree.link, rules, env, "cursor"), base["--svy-beam-cursor-pointer"], `${label}: link target`);
     assert.equal(computedProperty(tree.input, rules, env, "cursor"), base["--svy-beam-cursor-text"], `${label}: text beam`);
-    assert.equal(computedProperty(tree.input, rules, env, "caret-color"), "#00695e", `${label}: caret`);
+    assert.equal(computedProperty(tree.input, rules, env, "caret-color"), null, `${label}: the caret is Roam Caret's`);
   }
 });
 
