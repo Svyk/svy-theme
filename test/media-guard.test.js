@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+
+import { renderStylesheet } from "../build.mjs";
 
 // OS-dark rules must not paint through an explicit light stamp. The old Blueprint
 // sheet carried 800 :where() guards. 0.3.0 dropped that sheet. What remains is
@@ -10,13 +10,14 @@ import test from "node:test";
 
 const rootPath = fileURLToPath(new URL("../", import.meta.url));
 
+// The built sheet, rendered in memory from src/css. Reading extension.css from disk
+// raced build.test.js, which rewrites that file while test files run in parallel:
+// Pages deploy f9ea6a9 read it half-written and failed.
+const builtSheet = () => renderStylesheet(rootPath);
+
 const DARK_MEDIA = "@media (prefers-color-scheme: dark)";
 const GUARD_PREFIX = ":where(:root:not(.bp3-light))";
 const GUARD_INFIX = /^(\*|html|:root):where\(:not\(\.bp3-light\)\)/;
-
-async function readText(relativePath) {
-  return readFile(resolve(rootPath, relativePath), "utf8");
-}
 
 // Splits a selector list on top-level commas (a selector can hold commas inside :not()
 // or an attribute value).
@@ -121,7 +122,7 @@ function unguard(part) {
 }
 
 test("no OS-dark rule in any layer can outvote an explicit .bp3-light stamp", async () => {
-  const built = await readText("extension.css");
+  const built = await builtSheet();
   const unguarded = [];
   for (const selector of darkMediaRules(built)) {
     for (const part of splitSelector(selector)) {
@@ -134,7 +135,7 @@ test("no OS-dark rule in any layer can outvote an explicit .bp3-light stamp", as
 });
 
 test("the guard adds zero specificity to every guarded selector in the built stylesheet", async () => {
-  const built = await readText("extension.css");
+  const built = await builtSheet();
 
   // The core claim: :where() never contributes weight, on both guard forms.
   assert.deepEqual(specificity(GUARD_PREFIX), [0, 0, 0]);
@@ -154,7 +155,7 @@ test("the guard adds zero specificity to every guarded selector in the built sty
 });
 
 test("the built sheet no longer ships the vendored Blueprint base", async () => {
-  const built = await readText("extension.css");
+  const built = await builtSheet();
   assert.equal(built.includes("00-upstream-base.css"), false);
   assert.ok(built.includes("10-colors.css"));
   assert.ok(Buffer.byteLength(built, "utf8") < 120_000);
@@ -163,6 +164,6 @@ test("the built sheet no longer ships the vendored Blueprint base", async () => 
 test("the built sheet leaves the caret to Roam Caret", async () => {
   // Roam Caret (svyk.github.io/roam-caret) owns the caret. A caret property here would
   // fight it, and the old overlay path cost a mirror layout per key.
-  const built = (await readText("extension.css")).replace(/\/\*[\s\S]*?\*\//g, "");
+  const built = (await builtSheet()).replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(built, /caret-(?:color|shape|animation)\s*:/);
 });
